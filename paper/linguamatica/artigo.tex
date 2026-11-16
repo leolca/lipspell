@@ -4,6 +4,7 @@
 \usepackage[brazilian]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage[safe]{tipa}
 \usepackage{hyperref}
 \usepackage{natbib}
@@ -18,7 +19,7 @@
 \maketitle
 
 \begin{abstract}
-Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone. Neste trabalho, apresentamos um arcabouço de pontuação fonética independente de língua (acoplado a \textit{frontends} e léxicos substituíveis por idioma) que integra: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado (QWERTY e ABNT2) e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório de sete classes). Em seis bases em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno sobre vetores ternários superou $L_1$ e saliência no Top-1 fonético e no Top-5 unificado, e o modelo unificado superou sistematicamente Norvig e Hunspell. Na avaliação em português brasileiro com $240.040$ palavras do Enelvo e $500$ erros reais da \textit{Wikipédia: Lista de erros comuns}, o modelo atingiu \textbf{73,00\%} de acurácia Top-1 (\textbf{85,20\%} Top-5), superando Norvig (66,60\%, $p < 10^{-6}$), Hunspell (64,20\%, $p < 10^{-4}$) e Aspell (64,00\%, $p < 10^{-4}$).
+Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone. Neste trabalho, apresentamos um arcabouço de pontuação fonética independente de língua (acoplado a \textit{frontends} e léxicos substituíveis por idioma) que integra: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório de sete classes). Em seis bases em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno superou $L_1$ e saliência no Top-1 fonético e no Top-5 unificado, e o modelo unificado superou Norvig e Hunspell em todas as bases. Avaliado em outras cinco línguas de quatro famílias e três sistemas de escrita, o arcabouço alcançou \textbf{73,00\%} Top-1 em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, superando Norvig $66{,}60\%$, Hunspell $64{,}20\%$ e Aspell $64{,}00\%$), \textbf{85,31\%} em russo cirílico (vs.\ $79{,}38\%$ Norvig), \textbf{81,28\%} em turco ajustado (vs.\ $77{,}95\%$), \textbf{59,32\%} em francês (vs.\ $57{,}63\%$) e \textbf{55,10\%} em hebraico abjad (vs.\ $53{,}06\%$). O ajuste de pesos por língua reflete a profundidade ortográfica, elevando o português para \textbf{85,97\%} em erros \textit{non-word} limpos.
 
 \medskip
 \noindent\textbf{Palavras-chave:} correção ortográfica, traços distintivos, distância fonética, distância de edição ponderada, português brasileiro.
@@ -26,7 +27,7 @@ Corretores ortográficos tradicionais baseiam-se em distância de edição sobre
 
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry (QWERTY and ABNT2), and corpus frequency priors, accelerated by symmetric-delete and seven-class articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance over ternary feature vectors outperforms $L_1$ and salience on phonetic-only Top-1 and unified Top-5, and the unified model consistently outperforms Norvig and Hunspell. Evaluated on Brazilian Portuguese ($240{,}040$ words from Enelvo and $500$ real errors from \textit{Wikipédia: Lista de erros comuns}), our approach achieves \textbf{73.00\%} Top-1 accuracy (\textbf{85.20\%} Top-5), outperforming Norvig (66.60\%), Hunspell (64.20\%), and Aspell (64.00%).
+Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry, and corpus frequency priors, accelerated by symmetric-delete and seven-class articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance outperforms $L_1$ and salience on phonetic-only Top-1 and unified Top-5, and the unified model consistently outperforms Norvig and Hunspell. Across five additional languages spanning four families and three scripts, the framework achieves \textbf{73.00\%} Top-1 on Brazilian Portuguese (outperforming Norvig $66.60\%$, Hunspell $64.20\%$, and Aspell $64.00\%$), \textbf{85.31\%} on Russian Cyrillic (vs.\ $79.38\%$), \textbf{81.28\%} on tuned Turkish (vs.\ $77.95\%$), \textbf{59.32\%} on French (vs.\ $57.63\%$), and \textbf{55.10\%} on Hebrew Abjad (vs.\ $53.06\%$), with per-language weight tuning lifting Portuguese to \textbf{85.97\%} on clean non-word splits.
 
 \medskip
 \noindent\textbf{Keywords:} spelling correction, distinctive features, phonetic distance, weighted edit distance, Brazilian Portuguese.
@@ -182,8 +183,15 @@ Turco (Túrquico / Latino)    & 390 & 77,95 / \textbf{95,64} & 80,77 / 95,38 & \
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../figures/results_overview.pdf}
+\caption{Resumo da acurácia Top-1 em (a) inglês e português brasileiro contra Aspell, Hunspell e Norvig, e (b) transferência entre famílias linguísticas em divisões 50/50 comparando pesos fixos e ajustados por língua.}
+\label{fig:overview_pt}
+\end{figure}
+
 \section{Conclusão}
-Apresentamos um arcabouço fonético independente de língua que combina distância de edição ponderada por traços distintivos (cosseno), geometria de teclado e frequência lexical. Os experimentos confirmam que os três canais são complementares, permitindo atingir $79{,}26\%$ Top-1 em Norvig1, $77{,}10\%$ em TOEFL-Spell e transferir-se ao português brasileiro ($73{,}00\%$ Top-1 contra $64{,}00\%$ do Aspell e $64{,}20\%$ do Hunspell) substituindo apenas recursos específicos da língua. Trabalhos futuros incluem integração com Epitran \citep{mortensen2018epitran}, alinhamentos $1$-para-$2$ e contexto por $n$-gramas para erros de palavra real (\textit{mas}/\textit{mais}, \textit{their}/\textit{there}).
+Apresentamos um arcabouço fonético independente de língua que combina distância de edição ponderada por traços distintivos (cosseno), geometria de teclado e frequência lexical. Os experimentos confirmam que os três canais são complementares, atingindo $79{,}26\%$ Top-1 em Norvig1, $77{,}10\%$ em TOEFL-Spell e transferindo-se para seis línguas de quatro famílias e três sistemas de escrita: superando Norvig, Aspell e Hunspell em português brasileiro ($73{,}00\%$ vs.\ $66{,}60\%$/$64{,}00\%$/$64{,}20\%$) e superando Norvig em russo cirílico ($85{,}31\%$ vs.\ $79{,}38\%$, $p=1{,}57\times 10^{-4}$), turco ($81{,}28\%$ vs.\ $77{,}95\%$, $p=0{,}0034$), francês ($59{,}32\%$ vs.\ $57{,}63\%$) e hebraico abjad ($55{,}10\%$ vs.\ $53{,}06\%$). O ajuste de pesos por língua adapta naturalmente o equilíbrio entre fonética (ortografias opacas como português) e teclado (ortografias transparentes como turco). Trabalhos futuros incluem integração com Epitran \citep{mortensen2018epitran}, alinhamentos $1$-para-$2$ e contexto por $n$-gramas para erros de palavra real (\textit{mas}/\textit{mais}, \textit{their}/\textit{there}).
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

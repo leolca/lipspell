@@ -7,6 +7,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage[nopatch]{microtype}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage[safe]{tipa}
 
 \title{A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
@@ -22,7 +23,7 @@
 \begin{document}
 
 \begin{abstract}
-Automatic spelling correction must handle both typographical slips on a keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which struggle when phonetic errors diverge by multiple characters---or on English-centric phonetic hashes such as Soundex and Metaphone. We present a unified, language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) that integrates: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal IPA distinctive features, (2) physical keyboard geometry (QWERTY and ABNT2), and (3) corpus unigram frequency priors, accelerated by a two-stage symmetric-delete and articulatory-skeleton index. Across six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), the unified model outperforms Norvig's baseline and Hunspell on every dataset and beats Aspell on Norvig1, Holbrook, and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Swapping only the G2P rules, keyboard layout, and lexicon transfers the framework to Brazilian Portuguese (\textit{Wikip\'edia: Lista de erros comuns}, $n=500$), achieving $73.00\%$ Top-1 accuracy ($85.20\%$ Top-5) versus $66.60\%$ for Norvig, $64.20\%$ for Hunspell, and $64.00\%$ for Aspell.
+Automatic spelling correction must handle both typographical slips on a keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which struggle when phonetic errors diverge by multiple characters---or on English-centric phonetic hashes such as Soundex and Metaphone. We present a unified, language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) that integrates: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal IPA distinctive features, (2) physical keyboard geometry, and (3) corpus unigram frequency priors, accelerated by a two-stage symmetric-delete and seven-class articulatory-skeleton index. Across six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), the unified model outperforms Norvig's baseline and Hunspell on every dataset and beats Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Evaluated across five additional languages spanning four families and three writing systems, the framework transfers zero-shot to Brazilian Portuguese ($73.00\%$ Top-1 vs.\ $66.60\%$ Norvig, $64.20\%$ Hunspell, $64.00\%$ Aspell), Russian Cyrillic ($85.31\%$ vs.\ $79.38\%$), Turkish ($80.77\%$ vs.\ $77.95\%$), French ($59.32\%$ vs.\ $57.63\%$), and Hebrew Abjad ($55.10\%$ vs.\ $53.06\%$), with per-language weight tuning reflecting orthographic depth (lifting Portuguese to $85.97\%$ and Turkish to $81.28\%$).
 \end{abstract}
 
 \section{Introduction}
@@ -208,11 +209,18 @@ Turkish (Turkic / Latin)     & 390 & 77.95 / \textbf{95.64} & 80.77 / 95.38 & \t
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/results_overview.pdf}
+\caption{Summary of Top-1 accuracy across (a) English and Brazilian Portuguese benchmarks compared against Aspell, Hunspell, and Norvig, and (b) cross-family transfer on 50/50 clean non-word splits comparing fixed English weights vs.\ per-language tuned weights.}
+\label{fig:overview}
+\end{figure}
+
 \subsection{Limitations}
 Four limitations remain: (1) isolated-word scoring cannot resolve real-word errors (e.g., \textit{their}/\textit{there}, \textit{mas}/\textit{mais}); (2) G2P on severely distorted inputs can degrade phonetic matching; (3) one-to-one phone DP cannot align single phones to two-segment diphthongs/digraphs without $1$-to-$2$ operations; and (4) each word is assigned a single pronunciation rather than a pronunciation set $\Phi(w)$.
 
 \section{Conclusion}
-We presented a language-independent phonetic scoring framework combining precomputed IPA distinctive-feature edit distances, keyboard geometry, and corpus frequency priors. Component ablations confirm that all three error channels are complementary, with cosine distance achieving the strongest phonetic-only Top-1 and unified Top-5 accuracy across English benchmarks ($79.26\%$ on Norvig1, $77.10\%$ on TOEFL-Spell) and transferring to Brazilian Portuguese ($73.00\%$ Top-1 vs.\ $64.00\%$ for Aspell and $64.20\%$ for Hunspell) by swapping only language-specific G2P, keyboard, and lexicon resources. Future work will integrate Epitran \parencite{mortensen2018epitran} for additional languages, $1$-to-$2$ phone alignments, and lightweight $n$-gram context.
+We presented a language-independent phonetic scoring framework combining precomputed IPA distinctive-feature edit distances, keyboard geometry, and corpus frequency priors. Component ablations confirm that all three error channels are complementary, with cosine distance over ternary distinctive features achieving the strongest phonetic-only Top-1 and unified Top-5 accuracy across English benchmarks ($79.26\%$ on Norvig1, $77.10\%$ on TOEFL-Spell). By swapping only language-specific G2P, keyboard, and lexicon resources, the same scoring engine transfers across six languages, four families, and three writing systems---outperforming Norvig, Aspell, and Hunspell on Brazilian Portuguese ($73.00\%$ vs.\ $66.60\%$/$64.00\%$/$64.20\%$) and surpassing Norvig on Russian Cyrillic ($85.31\%$ vs.\ $79.38\%$, $p=1.57\times 10^{-4}$), Turkish ($81.28\%$ vs.\ $77.95\%$, $p=0.0034$), French ($59.32\%$ vs.\ $57.63\%$), and Hebrew Abjad ($55.10\%$ vs.\ $53.06\%$). Per-language weight tuning further adapts the channel balance to orthographic depth, emphasizing phonetics in opaque orthographies (Portuguese $\lambda_{\text{phon}}=6.0$, $85.97\%$) and keyboard geometry in transparent ones (Turkish $\lambda_{\text{kb}}=4.0$). Future work will integrate Epitran \parencite{mortensen2018epitran}, $1$-to-$2$ phone alignments, and lightweight $n$-gram context for real-word errors.
 
 \printbibliography
 

@@ -28,6 +28,8 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 
 ## Results
 
+![Results Overview](paper/figures/results_overview.png)
+
 ### Key Improvements Achieved
 
 * **Outperforms Norvig on all 7 datasets:** `+6.40%` Top-1 on Brazilian Portuguese (`73.00%` vs. `66.60%`), `+4.67%` on English Wikipedia (`81.67%` vs. `77.00%`), `+4.45%` on `norvig1`, `+4.33%` on `holbrook`, `+3.69%` on `aspell`, `+2.50%` on `norvig2`, and `+0.30%` on `TOEFL-Spell`.
