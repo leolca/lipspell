@@ -4,11 +4,12 @@
 \usepackage[brazilian]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage[safe]{tipa}
 \usepackage{hyperref}
 \usepackage{natbib}
 \usepackage[margin=2.5cm]{geometry}
 
-\title{Correção Ortográfica Independente de Língua Baseada em Traços Distintivos, Geometria de Teclado e Frequência Lexical}
+\title{Um Arcabouço Fonético Independente de Língua para Correção Ortográfica Combinando Traços Distintivos, Geometria de Teclado e Frequência Lexical}
 \author{Leonardo Araujo\\
 \small Universidade Federal de São João del-Rei (UFSJ)}
 \date{}
@@ -17,57 +18,58 @@
 \maketitle
 
 \begin{abstract}
-Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone, que agrupam sons em chaves grosseiras e não se transferem diretamente para outras línguas. Neste trabalho, apresentamos um corretor ortográfico unificado e independente de língua que combina: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado (QWERTY e ABNT2) e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório). Em experimentos de ablação sobre seis conjuntos de dados em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno sobre vetores ternários de traços distintivos superou as métricas $L_1$ uniforme e ponderada por saliência, e o modelo unificado superou sistematicamente o corretor de Norvig e o Hunspell. Na avaliação em português brasileiro com $240.040$ palavras do Enelvo e $500$ erros reais da \textit{Wikipédia: Lista de erros comuns}, o modelo atingiu \textbf{73,00\%} de acurácia Top-1 (\textbf{85,20\%} Top-5), superando Norvig (66,60\%, $p < 10^{-6}$), Hunspell (64,20\%, $p < 10^{-4}$) e Aspell (64,00\%, $p < 10^{-4}$).
+Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone. Neste trabalho, apresentamos um arcabouço de pontuação fonética independente de língua (acoplado a \textit{frontends} e léxicos substituíveis por idioma) que integra: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado (QWERTY e ABNT2) e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório de sete classes). Em seis bases em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno sobre vetores ternários superou $L_1$ e saliência no Top-1 fonético e no Top-5 unificado, e o modelo unificado superou sistematicamente Norvig e Hunspell. Na avaliação em português brasileiro com $240.040$ palavras do Enelvo e $500$ erros reais da \textit{Wikipédia: Lista de erros comuns}, o modelo atingiu \textbf{73,00\%} de acurácia Top-1 (\textbf{85,20\%} Top-5), superando Norvig (66,60\%, $p < 10^{-6}$), Hunspell (64,20\%, $p < 10^{-4}$) e Aspell (64,00\%, $p < 10^{-4}$).
 
 \medskip
-\noindent\textbf{Palavras-chave:} correção ortográfica, traços distintivos, distância fonética, distância de edição, português brasileiro.
+\noindent\textbf{Palavras-chave:} correção ortográfica, traços distintivos, distância fonética, distância de edição ponderada, português brasileiro.
 \end{abstract}
 
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-agnostic spell checker combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry (QWERTY and ABNT2), and corpus frequency priors, accelerated by symmetric-delete and coarse articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance over ternary feature vectors outperforms uniform $L_1$ and salience-weighted metrics, and the unified model consistently outperforms Norvig and Hunspell. Evaluated on Brazilian Portuguese ($240{,}040$ words from Enelvo and $500$ real errors from \textit{Wikipédia: Lista de erros comuns}), our approach achieves \textbf{73.00\%} Top-1 accuracy (\textbf{85.20\%} Top-5), outperforming Norvig (66.60\%), Hunspell (64.20\%), and Aspell (64.00\%).
+Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry (QWERTY and ABNT2), and corpus frequency priors, accelerated by symmetric-delete and seven-class articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance over ternary feature vectors outperforms $L_1$ and salience on phonetic-only Top-1 and unified Top-5, and the unified model consistently outperforms Norvig and Hunspell. Evaluated on Brazilian Portuguese ($240{,}040$ words from Enelvo and $500$ real errors from \textit{Wikipédia: Lista de erros comuns}), our approach achieves \textbf{73.00\%} Top-1 accuracy (\textbf{85.20\%} Top-5), outperforming Norvig (66.60\%), Hunspell (64.20\%), and Aspell (64.00%).
 
 \medskip
-\noindent\textbf{Keywords:} spelling correction, distinctive features, phonetic distance, edit distance, Brazilian Portuguese.
+\noindent\textbf{Keywords:} spelling correction, distinctive features, phonetic distance, weighted edit distance, Brazilian Portuguese.
 \end{abstract}
 
 \section{Introdução}
-Erros ortográficos humanos dividem-se principalmente em duas categorias \citep{kukich1992techniques,toutanova2002pronunciation}: \emph{erros tipográficos}, decorrentes de desvios motores no teclado (como substituições por teclas vizinhas ou transposições), e \emph{erros cognitivos ou fonéticos}, nos quais o escrevente representa graficamente uma pronúncia aproximada da palavra-alvo (por exemplo, \textit{escessão} $\rightarrow$ \textit{exceção}, \textit{pesquiza} $\rightarrow$ \textit{pesquisa}, ou em inglês \textit{nite} $\rightarrow$ \textit{night}).
+Erros ortográficos humanos dividem-se principalmente em duas categorias \citep{kukich1992techniques,toutanova2002pronunciation}: \emph{erros tipográficos}, decorrentes de desvios motores no teclado, e \emph{erros cognitivos ou fonéticos}, nos quais o escrevente representa graficamente uma pronúncia aproximada da palavra-alvo (por exemplo, \textit{escessão} $\rightarrow$ \textit{exceção}, \textit{pesquiza} $\rightarrow$ \textit{pesquisa}, ou em inglês \textit{nite} $\rightarrow$ \textit{night}).
 
-Embora algoritmos clássicos de distância de edição \citep{damerau1964technique} e modelos de canal ruidoso baseados em caracteres \citep{brill2000improved} tratem bem erros tipográficos, eles penalizam excessivamente erros fonéticos que diferem por múltiplos grafemas. Por outro lado, algoritmos fonéticos clássicos como Soundex e Metaphone foram projetados com regras específicas para o inglês e reduzem palavras a códigos discretos sem granularidade articulatória. Na fonologia e na linguística computacional, os segmentos sonoros são descritos por \emph{traços distintivos} universais (ex.: $[\pm\text{silábico}, \pm\text{vozeado}, \pm\text{nasal}]$), permitindo definir distâncias contínuas entre fones \citep{kondrak2003phonetic,mortensen2016panphon}.
+Nossa contribuição reside principalmente na \emph{integração e engenharia} desses sinais complementares em um arcabouço de pontuação fonética independente de língua, investigando três questões de pesquisa: (\textbf{QP1}) qual métrica sobre traços distintivos maximiza a recuperação fonética; (\textbf{QP2}) se distância ortográfica, geometria de teclado, distância fonética e frequência são complementares; e (\textbf{QP3}) se a mesma arquitetura se transfere ao português brasileiro substituindo apenas G2P, mapa de teclado e léxico.
 
-Expandindo nosso protótipo anterior \citep{araujo2018phonetic}, este artigo apresenta três contribuições principais:
-\begin{enumerate}
-    \item Formulamos um modelo unificado baseado em custos não normalizados de edição ortográfica, de teclado e fonética por traços distintivos, combinados com probabilidade lexical a priori, utilizando matrizes pré-computadas com acesso $O(1)$.
-    \item Realizamos uma ablação sistemática de métricas sobre vetores de traços distintivos ($L_1$, saliência inspirada no ALINE e cosseno) em seis bases em inglês --- incluindo erros de aprendizes L2 do TOEFL-Spell \citep{flor2019toefl} --- comparando o desempenho com Norvig, Aspell e Hunspell.
-    \item Demonstramos a portabilidade imediata da arquitetura para o português brasileiro utilizando apenas regras simples de conversão grafema--fone (G2P), mapa de teclado ABNT2 e os léxicos do Enelvo \citep{bertaglia2016enelvo}, obtendo ganhos expressivos sobre Norvig e Hunspell em erros reais da Wikipédia lusófona.
-\end{enumerate}
+Embora algoritmos clássicos de distância de edição \citep{damerau1964technique}, modelos de canal ruidoso \citep{church1991probability,brill2000improved} e a linha de base de \citet{norvig2007spell} tratem bem erros tipográficos, eles penalizam erros fonéticos que diferem por múltiplos grafemas. Por outro lado, \citet{toutanova2002pronunciation} modelaram pronúncias no canal ruidoso, e na fonologia computacional o algoritmo ALINE \citep{kondrak2003phonetic}, o PanPhon \citep{mortensen2016panphon} e o Epitran \citep{mortensen2018epitran} exploram traços articulatórios universais. Expandindo nosso protótipo anterior \citep{araujo2018phonetic}, integramos matrizes pré-computadas de traços distintivos, geometria de teclado e indexação tipo SymSpell \citep{garbe2012symspell}.
 
-\section{Metodologia}
+\section{Princípios Fonológicos e Métricas}
+Seguindo a fonologia gerativa \citep{chomsky1968sound}, cada segmento do AFI $p \in P$ é representado por um vetor ternário de 24 traços articulatórios $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$ da tabela de \citet{hulden2012distinctive}, estendida com a nasal palatal /\textipa{J}/ (\texttt{nh}) e a lateral palatal /\textturny/ (\texttt{lh}) do português. Valores $+1$ e $-1$ indicam presença ou ausência do traço, enquanto $0$ indica traço não aplicável (ex.: altura vocálica vale $0$ para consoantes).
 
-\subsection{Matriz Pré-Computada de Traços Distintivos}
-Cada segmento do AFI $p \in P$ é representado por um vetor ternário de 24 traços articulatórios $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$. Em vez de consultar tabelas de traços no laço interno da programação dinâmica, pré-computamos uma única vez a matriz de substituição $M \in \mathbb{R}^{|P|\times|P|}$ e o vetor de inserção/remoção $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$. Comparamos três métricas:
+Pré-computamos uma única vez a matriz de substituição $M \in \mathbb{R}^{|P|\times|P|}$ e o vetor de inserção/remoção $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$ (acesso $O(1)$ na programação dinâmica). Comparamos três métricas:
 \begin{itemize}
-    \item \textbf{$L_1$ uniforme:} $M_{u,v} = \frac{1}{2F}\sum_{k=1}^F |v_{u,k} - v_{v,k}|$.
-    \item \textbf{$L_1$ ponderado por saliência:} $M_{u,v} = \frac{\sum_k w_k |v_{u,k} - v_{v,k}|}{2\sum_k w_k}$, atribuindo menor peso a traços frequentemente confundidos (como vozeamento e tensão vocálica) e maior peso a classe principal, ponto e modo de articulação.
-    \item \textbf{Distância cosseno:} $M_{u,v} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\|\mathbf{v}_u\|_2 \|\mathbf{v}_v\|_2}\right)$, que normaliza naturalmente a esparsidade distinta entre consoantes e vogais (nas quais traços não aplicáveis valem $0$).
+    \item \textbf{$L_1$ uniforme:} $M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^F |v_{u,k} - v_{v,k}|$ ($F=24$). Como zeros não aplicáveis contribuem com $0$, fones com muitos zeros compartilhados parecem artificialmente próximos sob $L_1$.
+    \item \textbf{$L_1$ ponderado por saliência:} Inspirado no ALINE \citep{kondrak2003phonetic}, $M_{u,v}^{\text{sal}} = \frac{\sum_k w_k |v_{u,k} - v_{v,k}|}{2\sum_k w_k}$, com menor peso para vozeamento ($w_{\text{voi}}=0{,}6$) e tensão vocálica ($w_{\text{tns}}=0{,}5$) e maior peso para classe principal e ponto de articulação.
+    \item \textbf{Distância cosseno:}
+    \begin{equation}
+        M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
+    \end{equation}
+    Como $\mathbf{v}_p \in \{-1,0,+1\}^{24}$, o cosseno varia em $[-1,1]$ e o fator $\frac{1}{2}$ reescala para $[0,1]$. Consoantes possuem em média $18{,}12 \pm 1{,}48$ traços ativos ($n=26$) contra $19{,}94 \pm 0{,}87$ das vogais ($n=17$); normalizar por $\lVert \mathbf{v}_p \rVert_2$ reduz a influência dessa diferença de magnitude, embora zeros não aplicáveis ainda possam produzir similaridades interclasses imperfeitas.
 \end{itemize}
+Como os custos são não uniformes (e $1-\cos$ não satisfaz necessariamente a desigualdade triangular), o alinhamento resultante é uma \emph{distância de edição ponderada generalizada}, plenamente válida na programação dinâmica.
 
-\subsection{Geração de Candidatos em Dois Estágios e Função Objetivo}
-Calcular programação dinâmica contra todo o vocabulário ($78\text{ mil}$ a $240\text{ mil}$ palavras) é inviável em tempo real. Combinamos dois índices de acesso $O(1)$: (1) um índice de remoções simétricas (\textit{SymSpell}) até distância ortográfica $2$, e (2) um índice de esqueleto articulatório que colapsa cada fone em $7$ macroclasses (\texttt{V, N, L, S, P, T, K}) com tolerância de $1$ remoção, ordenado por frequência lexical decrescente.
+\section{Arquitetura Unificada}
+A geometria de teclado é pré-computada em matrizes $|K|\times|K|$ para QWERTY e ABNT2 (incluindo \texttt{ç} e acentos), saturada em $3{,}0$ larguras de tecla e normalizada em $[0,1]$. Para a conversão grafema--fone $\phi(w)$, o inglês utiliza o CMUdict \citep{weide1998cmu} com \textit{fallback} por regras (incluindo ditongos e alongamento CVCe, de modo que \textit{nite} $\rightarrow$ /na\textsci t/ como \textit{night}), enquanto o português utiliza uma aproximação determinística do português brasileiro (ex.: \texttt{ch}/\texttt{x}$\rightarrow$/\textesh/, \texttt{nh}$\rightarrow$/\textipa{J}/, \texttt{lh}$\rightarrow$/\textturny/, \texttt{s} intervocálico $\rightarrow$/z/, \texttt{ç}/\texttt{ss}$\rightarrow$/s/, observando-se que \texttt{x} e \texttt{s} apresentam variações lexicais e regionais).
 
-Para uma entrada $x$ e um candidato $w$, a pontuação unificada é dada por:
+Combinamos dois índices: (1) remoções simétricas (\textit{SymSpell}) até distância $2$ e (2) esqueleto articulatório exclusivo de sete classes com prioridade $\texttt{V} > \texttt{N} > \texttt{L} > \texttt{S} > \texttt{P} > \texttt{T} > \texttt{K}$, colapsando repetições e indexando $1$ remoção ordenada por frequência. A pontuação inspirada no modelo de canal ruidoso (com custo heurístico de transposição $0{,}45$, suavização $\log(c(w)+0{,}5)$ sobre o vocabulário em minúsculas preservando diacríticos e desempate determinístico por ordem lexicográfica) é:
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)),
 \end{equation}
-onde $\phi(\cdot)$ é o conversor grafema--fone (CMUdict com \textit{fallback} por regras para inglês; regras fonológicas para português brasileiro) e $d_{\text{orth}}, d_{\text{kb}}, d_{\text{phon}}$ são distâncias de Damerau--Levenshtein não normalizadas. Os pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ foram ajustados por busca coordenada em uma amostra disjunta de $800$ pares da base Birkbeck.
+com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados em uma amostra de $800$ pares da base Birkbeck com sobreposição exata igual a $0$ em relação a todos os conjuntos de avaliação (incluindo Holbrook).
 
 \section{Resultados Experimentais}
+Todos os experimentos foram executados em Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy), medindo latência média com cache aquecido (excluindo construção do índice). Código e scripts estão disponíveis em \url{https://github.com/leolca/phoneticspellchecker}.
 
 \subsection{Português Brasileiro (\textit{Wikipédia: Lista de erros comuns})}
-Sem alterar o núcleo do motor nem a tabela universal de traços distintivos, indexamos $240.040$ palavras do português brasileiro a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo}, utilizando teclado ABNT2 e um G2P baseado em regras para o português. A Tabela~\ref{tab:ptbr} apresenta os resultados sobre $500$ erros ortográficos reais extraídos de \textit{Wikipédia: Lista de erros comuns}.
+Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção) a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (piso $1$), avaliando nos primeiros $500$ pares alfabéticos únicos de \textit{Wikipédia: Lista de erros comuns} (cobertura vocabular de $96{,}8\%$ e revocação de candidatos de $96{,}4\%$). O modelo unificado atinge \textbf{73,00\%} Top-1 (\textbf{85,20\%} Top-5), superando significativamente Norvig ($p=5{,}42\times 10^{-7}$), Hunspell ($p=6{,}29\times 10^{-5}$, $2{,}6\times$ mais rápido) e Aspell ($p=3{,}87\times 10^{-5}$) (Tabela~\ref{tab:ptbr}). Em erros com $d_{\text{orth}}\ge 2$ ($n=77$), o modelo unificado atinge $40{,}26\%$ contra $25{,}97\%$ de Norvig ($+14{,}29$ pontos percentuais).
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
 \caption{Avaliação em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, $n=500$).}
@@ -76,8 +78,8 @@ Sem alterar o núcleo do motor nem a tabela universal de traços distintivos, in
 \toprule
 Sistema & Top-1 (\%) & Top-5 (\%) & Latência (ms/palavra) \\
 \midrule
-Aspell (\texttt{pt\_BR})   & 64,00 & 76,80 & 16,09 \\
-Hunspell (\texttt{pt\_BR}) & 64,20 & 79,00 & 41,07 \\
+Aspell (\texttt{pt\_BR}, UTF-8)   & 64,00 & 76,80 & 16,09 \\
+Hunspell (\texttt{pt\_BR}, UTF-8) & 64,20 & 79,00 & 41,07 \\
 Norvig                     & 66,60 & 83,00 & 0,36 \\
 Somente fonético           & 38,80 & 67,60 & 3,28 \\
 \textbf{Unificado (Cosseno)} & \textbf{73,00} & \textbf{85,20} & 15,46 \\
@@ -85,12 +87,45 @@ Somente fonético           & 38,80 & 67,60 & 3,28 \\
 \end{tabular}
 \end{table}
 
-O modelo unificado supera o corretor de Norvig em \textbf{+6,40 pontos percentuais} no Top-1 e o Hunspell em \textbf{+8,80 pontos}, sendo $2{,}5\times$ mais rápido que o Hunspell.
+\subsection{Ablação de Componentes, Revocação e Comparação em Inglês}
+Com $78.393$ palavras em inglês (\texttt{big.txt} + \texttt{american-english}, $3{,}04$\,s de construção), avaliamos cinco bases clássicas e $1.000$ pares únicos do TOEFL-Spell \citep{flor2019toefl}. A Tabela~\ref{tab:recall_pt} mostra que o esqueleto articulatório eleva a revocação de candidatos em até $+21{,}33$ pp (Holbrook: $57{,}00\%\rightarrow 78{,}33\%$; PT-Wiki: $86{,}80\%\rightarrow 96{,}40\%$). A Tabela~\ref{tab:comp_pt} confirma a complementaridade dos sinais: adicionar fonética (\textbf{A}$\rightarrow$\textbf{C}) eleva o Top-1 em $+12{,}60$ pp em português e $+5{,}19$ pp em Norvig1. As Tabelas~\ref{tab:ablation} e~\ref{tab:english_cmp} resumem a ablação de métricas e a comparação com Aspell, Hunspell e Norvig.
 
-\subsection{Ablação de Métricas e Comparação em Inglês}
-Para validar a escolha da métrica fonética e comparar com sistemas consolidados, avaliamos o modelo com $78.393$ palavras em inglês (\texttt{big.txt} + \texttt{american-english}) em cinco bases clássicas e em $1.000$ erros de aprendizes L2 do TOEFL-Spell (Tabelas~\ref{tab:ablation} e \ref{tab:english_cmp}).
+\begin{table}[ht]
+\centering
+\small
+\caption{Revocação da geração de candidatos (\%) e média de candidatos por consulta.}
+\label{tab:recall_pt}
+\begin{tabular}{lccccccc}
+\toprule
+Métrica & Norvig1 & Norvig2 & Aspell & Wiki-EN & Holbrook & TOEFL & PT-Wiki \\
+\midrule
+SymDelete (\%)        & 96,67 & 89,25 & 79,46 & 93,33 & 57,00 & 93,40 & 86,80 \\
+Esqueleto (\%)        & 71,48 & 69,75 & 62,40 & 73,00 & 56,33 & 61,30 & 89,60 \\
+Combinado (\%)        & \textbf{98,52} & \textbf{95,00} & \textbf{88,57} & \textbf{94,67} & \textbf{78,33} & \textbf{94,90} & \textbf{96,40} \\
+Média de candidatos   & 262,9 & 219,0 & 235,5 & 204,5 & 398,3 & 239,8 & 279,3 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\begin{table}[h]
+\begin{table}[ht]
+\centering
+\small
+\caption{Ablação de componentes do modelo unificado (Top-1 \% / Top-5 \%).}
+\label{tab:comp_pt}
+\begin{tabular}{lccccc}
+\toprule
+Configuração & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
+\midrule
+\textbf{A}: Ort + Freq              & 71,11 / 89,26 & 52,91 / 72,67 & 26,33 / 41,67 & 76,10 / 91,00 & 61,00 / 81,00 \\
+\textbf{B}: Ort + Teclado + Freq    & 74,81 / 91,48 & 53,49 / 74,61 & 27,00 / 44,00 & 76,80 / \textbf{91,50} & 63,80 / 81,80 \\
+\textbf{C}: Ort + Fonética + Freq   & 76,30 / \textbf{92,59} & 56,01 / 75,58 & 31,00 / 44,67 & 75,90 / 91,10 & \textbf{73,60} / 85,00 \\
+\textbf{D}: Ort + Teclado + Fonética& 73,70 / 90,37 & 52,52 / 74,03 & 25,67 / 41,00 & 69,20 / 87,30 & 71,20 / 84,00 \\
+\textbf{E}: Unificado Completo      & \textbf{79,26 / 92,59} & \textbf{56,40 / 75,97} & \textbf{32,00 / 46,33} & \textbf{77,10} / 91,10 & 73,00 / \textbf{85,20} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
 \centering
 \small
 \caption{Ablação de métricas sobre traços distintivos em inglês (Top-1 fonético / Top-1 unificado / Top-5 unificado \%).}
@@ -101,34 +136,34 @@ Base de Teste & $L_1$ & Saliência & Cosseno \\
 \midrule
 Norvig1 ($n=270$)   & 38,89 / 78,15 / 91,85 & 38,15 / 77,78 / 92,22 & \textbf{41,48 / 79,26 / 92,59} \\
 Norvig2 ($n=400$)   & 35,25 / \textbf{75,25} / 88,25 & 33,25 / 74,50 / 88,25 & \textbf{37,75} / 74,75 / \textbf{88,75} \\
-Aspell ($n=516$)    & 23,84 / 56,98 / 75,58 & 24,03 / \textbf{57,17} / 75,58 & \textbf{26,16} / 56,40 / \textbf{75,78} \\
+Aspell ($n=516$)    & 23,84 / 56,98 / 75,58 & 24,03 / \textbf{57,17} / 75,58 & \textbf{26,16} / 56,40 / \textbf{75,97} \\
 Wikipedia ($n=300$) & 38,67 / \textbf{81,67} / 91,33 & 38,67 / 81,33 / 91,33 & \textbf{40,33 / 81,67} / 91,33 \\
 Holbrook ($n=300$)  & 11,67 / 30,33 / 45,00 & 11,67 / 31,00 / 45,33 & \textbf{13,00 / 32,00 / 46,33} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\caption{Comparação em inglês (Top-1 \% / Top-5 \%).}
+\caption{Comparação em inglês (Top-1 \% / Top-5 \%). Hunspell inclui análise morfológica; Norvig e Unificado operam em palavras isoladas.}
 \label{tab:english_cmp}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Base de Teste & Aspell & Hunspell & Norvig & Unificado (Cosseno) \\
+Base de Teste & Vocab\% & Aspell & Hunspell & Norvig & Unificado \\
 \midrule
-Norvig1 ($n=270$)      & 75,56 / \textbf{92,59} & 64,44 / 84,07 & 74,81 / 91,11 & \textbf{79,26 / 92,59} \\
-Norvig2 ($n=400$)      & \textbf{77,25} / 87,00 & 65,50 / 84,00 & 72,25 / 87,50 & 74,75 / \textbf{88,75} \\
-Aspell ($n=516$)       & \textbf{58,72 / 80,81} & 53,49 / 73,64 & 52,71 / 71,51 & 56,40 / 75,97 \\
-Wikipedia ($n=300$)    & \textbf{83,33} / 91,00 & 55,33 / 70,00 & 77,00 / 89,33 & 81,67 / \textbf{91,33} \\
-Holbrook ($n=300$)     & 26,67 / 42,33 & 17,33 / 31,67 & 27,67 / 42,00 & \textbf{32,00 / 46,33} \\
-TOEFL-Spell ($n=1000$) & 72,80 / 90,40 & 66,90 / 86,90 & 76,80 / 90,40 & \textbf{77,10 / 91,10} \\
+Norvig1 ($n=270$)      & 98,5 & 75,56 / \textbf{92,59} & 64,44 / 84,07 & 74,81 / 91,11 & \textbf{79,26 / 92,59} \\
+Norvig2 ($n=400$)      & 97,0 & \textbf{77,25} / 87,00 & 65,50 / 84,00 & 72,25 / 87,50 & 74,75 / \textbf{88,75} \\
+Aspell ($n=516$)       & 99,0 & \textbf{58,72 / 80,81} & 53,49 / 73,64 & 52,71 / 71,51 & 56,40 / 75,97 \\
+Wikipedia ($n=300$)    & 97,3 & \textbf{83,33} / 91,00 & 55,33 / 70,00 & 77,00 / 89,33 & 81,67 / \textbf{91,33} \\
+Holbrook ($n=300$)     & 97,0 & 26,67 / 42,33 & 17,33 / 31,67 & 27,67 / 42,00 & \textbf{32,00 / 46,33} \\
+TOEFL-Spell ($n=1000$) & 98,7 & 72,80 / 90,40 & 66,90 / 86,90 & 76,80 / 90,40 & \textbf{77,10 / 91,10} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Conclusão}
-A combinação de distância de edição fonética baseada em traços distintivos universais (com destaque para a distância cosseno), geometria de teclado e frequência lexical resulta em um corretor ortográfico leve, interpretável e facilmente portável entre línguas. Em trabalhos futuros, pretendemos integrar conversores G2P multilíngues como o \texttt{epitran} \citep{mortensen2018epitran} para avaliar outras línguas ibéricas e modelar alinhamentos $1$-para-$2$ para dígrafos e ditongos.
+Apresentamos um arcabouço fonético independente de língua que combina distância de edição ponderada por traços distintivos (cosseno), geometria de teclado e frequência lexical. Os experimentos confirmam que os três canais são complementares, permitindo atingir $79{,}26\%$ Top-1 em Norvig1, $77{,}10\%$ em TOEFL-Spell e transferir-se ao português brasileiro ($73{,}00\%$ Top-1 contra $64{,}00\%$ do Aspell e $64{,}20\%$ do Hunspell) substituindo apenas recursos específicos da língua. Trabalhos futuros incluem integração com Epitran \citep{mortensen2018epitran}, alinhamentos $1$-para-$2$ e contexto por $n$-gramas para erros de palavra real (\textit{mas}/\textit{mais}, \textit{their}/\textit{there}).
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

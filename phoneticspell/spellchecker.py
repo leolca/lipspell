@@ -145,7 +145,7 @@ class SpellChecker:
             ]
             if not scored:
                 scored = [(c, 100.0 * neg_d_orth + lp) for c, (lp, neg_d_orth, _, _) in feats]
-            scored.sort(key=lambda x: x[1], reverse=True)
+            scored.sort(key=lambda x: (-x[1], x[0]))
             return scored[:top_k]
 
         w_freq, w_orth, w_kb, w_phon = weights
@@ -159,7 +159,7 @@ class SpellChecker:
             )
             for c, (lp, neg_d_orth, neg_d_kb, neg_d_ph) in feats
         ]
-        scored.sort(key=lambda x: x[1], reverse=True)
+        scored.sort(key=lambda x: (-x[1], x[0]))
         return scored[:top_k]
 
     def correct(

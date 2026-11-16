@@ -234,8 +234,8 @@ class EnglishG2P:
 
 _PT_MULTI_RULES: List[Tuple[str, str]] = [
     ("ch", "ʃ"),
-    ("lh", "l"),
-    ("nh", "n"),
+    ("lh", "ʎ"),
+    ("nh", "ɲ"),
     ("rr", "h"),
     ("ss", "s"),
     ("qu", "k"),
