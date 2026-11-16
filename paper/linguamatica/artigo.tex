@@ -62,7 +62,7 @@ Combinamos dois índices: (1) remoções simétricas (\textit{SymSpell}) até di
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)),
 \end{equation}
-com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados em uma amostra de $800$ pares da base Birkbeck com sobreposição exata igual a $0$ em relação a todos os conjuntos de avaliação (incluindo Holbrook).
+com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados em uma amostra de $800$ pares da base Birkbeck com sobreposição exata igual a $0$ em relação a todos os conjuntos de avaliação (incluindo Holbrook). Chamamos este modelo de quatro sinais (usando distância cosseno, salvo indicação) de \textbf{Unificado (Cosseno)} para distingui-lo das linhas de base de canal único, enquanto o arcabouço geral é independente de língua.
 
 \section{Resultados Experimentais}
 Todos os experimentos foram executados em Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy), medindo latência média com cache aquecido (excluindo construção do índice). Código e scripts estão disponíveis em \url{https://github.com/leolca/phoneticspellchecker}.
@@ -169,7 +169,7 @@ Para testar a portabilidade entre famílias linguísticas e sistemas de escrita 
 \begin{table}[ht]
 \centering
 \small
-\caption{Transferência multilíngue entre quatro famílias e três alfabetos (divisões 50/50; Top-1 / Top-5 \%).}
+\caption{Transferência multilíngue entre quatro famílias e três alfabetos com \textbf{Unificado (Cosseno)} (divisões 50/50; Top-1 / Top-5 \%).}
 \label{tab:multilingual_pt}
 \begin{tabular}{lccccc}
 \toprule
@@ -186,7 +186,7 @@ Turco (Túrquico / Latino)    & 390 & 77,95 / \textbf{95,64} & 80,77 / 95,38 & \
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{../figures/results_overview.pdf}
-\caption{Resumo da acurácia Top-1 em (a) inglês e português brasileiro contra Aspell, Hunspell e Norvig, e (b) transferência entre famílias linguísticas em divisões 50/50 comparando pesos fixos e ajustados por língua.}
+\caption{Resumo da acurácia Top-1 em (a) inglês e português brasileiro contra Aspell, Hunspell e Norvig, e (b) transferência entre famílias linguísticas em divisões 50/50 comparando \textbf{Unificado (Cosseno)} com pesos fixos e ajustados por língua.}
 \label{fig:overview_pt}
 \end{figure}
 

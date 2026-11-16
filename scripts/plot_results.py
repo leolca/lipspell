@@ -59,8 +59,8 @@ def main() -> None:
     x2 = np.arange(len(langs))
     w2 = 0.25
     b1 = ax2.bar(x2 - w2, m_norv, w2, label="Norvig", color="#a1d99b", edgecolor="#333333", linewidth=0.4)
-    b2 = ax2.bar(x2, m_fix, w2, label="Unified (Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
-    b3 = ax2.bar(x2 + w2, m_tun, w2, label="Unified (Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
+    b2 = ax2.bar(x2, m_fix, w2, label="Unified (Cosine, Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
+    b3 = ax2.bar(x2 + w2, m_tun, w2, label="Unified (Cosine, Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
 
     for bars in (b1, b2, b3):
         for bar in bars:

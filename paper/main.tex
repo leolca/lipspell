@@ -76,7 +76,7 @@ For query $x$ and candidate $w$, we compute generalized weighted edit distances 
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)).
 \end{equation}
-This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order.
+This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order. We refer to this four-signal model (using the cosine phone metric unless noted) as \textbf{Unified (Cosine)} to distinguish it from single-channel baselines (\texttt{Norvig}, \texttt{Keyboard}, \texttt{Phonetic-only}), while the overall scoring framework itself is language-independent.
 
 \section{Datasets and Experimental Setup}
 All pairs are deduplicated lowercase alphabetic \texttt{(typo, target)} pairs with \texttt{typo != target}:
@@ -195,7 +195,7 @@ Table~\ref{tab:multilingual} compares Norvig, Unified with fixed English weights
 \begin{table}[ht]
 \centering
 \small
-\caption{Cross-lingual transfer across four families and three scripts (50/50 clean non-word splits; Top-1 / Top-5 \%).}
+\caption{Cross-lingual transfer across four families and three scripts using \textbf{Unified (Cosine)} (50/50 clean non-word splits; Top-1 / Top-5 \%).}
 \label{tab:multilingual}
 \begin{tabular}{lccccc}
 \toprule
@@ -212,7 +212,7 @@ Turkish (Turkic / Latin)     & 390 & 77.95 / \textbf{95.64} & 80.77 / 95.38 & \t
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/results_overview.pdf}
-\caption{Summary of Top-1 accuracy across (a) English and Brazilian Portuguese benchmarks compared against Aspell, Hunspell, and Norvig, and (b) cross-family transfer on 50/50 clean non-word splits comparing fixed English weights vs.\ per-language tuned weights.}
+\caption{Summary of Top-1 accuracy across (a) English and Brazilian Portuguese benchmarks compared against Aspell, Hunspell, and Norvig, and (b) cross-family transfer on 50/50 clean non-word splits comparing \textbf{Unified (Cosine)} with fixed English weights vs.\ per-language tuned weights.}
 \label{fig:overview}
 \end{figure}
 
