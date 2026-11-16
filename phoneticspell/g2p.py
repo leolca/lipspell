@@ -507,6 +507,19 @@ class FrenchG2P:
             if matched:
                 continue
             ch = w[i]
+            # French nasal vowels before consonant or word end
+            if i + 1 < n and w[i : i + 2] in ("an", "am", "en", "em") and (i + 2 == n or w[i + 2] not in _FR_VOWELS):
+                out.append("ɑ")
+                i += 2
+                continue
+            if i + 1 < n and w[i : i + 2] in ("on", "om") and (i + 2 == n or w[i + 2] not in _FR_VOWELS):
+                out.append("o")
+                i += 2
+                continue
+            if i + 1 < n and w[i : i + 2] in ("in", "im", "un") and (i + 2 == n or w[i + 2] not in _FR_VOWELS):
+                out.append("ɛ")
+                i += 2
+                continue
             if ch == "c" and i + 1 < n and w[i + 1] in "eéèêëiîïy":
                 out.append("s")
             elif ch == "g" and i + 1 < n and w[i + 1] in "eéèêëiîïy":
@@ -560,6 +573,16 @@ _RU_SINGLE: Dict[str, str] = {
 }
 
 
+_RU_FINAL_DEVOICE: Dict[str, str] = {
+    "б": "p",
+    "в": "f",
+    "г": "k",
+    "д": "t",
+    "ж": "ʃ",
+    "з": "s",
+}
+
+
 class RussianG2P:
     """Rule-based Russian G2P approximation emitting IPA phones in the feature table."""
 
@@ -582,6 +605,10 @@ class RussianG2P:
             if w.startswith("его", i) and i + 3 == n:
                 out.append("jevo")
                 i += 3
+                continue
+            if i == n - 1 and w[i] in _RU_FINAL_DEVOICE:
+                out.append(_RU_FINAL_DEVOICE[w[i]])
+                i += 1
                 continue
             out.append(_RU_SINGLE.get(w[i], ""))
             i += 1

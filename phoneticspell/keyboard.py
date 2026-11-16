@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -160,6 +161,11 @@ class KeyboardLayout:
         c1, c2 = c1.lower(), c2.lower()
         if c1 == c2:
             return 0.0
+        # Universal diacritic-drop tolerance (e.g. ç/c, é/e, ş/s, ü/u)
+        b1 = unicodedata.normalize("NFD", c1)
+        b2 = unicodedata.normalize("NFD", c2)
+        if b1 and b2 and b1[0] == b2[0] and (len(b1) > 1 or len(b2) > 1):
+            return 0.15
         i = self.char_to_id.get(c1)
         j = self.char_to_id.get(c2)
         if i is None or j is None:

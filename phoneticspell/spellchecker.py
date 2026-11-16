@@ -50,6 +50,7 @@ class SpellChecker:
         keyboard: KeyboardLayout | None = None,
         min_freq: int = 1,
         max_orth_edit: int = 2,
+        char_indel_overrides: Dict[str, float] | None = None,
     ) -> None:
         self.counts: Counter[str] = Counter(
             {w: c for w, c in word_counts.items() if c >= min_freq}
@@ -59,6 +60,7 @@ class SpellChecker:
         self.features = features
         self.g2p = g2p
         self.keyboard = keyboard or KeyboardLayout()
+        self.char_indel_overrides = char_indel_overrides or {}
         self.index = CandidateIndex(
             self.counts.keys(),
             features=self.features,
@@ -103,7 +105,11 @@ class SpellChecker:
         for c in cands:
             lp = self.log_prob(c)
             d_orth = float(orthographic_dl(w_low, c)) if mode in ("norvig", "unified") else 0.0
-            d_kb = keyboard_dl(w_low, c, self.keyboard) if mode in ("keyboard", "unified") else 0.0
+            d_kb = (
+                keyboard_dl(w_low, c, self.keyboard, self.char_indel_overrides)
+                if mode in ("keyboard", "unified")
+                else 0.0
+            )
             if mode in ("phonetic", "unified"):
                 c_phones = self.index.word_phones.get(c, [])
                 d_ph = phonetic_dl(

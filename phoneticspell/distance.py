@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Dict, Sequence
 
 import numpy as np
 
@@ -40,7 +40,12 @@ def orthographic_dl(s1: str, s2: str) -> int:
     return prev1[n2]
 
 
-def keyboard_dl(s1: str, s2: str, kb: KeyboardLayout) -> float:
+def keyboard_dl(
+    s1: str,
+    s2: str,
+    kb: KeyboardLayout,
+    char_indel_overrides: Dict[str, float] | None = None,
+) -> float:
     """Keyboard-weighted Damerau-Levenshtein distance."""
     n1, n2 = len(s1), len(s2)
     if n1 == 0:
@@ -48,6 +53,7 @@ def keyboard_dl(s1: str, s2: str, kb: KeyboardLayout) -> float:
     if n2 == 0:
         return float(n1)
 
+    overrides = char_indel_overrides or {}
     prev2 = [float(j) for j in range(n2 + 1)]
     prev1 = [float(j) for j in range(n2 + 1)]
     curr = [0.0] * (n2 + 1)
@@ -56,20 +62,22 @@ def keyboard_dl(s1: str, s2: str, kb: KeyboardLayout) -> float:
         curr[0] = float(i)
         c1 = s1[i - 1]
         # Adjacent-key accidental insertion/deletion is cheaper than random insertion
-        del_cost = 0.7
-        if i > 1:
-            del_cost = min(del_cost, 0.4 + 0.6 * kb.distance(c1, s1[i - 2]))
-        if i < n1:
-            del_cost = min(del_cost, 0.4 + 0.6 * kb.distance(c1, s1[i]))
+        del_cost = overrides.get(c1, 0.7)
+        if c1 not in overrides:
+            if i > 1:
+                del_cost = min(del_cost, 0.4 + 0.6 * kb.distance(c1, s1[i - 2]))
+            if i < n1:
+                del_cost = min(del_cost, 0.4 + 0.6 * kb.distance(c1, s1[i]))
 
         for j in range(1, n2 + 1):
             c2 = s2[j - 1]
             sub_cost = 0.0 if c1 == c2 else kb.distance(c1, c2)
-            ins_cost = 0.7
-            if j > 1:
-                ins_cost = min(ins_cost, 0.4 + 0.6 * kb.distance(c2, s2[j - 2]))
-            if j < n2:
-                ins_cost = min(ins_cost, 0.4 + 0.6 * kb.distance(c2, s2[j]))
+            ins_cost = overrides.get(c2, 0.7)
+            if c2 not in overrides:
+                if j > 1:
+                    ins_cost = min(ins_cost, 0.4 + 0.6 * kb.distance(c2, s2[j - 2]))
+                if j < n2:
+                    ins_cost = min(ins_cost, 0.4 + 0.6 * kb.distance(c2, s2[j]))
 
             best = min(
                 prev1[j] + del_cost,
