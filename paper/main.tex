@@ -186,8 +186,27 @@ Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
 \end{tabular}
 \end{table}
 
-\subsection{Non-Indo-European Transfer Pilot: Turkish}
-To test transfer beyond Indo-European languages, we added four Turkish IPA segments (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/), a Turkish Q keyboard layout, and a one-to-one \texttt{TurkishG2P} mapping, indexing the top $250{,}000$ alphabetic words from \texttt{FrequencyWords} (\texttt{tr\_full.txt}, $12.21$\,s build). On a random sample ($n=1{,}000$, seed $42$) of \texttt{nonword} \texttt{noise:*} typos from Turkish Wikipedia (\texttt{TurkishWikiSpellingMistakes}), vocabulary coverage is $81.4\%$ and candidate recall is $79.3\%$---reflecting Turkish's rich agglutinative morphology. Using the English-tuned weights unchanged, Unified achieves \textbf{61.40\%} Top-1 ($74.30\%$ Top-5, $15.86$\,ms/word) versus $60.60\%$ Top-1 ($74.30\%$ Top-5) for Norvig ($b_{01}=22, b_{10}=14$, McNemar $p=0.243$). Unlike English and Portuguese, Turkish orthography is nearly phonemic, so most Wikipedia errors are motor slips rather than deep grapheme--phoneme mismatches; nonetheless, the framework transfers zero-shot without degradation.
+\subsection{Multilingual Pilots (Slavic, Semitic, Turkic, French) and Per-Language Tuning}
+To stress-test portability across distinct language families and writing systems, we added frontends for \textbf{Russian} (Slavic/Cyrillic: JCUKEN layout, \texttt{RussianG2P}, \texttt{RUSpellRU}, $200\text{k}$ words), \textbf{Hebrew} (Semitic/Abjad: SI-1452 layout, \texttt{HebrewG2P}, Wikipedia bot list, $200\text{k}$ words), \textbf{Turkish} (Turkic/Latin: Turkish-Q, \texttt{TurkishG2P}, Wikipedia non-word sample, $250\text{k}$ words), and \textbf{French} (opaque Romance/Latin: AZERTY, \texttt{FrenchG2P}, Wikipedia typos, $200\text{k}$ words), extending the IPA table by eight segments (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/, /\textipa{x}/, /ts/, /\textglotstop/, /\textbari/).
+
+Table~\ref{tab:multilingual} compares Norvig, Unified with fixed English weights $(1.0,4.0,1.5,4.0)$, and Unified with per-language weights tuned on a 50/50 dev/test split of clean in-vocabulary non-word errors. On Russian (Cyrillic), Unified achieves \textbf{85.31\%} Top-1 (\textbf{95.00\%} Top-5) versus $79.38\%$ for Norvig ($p=1.57\times 10^{-4}$). On Hebrew (Abjad), Unified reaches $55.10\%$ ($93.88\%$ Top-5 tuned) vs.\ $53.06\%$ for Norvig, though unvocalized abjad orthography limits phonetic signal ($w_{\text{phon}}=0.0$). Crucially, per-language tuning reflects orthographic depth: Portuguese increases $\lambda_{\text{phon}}$ to $6.0$ (boosting Top-1 from $83.57\%$ to \textbf{85.97\%}), whereas phonemic Turkish shifts weight to keyboard geometry ($\lambda_{\text{kb}}=4.0$, $\lambda_{\text{phon}}=1.0$, reaching \textbf{81.28\%} vs.\ $77.95\%$ Norvig, $p=0.0034$). On the opaque French slice ($n=118$), fixed Unified also edges out Norvig ($59.32\%$ vs.\ $57.63\%$ Top-1).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Cross-lingual transfer across four families and three scripts (50/50 clean non-word splits; Top-1 / Top-5 \%).}
+\label{tab:multilingual}
+\begin{tabular}{lccccc}
+\toprule
+Language (Family / Script) & Test $n$ & Norvig & Unified (Fixed) & Unified (Tuned) & Tuned $\boldsymbol{\lambda}$ \\
+\midrule
+Russian (Slavic / Cyrillic)  & 320 & 79.38 / 89.38 & \textbf{85.31 / 95.00} & 84.69 / 95.00 & $(1,2,4,2)$ \\
+Hebrew (Semitic / Abjad)     & 49  & 53.06 / 89.80 & \textbf{55.10} / 91.84 & \textbf{55.10 / 93.88} & $(1,4,4,0)$ \\
+Portuguese (Romance / Latin) & 499 & 76.75 / 92.59 & 83.57 / 95.99 & \textbf{85.97 / 96.39} & $(1,4,1,6)$ \\
+Turkish (Turkic / Latin)     & 390 & 77.95 / \textbf{95.64} & 80.77 / 95.38 & \textbf{81.28 / 95.64} & $(1,4,4,1)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Limitations}
 Four limitations remain: (1) isolated-word scoring cannot resolve real-word errors (e.g., \textit{their}/\textit{there}, \textit{mas}/\textit{mais}); (2) G2P on severely distorted inputs can degrade phonetic matching; (3) one-to-one phone DP cannot align single phones to two-segment diphthongs/digraphs without $1$-to-$2$ operations; and (4) each word is assigned a single pronunciation rather than a pronunciation set $\Phi(w)$.

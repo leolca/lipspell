@@ -521,3 +521,116 @@ class FrenchG2P:
             else:
                 i += 1
         return "".join(out)
+
+
+_RU_SINGLE: Dict[str, str] = {
+    "а": "a",
+    "б": "b",
+    "в": "v",
+    "г": "ɡ",
+    "д": "d",
+    "е": "je",
+    "ё": "jo",
+    "ж": "ʒ",
+    "з": "z",
+    "и": "i",
+    "й": "j",
+    "к": "k",
+    "л": "l",
+    "м": "m",
+    "н": "n",
+    "о": "o",
+    "п": "p",
+    "р": "ɾ",
+    "с": "s",
+    "т": "t",
+    "у": "u",
+    "ф": "f",
+    "х": "x",
+    "ц": "ts",
+    "ч": "tʃ",
+    "ш": "ʃ",
+    "щ": "ʃ",
+    "ъ": "",
+    "ы": "ɨ",
+    "ь": "",
+    "э": "e",
+    "ю": "ju",
+    "я": "ja",
+}
+
+
+class RussianG2P:
+    """Rule-based Russian G2P approximation emitting IPA phones in the feature table."""
+
+    def __init__(self) -> None:
+        self._cache: Dict[str, str] = {}
+
+    def transcribe(self, word: str) -> str:
+        w = word.lower()
+        cached = self._cache.get(w)
+        if cached is not None:
+            return cached
+        out: List[str] = []
+        i = 0
+        n = len(w)
+        while i < n:
+            if w.startswith("ого", i) and i + 3 == n:
+                out.append("ovo")
+                i += 3
+                continue
+            if w.startswith("его", i) and i + 3 == n:
+                out.append("jevo")
+                i += 3
+                continue
+            out.append(_RU_SINGLE.get(w[i], ""))
+            i += 1
+        ipa = "".join(out)
+        self._cache[w] = ipa
+        return ipa
+
+
+_HE_SINGLE: Dict[str, str] = {
+    "א": "ʔ",
+    "ב": "b",
+    "ג": "ɡ",
+    "ד": "d",
+    "ה": "h",
+    "ו": "v",
+    "ז": "z",
+    "ח": "x",
+    "ט": "t",
+    "י": "j",
+    "כ": "k",
+    "ך": "x",
+    "ל": "l",
+    "מ": "m",
+    "ם": "m",
+    "נ": "n",
+    "ן": "n",
+    "ס": "s",
+    "ע": "ʔ",
+    "פ": "p",
+    "ף": "f",
+    "צ": "ts",
+    "ץ": "ts",
+    "ק": "k",
+    "ר": "ɾ",
+    "ש": "ʃ",
+    "ת": "t",
+}
+
+
+class HebrewG2P:
+    """Rule-based Hebrew abjad G2P approximation emitting IPA phones."""
+
+    def __init__(self) -> None:
+        self._cache: Dict[str, str] = {}
+
+    def transcribe(self, word: str) -> str:
+        cached = self._cache.get(word)
+        if cached is not None:
+            return cached
+        ipa = "".join(_HE_SINGLE.get(ch, "") for ch in word)
+        self._cache[word] = ipa
+        return ipa

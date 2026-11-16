@@ -162,8 +162,25 @@ TOEFL-Spell ($n=1000$) & 98,7 & 72,80 / 90,40 & 66,90 / 86,90 & 76,80 / 90,40 & 
 \end{tabular}
 \end{table}
 
-\subsection{Piloto em Língua Não Indo-Europeia: Turco}
-Para testar a transferência além das línguas indo-europeias, adicionamos quatro segmentos turcos ao AFI (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/), o teclado Q turco e um G2P determinístico, indexando $250.000$ palavras de \texttt{FrequencyWords} (\texttt{tr\_full.txt}, $12{,}21$\,s). Em uma amostra aleatória ($n=1.000$, semente $42$) de erros \texttt{nonword} \texttt{noise:*} da Wikipédia turca, a cobertura vocabular foi de $81{,}4\%$ (revocação de $79{,}3\%$, limitada pela morfologia aglutinativa do turco). Sem reajustar pesos, o modelo unificado obteve \textbf{61,40\%} Top-1 ($74{,}30\%$ Top-5) contra $60{,}60\%$ de Norvig ($b_{01}=22, b_{10}=14$, $p=0{,}243$), confirmando transferência sem degradação mesmo em ortografia quase fonêmica.
+\subsection{Transferência Multilíngue (Eslavo, Semítico, Túrquico, Francês) e Ajuste de Pesos}
+Para testar a portabilidade entre famílias linguísticas e sistemas de escrita distintos, adicionamos \textit{frontends} para \textbf{russo} (eslavo/cirílico, \texttt{RUSpellRU}, $200\text{ mil}$ palavras), \textbf{hebraico} (semítico/abjad, Wikipédia, $200\text{ mil}$ palavras), \textbf{turco} (túrquico/latino, Wikipédia, $250\text{ mil}$ palavras) e \textbf{francês} (românico opaco, Wikipédia, $200\text{ mil}$ palavras). A Tabela~\ref{tab:multilingual_pt} compara Norvig, Unificado com pesos fixos $(1{,}0;\,4{,}0;\,1{,}5;\,4{,}0)$ e Unificado com pesos ajustados por língua em divisões 50/50 de erros \textit{non-word} presentes no vocabulário. No russo (cirílico), o modelo atinge \textbf{85,31\%} Top-1 (\textbf{95,00\%} Top-5) contra $79{,}38\%$ de Norvig ($p=1{,}57\times 10^{-4}$). No hebraico (abjad), atinge $55{,}10\%$ ($93{,}88\%$ Top-5 ajustado) contra $53{,}06\%$ de Norvig. O ajuste por língua reflete a profundidade ortográfica: o português eleva $\lambda_{\text{phon}}$ para $6{,}0$ (subindo de $83{,}57\%$ para \textbf{85,97\%}), enquanto o turco (quase fonêmico) prioriza o teclado ($\lambda_{\text{kb}}=4{,}0$, $\lambda_{\text{phon}}=1{,}0$, atingindo \textbf{81,28\%} vs.\ $77{,}95\%$ de Norvig, $p=0{,}0034$). Em francês ($n=118$), o modelo fixo também supera Norvig ($59{,}32\%$ vs.\ $57{,}63\%$).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Transferência multilíngue entre quatro famílias e três alfabetos (divisões 50/50; Top-1 / Top-5 \%).}
+\label{tab:multilingual_pt}
+\begin{tabular}{lccccc}
+\toprule
+Língua (Família / Escrita) & Teste $n$ & Norvig & Unif. Fixo & Unif. Ajustado & $\boldsymbol{\lambda}$ Ajustado \\
+\midrule
+Russo (Eslavo / Cirílico)    & 320 & 79,38 / 89,38 & \textbf{85,31 / 95,00} & 84,69 / 95,00 & $(1,2,4,2)$ \\
+Hebraico (Semítico / Abjad)  & 49  & 53,06 / 89,80 & \textbf{55,10} / 91,84 & \textbf{55,10 / 93,88} & $(1,4,4,0)$ \\
+Português (Românico / Latino)& 499 & 76,75 / 92,59 & 83,57 / 95,99 & \textbf{85,97 / 96,39} & $(1,4,1,6)$ \\
+Turco (Túrquico / Latino)    & 390 & 77,95 / \textbf{95,64} & 80,77 / 95,38 & \textbf{81,28 / 95,64} & $(1,4,4,1)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Conclusão}
 Apresentamos um arcabouço fonético independente de língua que combina distância de edição ponderada por traços distintivos (cosseno), geometria de teclado e frequência lexical. Os experimentos confirmam que os três canais são complementares, permitindo atingir $79{,}26\%$ Top-1 em Norvig1, $77{,}10\%$ em TOEFL-Spell e transferir-se ao português brasileiro ($73{,}00\%$ Top-1 contra $64{,}00\%$ do Aspell e $64{,}20\%$ do Hunspell) substituindo apenas recursos específicos da língua. Trabalhos futuros incluem integração com Epitran \citep{mortensen2018epitran}, alinhamentos $1$-para-$2$ e contexto por $n$-gramas para erros de palavra real (\textit{mas}/\textit{mais}, \textit{their}/\textit{there}).

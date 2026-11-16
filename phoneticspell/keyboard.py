@@ -93,6 +93,38 @@ class KeyboardLayout:
         return cls(coords=coords, saturation=saturation)
 
     @classmethod
+    def russian_jcuken(cls, saturation: float = 3.0) -> "KeyboardLayout":
+        """Standard Russian JCUKEN (ЙЦУКЕН) keyboard layout."""
+        ru_rows = [
+            "ё1234567890-=",
+            "йцукенгшщзхъ",
+            "фывапролджэ",
+            "ячсмитьбю.",
+        ]
+        coords: Dict[str, Tuple[float, float]] = {}
+        for r_idx, row in enumerate(ru_rows):
+            offset = ROW_OFFSETS[r_idx]
+            for c_idx, ch in enumerate(row):
+                coords[ch] = (float(r_idx), float(c_idx) + offset)
+        return cls(coords=coords, saturation=saturation)
+
+    @classmethod
+    def hebrew(cls, saturation: float = 3.0) -> "KeyboardLayout":
+        """Standard Israeli Hebrew SI-1452 keyboard layout."""
+        he_rows = [
+            ";1234567890-=",
+            "/'קראטוןםפ][",
+            "שדגכעיחלךף,",
+            "זסבהנמצתץ.",
+        ]
+        coords: Dict[str, Tuple[float, float]] = {}
+        for r_idx, row in enumerate(he_rows):
+            offset = ROW_OFFSETS[r_idx]
+            for c_idx, ch in enumerate(row):
+                coords[ch] = (float(r_idx), float(c_idx) + offset)
+        return cls(coords=coords, saturation=saturation)
+
+    @classmethod
     def from_json(cls, json_path: str | Path, saturation: float = 3.0) -> "KeyboardLayout":
         with Path(json_path).open("r", encoding="utf-8") as fh:
             data = json.load(fh)

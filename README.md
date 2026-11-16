@@ -45,6 +45,17 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 | `phonetic` (alone) | 38.80 | 67.60 | — | 3.28 |
 | **`unified` (`cosine`)** | **73.00** | **85.20** | **72.15** | 15.46 |
 
+### Multilingual Extension & Per-Language Weight Tuning (6 Languages, 4 Families, 3 Scripts)
+
+Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing fixed English weights `(1.0, 4.0, 1.5, 4.0)` vs. per-language tuned weights):
+
+| Language (Family / Script) | Test $n$ | Norvig T1 / T5 | Unified Fixed T1 / T5 | Unified Tuned T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
+| :--- | ---: | :---: | :---: | :---: | :---: |
+| **Russian** (Slavic / Cyrillic) | 320 | 79.38 / 89.38 | **85.31 / 95.00** | 84.69 / 95.00 | `(1.0, 2.0, 4.0, 2.0)` |
+| **Hebrew** (Semitic / Abjad) | 49 | 53.06 / 89.80 | **55.10** / 91.84 | **55.10 / 93.88** | `(1.0, 4.0, 4.0, 0.0)` |
+| **Portuguese** (Romance / Latin) | 499 | 76.75 / 92.59 | 83.57 / 95.99 | **85.97 / 96.39** | `(1.0, 4.0, 1.0, 6.0)` |
+| **Turkish** (Turkic / Latin) | 390 | 77.95 / **95.64** | 80.77 / 95.38 | **81.28 / 95.64** | `(1.0, 4.0, 4.0, 1.0)` |
+
 ### Turkish (`tr`, non-Indo-European pilot, `250,000` words from `FrequencyWords` + `TurkishWikiSpellingMistakes`, $n=1{,}000$)
 
 | Mode | Top-1 (%) | Top-5 (%) | ms/word |
@@ -89,8 +100,8 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 ## Repository Structure
 
 * `phoneticspell/` — Core library (`features.py`, `keyboard.py`, `g2p.py`, `distance.py`, `candidates.py`, `spellchecker.py`, `data/distinctivefeatures_ipa.csv`)
-* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`, `eval_turkish.py`, `eval_french.py`, `paper_analyses.py`, `run_review_experiments.py`
-* `tests/` — Unit tests (`test_spellchecker.py`, `test_portuguese.py`, `test_turkish.py`, `test_french.py`)
+* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`, `eval_turkish.py`, `eval_french.py`, `eval_slavic_semitic_and_tuning.py`, `paper_analyses.py`, `run_review_experiments.py`
+* `tests/` — Unit tests (`test_spellchecker.py`, `test_portuguese.py`, `test_turkish.py`, `test_french.py`, `test_russian_hebrew.py`)
 * `paper/main.tex` — English manuscript for Cambridge *Natural Language Processing* (`paper/main.pdf`)
 * `paper/linguamatica/artigo.tex` — Portuguese manuscript for *Linguamática* (`paper/linguamatica/artigo.pdf`)
 
