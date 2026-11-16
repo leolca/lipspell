@@ -53,11 +53,11 @@ Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing
 
 | Language (Family / Script) | Test $n$ | Aspell T1 / T5 | Hunspell T1 / T5 | Norvig T1 / T5 | LipSpell (Fixed) T1 / T5 | LipSpell (Tuned) T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
 | :--- | ---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **English** (Germanic / Latin) | 489 | 77.51 / 92.43 | 69.94 / 89.37 | 79.14 / 92.02 | **80.37** / 92.64 | 79.75 / **92.84** | `(1, 4, 2, 2)` |
-| **Russian** (Slavic / Cyrillic) | 321 | 71.96 / 88.16 | 67.60 / 87.85 | 78.50 / 90.34 | **85.67 / 95.64** | 84.74 / 95.33 | `(1, 2, 4, 1)` |
+| **English** (Germanic / Latin) | 489 | 77.51 / 92.43 | 69.94 / 89.37 | 79.14 / 92.02 | 79.35 / 93.25 | **79.96 / 93.46** | `(1, 4, 2, 2)` |
+| **Russian** (Slavic / Cyrillic) | 321 | 71.96 / 88.16 | 67.60 / 87.85 | 78.50 / 90.34 | **85.67 / 95.95** | 84.42 / 95.64 | `(1, 2, 4, 1)` |
 | **Hebrew** (Semitic / Abjad) | 122 | 39.34 / 84.43 | 33.61 / 91.80 | 62.30 / 95.08 | 63.93 / 95.90 | **74.59 / 98.36** | `(1, 4, 4, 1)` |
-| **Portuguese** (Romance / Latin) | 499 | 67.13 / 79.96 | 70.14 / 84.77 | 76.75 / 92.59 | 83.57 / 95.99 | **85.97 / 96.39** | `(1, 4, 1, 6)` |
-| **Turkish** (Turkic / Latin) | 420 | 26.67 / 33.10 | 47.14 / 61.43 | 79.05 / 95.00 | 79.52 / 95.48 | **81.90 / 96.19** | `(1, 8, 4, 1)` |
+| **Portuguese** (Romance / Latin) | 499 | 67.13 / 79.96 | 70.14 / 84.77 | 76.75 / 92.59 | 86.57 / 96.19 | **86.97 / 96.79** | `(1, 4, 1, 6)` |
+| **Turkish** (Turkic / Latin) | 420 | 26.67 / 33.10 | 47.14 / 61.43 | 79.05 / 95.00 | 79.29 / 95.24 | **81.67 / 95.95** | `(1, 8, 4, 1)` |
 | **French** (Romance / Latin) | 106 | 62.26 / 67.92 | **82.08 / 94.34** | 67.92 / 91.51 | 68.87 / 86.79 | 74.53 / 90.57 | `(1, 4, 4, 6)` |
 
 ### Turkish (`tr`, non-Indo-European pilot, `250,000` words from `FrequencyWords` + `TurkishWikiSpellingMistakes`, $n=1{,}000$)
