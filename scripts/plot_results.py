@@ -50,41 +50,43 @@ def main() -> None:
     ax1.spines["right"].set_visible(False)
     ax1.legend(frameon=False, ncol=2, loc="upper right")
 
-    # Panel (b): Multilingual Cross-Family Transfer (Hunspell vs Norvig vs LipSpell)
+    # Panel (b): Multilingual Cross-Family Transfer (Aspell vs Hunspell vs Norvig vs LipSpell)
     langs = ["English\n(Latin)", "Russian\n(Cyrillic)", "Hebrew\n(Abjad)", "Portuguese\n(Latin)", "Turkish\n(Latin)", "French\n(Latin)"]
+    m_asp = [77.51, 71.96, 39.34, 67.13, 4.29, 62.26]
     m_hun = [69.94, 67.60, 33.61, 70.14, 47.14, 82.08]
     m_norv = [79.14, 78.50, 62.30, 76.75, 79.05, 67.92]
     m_fix = [80.37, 85.67, 63.93, 83.57, 79.52, 68.87]
     m_tun = [79.75, 84.74, 74.59, 85.97, 81.90, 73.58]
 
     x2 = np.arange(len(langs))
-    w2 = 0.20
-    b0 = ax2.bar(x2 - 1.5 * w2, m_hun, w2, label="Hunspell", color="#fdae6b", edgecolor="#333333", linewidth=0.4)
-    b1 = ax2.bar(x2 - 0.5 * w2, m_norv, w2, label="Norvig", color="#a1d99b", edgecolor="#333333", linewidth=0.4)
-    b2 = ax2.bar(x2 + 0.5 * w2, m_fix, w2, label="LipSpell (Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
-    b3 = ax2.bar(x2 + 1.5 * w2, m_tun, w2, label="LipSpell (Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
+    w2 = 0.16
+    ba = ax2.bar(x2 - 2.0 * w2, m_asp, w2, label="Aspell", color="#9ecae1", edgecolor="#333333", linewidth=0.4)
+    b0 = ax2.bar(x2 - 1.0 * w2, m_hun, w2, label="Hunspell", color="#fdae6b", edgecolor="#333333", linewidth=0.4)
+    b1 = ax2.bar(x2, m_norv, w2, label="Norvig", color="#a1d99b", edgecolor="#333333", linewidth=0.4)
+    b2 = ax2.bar(x2 + 1.0 * w2, m_fix, w2, label="LipSpell (Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
+    b3 = ax2.bar(x2 + 2.0 * w2, m_tun, w2, label="LipSpell (Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
 
-    for bars in (b0, b1, b2, b3):
+    for bars in (ba, b0, b1, b2, b3):
         for bar in bars:
             h = bar.get_height()
             ax2.text(
                 bar.get_x() + bar.get_width() / 2.0,
-                h + 0.6,
+                h + 0.8,
                 f"{h:.0f}",
                 ha="center",
                 va="bottom",
-                fontsize=6.0,
+                fontsize=5.5,
             )
 
     ax2.set_ylabel("Top-1 Accuracy (%)")
     ax2.set_title("(b) Cross-Family Transfer (50/50 Non-Word Splits)")
     ax2.set_xticks(x2)
     ax2.set_xticklabels(langs)
-    ax2.set_ylim(40, 96)
+    ax2.set_ylim(0, 108)
     ax2.grid(axis="y", linestyle="--", alpha=0.35)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
-    ax2.legend(frameon=False, loc="lower right")
+    ax2.legend(frameon=False, ncol=3, loc="upper center", fontsize=7.0)
 
     plt.tight_layout()
     plt.savefig(out_dir / "results_overview.pdf", bbox_inches="tight")
