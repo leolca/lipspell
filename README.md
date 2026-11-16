@@ -54,6 +54,15 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 | `phonetic` | 27.10 | 49.50 | 3.53 |
 | **`unified` (`cosine`)** | **61.40** | **74.30** | 15.86 |
 
+### French (`fr`, opaque orthography pilot, `200,000` words from `FrequencyWords` + French Wikipedia non-word typos, $n=118$)
+
+| Mode | Top-1 (%) | Top-5 (%) |
+| :--- | ---: | ---: |
+| `norvig` | 57.63 | **85.59** |
+| `keyboard` | 33.90 | 56.78 |
+| `phonetic` | 21.19 | 42.37 |
+| **`unified` (`cosine`)** | **59.32** | 83.90 |
+
 ### English (`78,393` words from `big.txt` + `american-english`, Top-1 % / Top-5 %)
 
 | Dataset | `aspell` | `hunspell` | `norvig` | **`unified` (`cosine`)** |
@@ -80,8 +89,8 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 ## Repository Structure
 
 * `phoneticspell/` — Core library (`features.py`, `keyboard.py`, `g2p.py`, `distance.py`, `candidates.py`, `spellchecker.py`, `data/distinctivefeatures_ipa.csv`)
-* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`, `paper_analyses.py`, `run_review_experiments.py`
-* `tests/` — Unit tests (`test_spellchecker.py`, `test_portuguese.py`)
+* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`, `eval_turkish.py`, `eval_french.py`, `paper_analyses.py`, `run_review_experiments.py`
+* `tests/` — Unit tests (`test_spellchecker.py`, `test_portuguese.py`, `test_turkish.py`, `test_french.py`)
 * `paper/main.tex` — English manuscript for Cambridge *Natural Language Processing* (`paper/main.pdf`)
 * `paper/linguamatica/artigo.tex` — Portuguese manuscript for *Linguamática* (`paper/linguamatica/artigo.pdf`)
 

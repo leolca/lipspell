@@ -77,6 +77,22 @@ class KeyboardLayout:
         return cls(coords=coords, saturation=saturation)
 
     @classmethod
+    def azerty(cls, saturation: float = 3.0) -> "KeyboardLayout":
+        """French AZERTY keyboard layout."""
+        az_rows = [
+            "&é\"'(-è_çà)=",
+            "azertyuiop^$",
+            "qsdfghjklmù*",
+            "wxcvbn,;:!",
+        ]
+        coords: Dict[str, Tuple[float, float]] = {}
+        for r_idx, row in enumerate(az_rows):
+            offset = ROW_OFFSETS[r_idx]
+            for c_idx, ch in enumerate(row):
+                coords[ch] = (float(r_idx), float(c_idx) + offset)
+        return cls(coords=coords, saturation=saturation)
+
+    @classmethod
     def from_json(cls, json_path: str | Path, saturation: float = 3.0) -> "KeyboardLayout":
         with Path(json_path).open("r", encoding="utf-8") as fh:
             data = json.load(fh)

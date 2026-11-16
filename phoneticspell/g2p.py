@@ -399,3 +399,125 @@ class TurkishG2P:
         ipa = "".join(_TR_SINGLE.get(ch, "") for ch in w)
         self._cache[w] = ipa
         return ipa
+
+
+_FR_MULTI_RULES: List[Tuple[str, str]] = [
+    ("eaux", "o"),
+    ("eau", "o"),
+    ("tion", "sjɔn"),
+    ("œu", "ø"),
+    ("au", "o"),
+    ("ou", "u"),
+    ("eu", "ø"),
+    ("oi", "wa"),
+    ("ai", "ɛ"),
+    ("ei", "ɛ"),
+    ("ch", "ʃ"),
+    ("ph", "f"),
+    ("gn", "ɲ"),
+    ("qu", "k"),
+    ("gu", "ɡ"),
+    ("ss", "s"),
+]
+
+_FR_VOWELS = set("aeiouyàâäéèêëîïôöùûüœ")
+
+_FR_SINGLE: Dict[str, str] = {
+    "a": "a",
+    "à": "a",
+    "â": "ɑ",
+    "ä": "a",
+    "b": "b",
+    "c": "k",
+    "ç": "s",
+    "d": "d",
+    "e": "ə",
+    "é": "e",
+    "è": "ɛ",
+    "ê": "ɛ",
+    "ë": "ɛ",
+    "f": "f",
+    "g": "ɡ",
+    "h": "",
+    "i": "i",
+    "î": "i",
+    "ï": "i",
+    "j": "ʒ",
+    "k": "k",
+    "l": "l",
+    "m": "m",
+    "n": "n",
+    "o": "o",
+    "ô": "o",
+    "ö": "ø",
+    "œ": "ø",
+    "p": "p",
+    "q": "k",
+    "r": "ɹ",
+    "s": "s",
+    "t": "t",
+    "u": "y",
+    "ù": "y",
+    "û": "y",
+    "ü": "y",
+    "v": "v",
+    "w": "w",
+    "x": "ks",
+    "y": "i",
+    "z": "z",
+}
+
+
+class FrenchG2P:
+    """Rule-based French G2P approximation emitting IPA phones in the feature table."""
+
+    def __init__(self) -> None:
+        self._cache: Dict[str, str] = {}
+
+    def transcribe(self, word: str) -> str:
+        w = word.lower()
+        cached = self._cache.get(w)
+        if cached is not None:
+            return cached
+        ipa = self._rule_based(w)
+        self._cache[w] = ipa
+        return ipa
+
+    @staticmethod
+    def _rule_based(word: str) -> str:
+        w = "".join(ch for ch in word.lower() if ch in _FR_SINGLE)
+        if not w:
+            return ""
+        # Strip common silent final consonants/e on words > 3 chars
+        if len(w) > 3 and w.endswith(("s", "t", "d", "x", "p", "z")):
+            w = w[:-1]
+        if len(w) > 3 and w.endswith("e"):
+            w = w[:-1]
+        out: List[str] = []
+        i = 0
+        n = len(w)
+        while i < n:
+            matched = False
+            for pat, repl in _FR_MULTI_RULES:
+                if w.startswith(pat, i):
+                    out.append(repl)
+                    i += len(pat)
+                    matched = True
+                    break
+            if matched:
+                continue
+            ch = w[i]
+            if ch == "c" and i + 1 < n and w[i + 1] in "eéèêëiîïy":
+                out.append("s")
+            elif ch == "g" and i + 1 < n and w[i + 1] in "eéèêëiîïy":
+                out.append("ʒ")
+            elif ch == "s" and 0 < i < n - 1 and w[i - 1] in _FR_VOWELS and w[i + 1] in _FR_VOWELS:
+                out.append("z")
+            else:
+                out.append(_FR_SINGLE.get(ch, ""))
+            # Collapse doubled consonants (e.g. 'emmenager' vs 'eménager')
+            if i + 1 < n and w[i + 1] == ch and ch not in "aeiouy":
+                i += 2
+            else:
+                i += 1
+        return "".join(out)
