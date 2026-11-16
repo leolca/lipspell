@@ -89,12 +89,12 @@ Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.
 \section{Results and Discussion}
 
 \subsection{Metric Ablation and Candidate Recall (RQ1)}
-Table~\ref{tab:ablation} compares $L_1$, salience, and cosine using the same combined candidate pool (where Phonetic-only ranks by $\lambda_{\text{freq}}\log P(w) - \lambda_{\text{phon}}d_{\text{phon}}$). Cosine achieves the highest Phonetic-only Top-1 on all five sets ($+1.33$ to $+2.59$ percentage points over $L_1$/salience) and the best Unified Top-5 on all five sets. Table~\ref{tab:recall} shows that the articulatory skeleton substantially boosts candidate recall beyond SymSpell deletes: $+21.33$ percentage points on Holbrook ($57.00\%\rightarrow 78.33\%$), $+9.11$ pp on Aspell ($79.46\%\rightarrow 88.57\%$), and $+9.60$ pp on PT-Wiki ($86.80\%\rightarrow 96.40\%$, where the skeleton alone outperforms SymDelete), while evaluating only $204.5$--$398.3$ candidates per query.
+Table~\ref{tab:ablation} compares $L_1$, salience, and cosine using the same combined candidate pool (where Phonetic-only ranks by $\lambda_{\text{freq}}\log P(w) - \lambda_{\text{phon}}d_{\text{phon}}$). Cosine achieves the highest Phonetic-only Top-1 on all five sets ($+1.33$ to $+2.59$ percentage points over $L_1$/salience) and the best LipSpell Top-5 on all five sets. Table~\ref{tab:recall} shows that the articulatory skeleton substantially boosts candidate recall beyond SymSpell deletes: $+21.33$ percentage points on Holbrook ($57.00\%\rightarrow 78.33\%$), $+9.11$ pp on Aspell ($79.46\%\rightarrow 88.57\%$), and $+9.60$ pp on PT-Wiki ($86.80\%\rightarrow 96.40\%$, where the skeleton alone outperforms SymDelete), while evaluating only $204.5$--$398.3$ candidates per query.
 
 \begin{table}[ht]
 \centering
 \small
-\caption{Phone-distance metric ablation on English (Phonetic Top-1 / Unified Top-1 / Unified Top-5 \%).}
+\caption{Phone-distance metric ablation on English (Phonetic Top-1 / LipSpell Top-1 / LipSpell Top-5 \%).}
 \label{tab:ablation}
 \begin{tabular}{lccc}
 \toprule
@@ -142,13 +142,13 @@ Configuration & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
 \textbf{B}: Orth + Kb + Freq         & 74.81 / 91.48 & 53.49 / 74.61 & 27.00 / 44.00 & 76.80 / \textbf{91.50} & 63.80 / 81.80 \\
 \textbf{C}: Orth + Phon + Freq       & 76.30 / \textbf{92.59} & 56.01 / 75.58 & 31.00 / 44.67 & 75.90 / 91.10 & \textbf{73.60} / 85.00 \\
 \textbf{D}: Orth + Kb + Phon         & 73.70 / 90.37 & 52.52 / 74.03 & 25.67 / 41.00 & 69.20 / 87.30 & 71.20 / 84.00 \\
-\textbf{E}: Full Unified             & \textbf{79.26 / 92.59} & \textbf{56.40 / 75.97} & \textbf{32.00 / 46.33} & \textbf{77.10} / 91.10 & 73.00 / \textbf{85.20} \\
+\textbf{E}: Full LipSpell             & \textbf{79.26 / 92.59} & \textbf{56.40 / 75.97} & \textbf{32.00 / 46.33} & \textbf{77.10} / 91.10 & 73.00 / \textbf{85.20} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Comparison with Aspell, Hunspell, and Norvig (RQ2, RQ3)}
-Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare Unified (Cosine) against Norvig, Aspell, and Hunspell, including target vocabulary coverage for each system (\texttt{Ours/Asp/Hun}). On English, Unified outperforms Norvig and Hunspell on every set ($p < 10^{-4}$ vs.\ Hunspell on five of six sets, surviving Holm--Bonferroni correction across all pairwise comparisons) and beats Aspell on Norvig1, Holbrook ($p=0.0226$), and TOEFL-Spell ($p=0.0018$). On Brazilian Portuguese, even though Aspell and Hunspell have higher target vocabulary coverage ($98.4\%$ vs.\ $96.8\%$ on $n=500$; $97.4\%$ vs.\ $95.8\%$ on the full $n=1{,}149$ A--Z set), Unified achieves \textbf{73.00$\pm$3.89\%} Top-1 (\textbf{85.20\%} Top-5) on $n=500$ ($p \le 6.29\times 10^{-5}$ vs.\ all three baselines) and \textbf{72.15$\pm$2.59\%} Top-1 on the full $n=1{,}149$ A--Z set vs.\ $66.23\%$ for Norvig ($p=3.60\times 10^{-13}$), $63.19\%$ for Hunspell ($p=1.99\times 10^{-9}$), and $60.14\%$ for Aspell ($p=7.86\times 10^{-16}$). On multi-edit errors ($d_{\text{orth}}\ge 2$), Unified outperforms Norvig by $+15.88$ pp on full PT-Wiki ($43.92\%$ vs.\ $28.04\%$, $n=189$), $+13.64$ pp on Norvig1, $+10.20$ pp on Wikipedia-EN, $+6.75$ pp on Aspell, and $+5.84$ pp on Holbrook.
+Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare LipSpell against Norvig, Aspell, and Hunspell, including target vocabulary coverage for each system (\texttt{Ours/Asp/Hun}). On English, LipSpell outperforms Norvig and Hunspell on every set ($p < 10^{-4}$ vs.\ Hunspell on five of six sets, surviving Holm--Bonferroni correction across all pairwise comparisons) and beats Aspell on Norvig1, Holbrook ($p=0.0226$), and TOEFL-Spell ($p=0.0018$). On Brazilian Portuguese, even though Aspell and Hunspell have higher target vocabulary coverage ($98.4\%$ vs.\ $96.8\%$ on $n=500$; $97.4\%$ vs.\ $95.8\%$ on the full $n=1{,}149$ A--Z set), LipSpell achieves \textbf{73.00$\pm$3.89\%} Top-1 (\textbf{85.20\%} Top-5) on $n=500$ ($p \le 6.29\times 10^{-5}$ vs.\ all three baselines) and \textbf{72.15$\pm$2.59\%} Top-1 on the full $n=1{,}149$ A--Z set vs.\ $66.23\%$ for Norvig ($p=3.60\times 10^{-13}$), $63.19\%$ for Hunspell ($p=1.99\times 10^{-9}$), and $60.14\%$ for Aspell ($p=7.86\times 10^{-16}$). On multi-edit errors ($d_{\text{orth}}\ge 2$), LipSpell outperforms Norvig by $+15.88$ pp on full PT-Wiki ($43.92\%$ vs.\ $28.04\%$, $n=189$), $+13.64$ pp on Norvig1, $+10.20$ pp on Wikipedia-EN, $+6.75$ pp on Aspell, and $+5.84$ pp on Holbrook.
 
 \begin{table}[ht]
 \centering
@@ -157,7 +157,7 @@ Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare Unified (Cosine) against
 \label{tab:english_cmp}
 \begin{tabular}{lccccc}
 \toprule
-Dataset & Vocab (\texttt{O/A/H}\%) & Aspell & Hunspell & Norvig & Unified \\
+Dataset & Vocab (\texttt{O/A/H}\%) & Aspell & Hunspell & Norvig & LipSpell \\
 \midrule
 Norvig1 ($n=270$)      & 98.5 / 98.5 / 99.3 & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
 Norvig2 ($n=400$)      & 97.0 / 95.5 / 96.0 & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
@@ -182,7 +182,7 @@ Aspell (\texttt{pt\_BR})   & 98.4\% / 97.4\% & 64.00\% & 76.80\% & 60.14\% \\
 Hunspell (\texttt{pt\_BR}) & 98.4\% / 97.4\% & 64.20\% & 79.00\% & 63.19\% \\
 Norvig                     & 96.8\% / 95.8\% & 66.60\% & 83.00\% & 66.23\% \\
 Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
-\textbf{Unified (Cosine)}  & 96.8\% / 95.8\% & \textbf{73.00\%} & \textbf{85.20\%} & \textbf{72.15\%} \\
+\textbf{LipSpell}  & 96.8\% / 95.8\% & \textbf{73.00\%} & \textbf{85.20\%} & \textbf{72.15\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -190,7 +190,7 @@ Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
 \subsection{Multilingual Pilots (Slavic, Semitic, Turkic, French) and Per-Language Tuning}
 To stress-test portability across distinct language families and writing systems, we added frontends for \textbf{Russian} (Slavic/Cyrillic: JCUKEN layout, \texttt{RussianG2P}, \texttt{RUSpellRU}, $200\text{k}$ words), \textbf{Hebrew} (Semitic/Abjad: SI-1452 layout, \texttt{HebrewG2P}, Wikipedia bot list, $200\text{k}$ words), \textbf{Turkish} (Turkic/Latin: Turkish-Q, \texttt{TurkishG2P}, Wikipedia non-word sample, $250\text{k}$ words), and \textbf{French} (opaque Romance/Latin: AZERTY, \texttt{FrenchG2P}, Wikipedia typos, $200\text{k}$ words), extending the IPA table by eight segments (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/, /\textipa{x}/, /ts/, /\textglotstop/, /\textbari/).
 
-Table~\ref{tab:multilingual} compares Norvig, Unified with fixed English weights $(1.0,4.0,1.5,4.0)$, and Unified with per-language weights tuned on a 50/50 dev/test split of clean in-vocabulary non-word errors. On Russian (Cyrillic), Unified achieves \textbf{85.31\%} Top-1 (\textbf{95.00\%} Top-5) versus $79.38\%$ for Norvig ($p=1.57\times 10^{-4}$). On Hebrew (Abjad), Unified reaches $55.10\%$ ($93.88\%$ Top-5 tuned) vs.\ $53.06\%$ for Norvig, though unvocalized abjad orthography limits phonetic signal ($w_{\text{phon}}=0.0$). Crucially, per-language tuning reflects orthographic depth: Portuguese increases $\lambda_{\text{phon}}$ to $6.0$ (boosting Top-1 from $83.57\%$ to \textbf{85.97\%}), whereas phonemic Turkish shifts weight to keyboard geometry ($\lambda_{\text{kb}}=4.0$, $\lambda_{\text{phon}}=1.0$, reaching \textbf{81.28\%} vs.\ $77.95\%$ Norvig, $p=0.0034$). On the opaque French slice ($n=118$), fixed Unified also edges out Norvig ($59.32\%$ vs.\ $57.63\%$ Top-1).
+Table~\ref{tab:multilingual} compares Norvig, Unified with fixed English weights $(1.0,4.0,1.5,4.0)$, and Unified with per-language weights tuned on a 50/50 dev/test split of clean in-vocabulary non-word errors. On Russian (Cyrillic), LipSpell achieves \textbf{85.31\%} Top-1 (\textbf{95.00\%} Top-5) versus $79.38\%$ for Norvig ($p=1.57\times 10^{-4}$). On Hebrew (Abjad), LipSpell reaches $55.10\%$ ($93.88\%$ Top-5 tuned) vs.\ $53.06\%$ for Norvig, though unvocalized abjad orthography limits phonetic signal ($w_{\text{phon}}=0.0$). Crucially, per-language tuning reflects orthographic depth: Portuguese increases $\lambda_{\text{phon}}$ to $6.0$ (boosting Top-1 from $83.57\%$ to \textbf{85.97\%}), whereas phonemic Turkish shifts weight to keyboard geometry ($\lambda_{\text{kb}}=4.0$, $\lambda_{\text{phon}}=1.0$, reaching \textbf{81.28\%} vs.\ $77.95\%$ Norvig, $p=0.0034$). On the opaque French slice ($n=118$), fixed LipSpell also edges out Norvig ($59.32\%$ vs.\ $57.63\%$ Top-1).
 
 \begin{table}[ht]
 \centering

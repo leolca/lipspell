@@ -51,7 +51,7 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 
 Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing fixed English weights `(1.0, 4.0, 1.5, 4.0)` vs. per-language tuned weights):
 
-| Language (Family / Script) | Test $n$ | Norvig T1 / T5 | Unified Fixed T1 / T5 | Unified Tuned T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
+| Language (Family / Script) | Test $n$ | Norvig T1 / T5 | LipSpell (Fixed) T1 / T5 | LipSpell (Tuned) T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
 | :--- | ---: | :---: | :---: | :---: | :---: |
 | **Russian** (Slavic / Cyrillic) | 320 | 79.38 / 89.38 | **85.31 / 95.00** | 84.69 / 95.00 | `(1.0, 2.0, 4.0, 2.0)` |
 | **Hebrew** (Semitic / Abjad) | 49 | 53.06 / 89.80 | **55.10** / 91.84 | **55.10 / 93.88** | `(1.0, 4.0, 4.0, 0.0)` |
@@ -87,7 +87,7 @@ Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing
 | `holbrook` ($n=300$) | 26.67 / 42.33 | 17.33 / 31.67 | 27.67 / 42.00 | **32.00 / 46.33** |
 | `TOEFL-Spell` ($n=1000$) | 72.80 / 90.40 | 66.90 / 86.90 | 76.80 / 90.40 | **77.10 / 91.10** |
 
-### Phone-Distance Metric Ablation (English, Phonetic Top-1 / Unified Top-1 / Unified Top-5 %)
+### Phone-Distance Metric Ablation (English, Phonetic Top-1 / LipSpell Top-1 / LipSpell Top-5 %)
 
 | Dataset | `l1` | `salience` | `cosine` |
 | :--- | :---: | :---: | :---: |

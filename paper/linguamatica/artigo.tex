@@ -83,7 +83,7 @@ Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\
 Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% \\
 Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% \\
 Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & --- \\
-\textbf{Unificado (Cosseno)} & 96,8\% / 95,8\% & \textbf{73,00\%} & \textbf{85,20\%} & \textbf{72,15\%} \\
+\textbf{LipSpell} & 96,8\% / 95,8\% & \textbf{73,00\%} & \textbf{85,20\%} & \textbf{72,15\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -121,7 +121,7 @@ Configuração & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
 \textbf{B}: Ort + Teclado + Freq    & 74,81 / 91,48 & 53,49 / 74,61 & 27,00 / 44,00 & 76,80 / \textbf{91,50} & 63,80 / 81,80 \\
 \textbf{C}: Ort + Fonética + Freq   & 76,30 / \textbf{92,59} & 56,01 / 75,58 & 31,00 / 44,67 & 75,90 / 91,10 & \textbf{73,60} / 85,00 \\
 \textbf{D}: Ort + Teclado + Fonética& 73,70 / 90,37 & 52,52 / 74,03 & 25,67 / 41,00 & 69,20 / 87,30 & 71,20 / 84,00 \\
-\textbf{E}: Unificado Completo      & \textbf{79,26 / 92,59} & \textbf{56,40 / 75,97} & \textbf{32,00 / 46,33} & \textbf{77,10} / 91,10 & 73,00 / \textbf{85,20} \\
+\textbf{E}: LipSpell Completo      & \textbf{79,26 / 92,59} & \textbf{56,40 / 75,97} & \textbf{32,00 / 46,33} & \textbf{77,10} / 91,10 & 73,00 / \textbf{85,20} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -129,7 +129,7 @@ Configuração & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
 \begin{table}[ht]
 \centering
 \small
-\caption{Ablação de métricas sobre traços distintivos em inglês (Top-1 fonético / Top-1 unificado / Top-5 unificado \%).}
+\caption{Ablação de métricas sobre traços distintivos em inglês (Top-1 fonético / Top-1 LipSpell / Top-5 LipSpell \%).}
 \label{tab:ablation}
 \begin{tabular}{lccc}
 \toprule
@@ -147,11 +147,11 @@ Holbrook ($n=300$)  & 11,67 / 30,33 / 45,00 & 11,67 / 31,00 / 45,33 & \textbf{13
 \begin{table}[ht]
 \centering
 \small
-\caption{Comparação em inglês (Top-1 \% / Top-5 \%). Hunspell inclui análise morfológica; Norvig e Unificado operam em palavras isoladas.}
+\caption{Comparação em inglês (Top-1 \% / Top-5 \%). Hunspell inclui análise morfológica; Norvig e LipSpell operam em palavras isoladas.}
 \label{tab:english_cmp}
 \begin{tabular}{lccccc}
 \toprule
-Base de Teste & Vocab\% & Aspell & Hunspell & Norvig & Unificado \\
+Base de Teste & Vocab\% & Aspell & Hunspell & Norvig & LipSpell \\
 \midrule
 Norvig1 ($n=270$)      & 98,5 & 75,56 / \textbf{92,59} & 64,44 / 84,07 & 74,81 / 91,11 & \textbf{79,26 / 92,59} \\
 Norvig2 ($n=400$)      & 97,0 & \textbf{77,25} / 87,00 & 65,50 / 84,00 & 72,25 / 87,50 & 74,75 / \textbf{88,75} \\
@@ -164,7 +164,7 @@ TOEFL-Spell ($n=1000$) & 98,7 & 72,80 / 90,40 & 66,90 / 86,90 & 76,80 / 90,40 & 
 \end{table}
 
 \subsection{Transferência Multilíngue (Eslavo, Semítico, Túrquico, Francês) e Ajuste de Pesos}
-Para testar a portabilidade entre famílias linguísticas e sistemas de escrita distintos, adicionamos \textit{frontends} para \textbf{russo} (eslavo/cirílico, \texttt{RUSpellRU}, $200\text{ mil}$ palavras), \textbf{hebraico} (semítico/abjad, Wikipédia, $200\text{ mil}$ palavras), \textbf{turco} (túrquico/latino, Wikipédia, $250\text{ mil}$ palavras) e \textbf{francês} (românico opaco, Wikipédia, $200\text{ mil}$ palavras). A Tabela~\ref{tab:multilingual_pt} compara Norvig, Unificado com pesos fixos $(1{,}0;\,4{,}0;\,1{,}5;\,4{,}0)$ e Unificado com pesos ajustados por língua em divisões 50/50 de erros \textit{non-word} presentes no vocabulário. No russo (cirílico), o modelo atinge \textbf{85,31\%} Top-1 (\textbf{95,00\%} Top-5) contra $79{,}38\%$ de Norvig ($p=1{,}57\times 10^{-4}$). No hebraico (abjad), atinge $55{,}10\%$ ($93{,}88\%$ Top-5 ajustado) contra $53{,}06\%$ de Norvig. O ajuste por língua reflete a profundidade ortográfica: o português eleva $\lambda_{\text{phon}}$ para $6{,}0$ (subindo de $83{,}57\%$ para \textbf{85,97\%}), enquanto o turco (quase fonêmico) prioriza o teclado ($\lambda_{\text{kb}}=4{,}0$, $\lambda_{\text{phon}}=1{,}0$, atingindo \textbf{81,28\%} vs.\ $77{,}95\%$ de Norvig, $p=0{,}0034$). Em francês ($n=118$), o modelo fixo também supera Norvig ($59{,}32\%$ vs.\ $57{,}63\%$).
+Para testar a portabilidade entre famílias linguísticas e sistemas de escrita distintos, adicionamos \textit{frontends} para \textbf{russo} (eslavo/cirílico, \texttt{RUSpellRU}, $200\text{ mil}$ palavras), \textbf{hebraico} (semítico/abjad, Wikipédia, $200\text{ mil}$ palavras), \textbf{turco} (túrquico/latino, Wikipédia, $250\text{ mil}$ palavras) e \textbf{francês} (românico opaco, Wikipédia, $200\text{ mil}$ palavras). A Tabela~\ref{tab:multilingual_pt} compara Norvig, LipSpell com pesos fixos $(1{,}0;\,4{,}0;\,1{,}5;\,4{,}0)$ e LipSpell com pesos ajustados por língua em divisões 50/50 de erros \textit{non-word} presentes no vocabulário. No russo (cirílico), o modelo atinge \textbf{85,31\%} Top-1 (\textbf{95,00\%} Top-5) contra $79{,}38\%$ de Norvig ($p=1{,}57\times 10^{-4}$). No hebraico (abjad), atinge $55{,}10\%$ ($93{,}88\%$ Top-5 ajustado) contra $53{,}06\%$ de Norvig. O ajuste por língua reflete a profundidade ortográfica: o português eleva $\lambda_{\text{phon}}$ para $6{,}0$ (subindo de $83{,}57\%$ para \textbf{85,97\%}), enquanto o turco (quase fonêmico) prioriza o teclado ($\lambda_{\text{kb}}=4{,}0$, $\lambda_{\text{phon}}=1{,}0$, atingindo \textbf{81,28\%} vs.\ $77{,}95\%$ de Norvig, $p=0{,}0034$). Em francês ($n=118$), o modelo fixo também supera Norvig ($59{,}32\%$ vs.\ $57{,}63\%$).
 
 \begin{table}[ht]
 \centering
