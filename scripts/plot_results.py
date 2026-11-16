@@ -52,7 +52,7 @@ def main() -> None:
 
     # Panel (b): Multilingual Cross-Family Transfer (Hunspell vs Norvig vs LipSpell)
     langs = ["English\n(Latin)", "Russian\n(Cyrillic)", "Hebrew\n(Abjad)", "Portuguese\n(Latin)", "Turkish\n(Latin)", "French\n(Latin)"]
-    m_hun = [67.69, 69.78, 57.38, 71.94, 70.95, 60.38]
+    m_hun = [69.94, 67.60, 33.61, 70.14, 47.14, 82.08]
     m_norv = [79.14, 78.50, 62.30, 76.75, 79.05, 67.92]
     m_fix = [80.37, 85.67, 63.93, 83.57, 79.52, 68.87]
     m_tun = [79.75, 84.74, 74.59, 85.97, 81.90, 73.58]

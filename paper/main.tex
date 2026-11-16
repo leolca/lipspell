@@ -190,7 +190,7 @@ Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
 \subsection{Multilingual Pilots (Slavic, Semitic, Turkic, French) and Per-Language Tuning}
 To stress-test portability across distinct language families and writing systems, we added frontends for \textbf{Russian} (Slavic/Cyrillic: JCUKEN, \texttt{RussianG2P} with word-final obstruent devoicing, \texttt{RUSpellRU}, Hunspell \texttt{index.dic} + $250\text{k}$ frequencies), \textbf{Hebrew} (Semitic/Abjad: SI-1452, \texttt{HebrewG2P}, Wikipedia bot list, clean \texttt{index.dic} with \textit{matres lectionis} indel cost $0.25$ for \textit{alef}/\textit{vav}/\textit{yod}), \textbf{Turkish} (Turkic/Latin: Turkish-Q, \texttt{TurkishG2P}, Wikipedia non-word sample, \texttt{index.dic} + $500\text{k}$), and \textbf{French} (opaque Romance/Latin: AZERTY, \texttt{FrenchG2P} with nasal vowels, Wikipedia typos, clean \texttt{index.dic}), with universal Unicode NFD diacritic-drop tolerance ($0.15$ cost) in \texttt{KeyboardLayout}.
 
-Table~\ref{tab:multilingual} compares Hunspell, Norvig, LipSpell (Fixed), and LipSpell (Tuned) on 50/50 clean non-word splits. Clean lexicons, per-language G2P refinements, and weak-character indel overrides substantially boost performance across all four languages without degrading English ($78.52\%$ vs.\ $75.19\%$ Norvig on Norvig1), and both fixed and tuned LipSpell outperform Hunspell on every single language by $+10.95$ to $+17.21$ percentage points Top-1: Russian reaches \textbf{85.67\%} Top-1 (vs.\ $69.78\%$ Hunspell, $p=1.52\times 10^{-5}$ vs.\ Norvig), Hebrew jumps to \textbf{74.59\%} (vs.\ $57.38\%$ Hunspell, $98.36\%$ Top-5), French reaches \textbf{73.58\%} (vs.\ $60.38\%$ Hunspell, $\lambda_{\text{phon}}=6.0$), and Turkish reaches \textbf{81.90\%} (vs.\ $70.95\%$ Hunspell).
+Table~\ref{tab:multilingual} compares Hunspell, Norvig, LipSpell (Fixed), and LipSpell (Tuned) on 50/50 clean non-word splits. Clean lexicons, per-language G2P refinements, and weak-character indel overrides substantially boost performance across all four languages without degrading English ($78.52\%$ vs.\ $75.19\%$ Norvig on Norvig1), and tuned LipSpell outperforms Hunspell on five of the six languages by $+9.81$ to $+40.98$ percentage points Top-1: English reaches \textbf{80.37\%} fixed ($79.75\%$ tuned vs.\ $69.94\%$ Hunspell), Russian reaches \textbf{85.67\%} Top-1 (vs.\ $67.60\%$ Hunspell, $p=1.52\times 10^{-5}$ vs.\ Norvig), Hebrew jumps to \textbf{74.59\%} (vs.\ $33.61\%$ Hunspell, $98.36\%$ Top-5), Portuguese reaches \textbf{85.97\%} (vs.\ $70.14\%$ Hunspell), and Turkish reaches \textbf{81.90\%} (vs.\ $47.14\%$ Hunspell), while Hunspell leads on French ($82.08\%$ vs.\ $73.58\%$ tuned LipSpell) due to its rich morphological affix rules.
 
 \begin{table}[ht]
 \centering
@@ -201,12 +201,12 @@ Table~\ref{tab:multilingual} compares Hunspell, Norvig, LipSpell (Fixed), and Li
 \toprule
 Language (Family / Script) & $n$ & Hunspell & Norvig & LipSpell (Fixed) & LipSpell (Tuned) & $\boldsymbol{\lambda}$ \\
 \midrule
-English (Germanic / Latin)   & 489 & 67.69 / 87.32 & 79.14 / 92.02 & \textbf{80.37} / 92.64 & 79.75 / \textbf{92.84} & $(1,4,2,2)$ \\
-Russian (Slavic / Cyrillic)  & 321 & 69.78 / 87.54 & 78.50 / 90.34 & \textbf{85.67 / 95.64} & 84.74 / 95.33 & $(1,2,4,1)$ \\
-Hebrew (Semitic / Abjad)     & 122 & 57.38 / 84.43 & 62.30 / 95.08 & 63.93 / 95.90 & \textbf{74.59 / 98.36} & $(1,4,4,1)$ \\
-Portuguese (Romance / Latin) & 499 & 71.94 / 88.38 & 76.75 / 92.59 & 83.57 / 95.99 & \textbf{85.97 / 96.39} & $(1,4,1,6)$ \\
-Turkish (Turkic / Latin)     & 420 & 70.95 / 90.00 & 79.05 / 95.00 & 79.52 / 95.48 & \textbf{81.90 / 96.19} & $(1,8,4,1)$ \\
-French (Romance / Latin)     & 106 & 60.38 / 84.91 & 67.92 / \textbf{91.51} & 68.87 / 85.85 & \textbf{73.58} / 88.68 & $(1,4,4,6)$ \\
+English (Germanic / Latin)   & 489 & 69.94 / 89.37 & 79.14 / 92.02 & \textbf{80.37} / 92.64 & 79.75 / \textbf{92.84} & $(1,4,2,2)$ \\
+Russian (Slavic / Cyrillic)  & 321 & 67.60 / 87.85 & 78.50 / 90.34 & \textbf{85.67 / 95.64} & 84.74 / 95.33 & $(1,2,4,1)$ \\
+Hebrew (Semitic / Abjad)     & 122 & 33.61 / 91.80 & 62.30 / 95.08 & 63.93 / 95.90 & \textbf{74.59 / 98.36} & $(1,4,4,1)$ \\
+Portuguese (Romance / Latin) & 499 & 70.14 / 84.77 & 76.75 / 92.59 & 83.57 / 95.99 & \textbf{85.97 / 96.39} & $(1,4,1,6)$ \\
+Turkish (Turkic / Latin)     & 420 & 47.14 / 61.43 & 79.05 / 95.00 & 79.52 / 95.48 & \textbf{81.90 / 96.19} & $(1,8,4,1)$ \\
+French (Romance / Latin)     & 106 & \textbf{82.08 / 94.34} & 67.92 / 91.51 & 68.87 / 85.85 & 73.58 / 88.68 & $(1,4,4,6)$ \\
 \bottomrule
 \end{tabular}
 \end{table}
