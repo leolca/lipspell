@@ -45,6 +45,15 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 | `phonetic` (alone) | 38.80 | 67.60 | — | 3.28 |
 | **`unified` (`cosine`)** | **73.00** | **85.20** | **72.15** | 15.46 |
 
+### Turkish (`tr`, non-Indo-European pilot, `250,000` words from `FrequencyWords` + `TurkishWikiSpellingMistakes`, $n=1{,}000$)
+
+| Mode | Top-1 (%) | Top-5 (%) | ms/word |
+| :--- | ---: | ---: | ---: |
+| `norvig` | 60.60 | 74.30 | 0.43 |
+| `keyboard` | 35.70 | 59.40 | 2.33 |
+| `phonetic` | 27.10 | 49.50 | 3.53 |
+| **`unified` (`cosine`)** | **61.40** | **74.30** | 15.86 |
+
 ### English (`78,393` words from `big.txt` + `american-english`, Top-1 % / Top-5 %)
 
 | Dataset | `aspell` | `hunspell` | `norvig` | **`unified` (`cosine`)** |

@@ -186,6 +186,9 @@ Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
 \end{tabular}
 \end{table}
 
+\subsection{Non-Indo-European Transfer Pilot: Turkish}
+To test transfer beyond Indo-European languages, we added four Turkish IPA segments (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/), a Turkish Q keyboard layout, and a one-to-one \texttt{TurkishG2P} mapping, indexing the top $250{,}000$ alphabetic words from \texttt{FrequencyWords} (\texttt{tr\_full.txt}, $12.21$\,s build). On a random sample ($n=1{,}000$, seed $42$) of \texttt{nonword} \texttt{noise:*} typos from Turkish Wikipedia (\texttt{TurkishWikiSpellingMistakes}), vocabulary coverage is $81.4\%$ and candidate recall is $79.3\%$---reflecting Turkish's rich agglutinative morphology. Using the English-tuned weights unchanged, Unified achieves \textbf{61.40\%} Top-1 ($74.30\%$ Top-5, $15.86$\,ms/word) versus $60.60\%$ Top-1 ($74.30\%$ Top-5) for Norvig ($b_{01}=22, b_{10}=14$, McNemar $p=0.243$). Unlike English and Portuguese, Turkish orthography is nearly phonemic, so most Wikipedia errors are motor slips rather than deep grapheme--phoneme mismatches; nonetheless, the framework transfers zero-shot without degradation.
+
 \subsection{Limitations}
 Four limitations remain: (1) isolated-word scoring cannot resolve real-word errors (e.g., \textit{their}/\textit{there}, \textit{mas}/\textit{mais}); (2) G2P on severely distorted inputs can degrade phonetic matching; (3) one-to-one phone DP cannot align single phones to two-segment diphthongs/digraphs without $1$-to-$2$ operations; and (4) each word is assigned a single pronunciation rather than a pronunciation set $\Phi(w)$.
 

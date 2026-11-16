@@ -346,3 +346,56 @@ class PortugueseG2P:
                 out.append(_PT_SINGLE.get(ch, ""))
             i += 1
         return "".join(out)
+
+
+_TR_SINGLE: Dict[str, str] = {
+    "a": "a",
+    "â": "a",
+    "b": "b",
+    "c": "dʒ",
+    "ç": "tʃ",
+    "d": "d",
+    "e": "e",
+    "f": "f",
+    "g": "ɡ",
+    "ğ": "",
+    "h": "h",
+    "ı": "ɯ",
+    "i": "i",
+    "î": "i",
+    "j": "ʒ",
+    "k": "k",
+    "l": "l",
+    "m": "m",
+    "n": "n",
+    "o": "o",
+    "ö": "ø",
+    "p": "p",
+    "r": "ɾ",
+    "s": "s",
+    "ş": "ʃ",
+    "t": "t",
+    "u": "u",
+    "û": "u",
+    "ü": "y",
+    "v": "v",
+    "y": "j",
+    "z": "z",
+}
+
+
+class TurkishG2P:
+    """Rule-based Turkish G2P emitting IPA phones in the feature table."""
+
+    def __init__(self) -> None:
+        self._cache: Dict[str, str] = {}
+
+    def transcribe(self, word: str) -> str:
+        # Handle Turkish uppercase İ/I properly before lowercasing
+        w = word.replace("İ", "i").replace("I", "ı").lower()
+        cached = self._cache.get(w)
+        if cached is not None:
+            return cached
+        ipa = "".join(_TR_SINGLE.get(ch, "") for ch in w)
+        self._cache[w] = ipa
+        return ipa

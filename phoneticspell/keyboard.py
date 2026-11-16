@@ -61,6 +61,22 @@ class KeyboardLayout:
         return cls(coords=coords, saturation=saturation)
 
     @classmethod
+    def turkish_q(cls, saturation: float = 3.0) -> "KeyboardLayout":
+        """Standard Turkish Q keyboard layout (adds ğ, ü, ş, ı/i, ö, ç)."""
+        tr_rows = [
+            "\"1234567890*-",
+            "qwertyuıopğü",
+            "asdfghjklşi,",
+            "zxcvbnmöç.",
+        ]
+        coords: Dict[str, Tuple[float, float]] = {}
+        for r_idx, row in enumerate(tr_rows):
+            offset = ROW_OFFSETS[r_idx]
+            for c_idx, ch in enumerate(row):
+                coords[ch] = (float(r_idx), float(c_idx) + offset)
+        return cls(coords=coords, saturation=saturation)
+
+    @classmethod
     def from_json(cls, json_path: str | Path, saturation: float = 3.0) -> "KeyboardLayout":
         with Path(json_path).open("r", encoding="utf-8") as fh:
             data = json.load(fh)

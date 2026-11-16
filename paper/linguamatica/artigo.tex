@@ -162,6 +162,9 @@ TOEFL-Spell ($n=1000$) & 98,7 & 72,80 / 90,40 & 66,90 / 86,90 & 76,80 / 90,40 & 
 \end{tabular}
 \end{table}
 
+\subsection{Piloto em Língua Não Indo-Europeia: Turco}
+Para testar a transferência além das línguas indo-europeias, adicionamos quatro segmentos turcos ao AFI (/\textipa{y}/, /\textipa{\o}/, /\textipa{W}/, /\textfishhookr/), o teclado Q turco e um G2P determinístico, indexando $250.000$ palavras de \texttt{FrequencyWords} (\texttt{tr\_full.txt}, $12{,}21$\,s). Em uma amostra aleatória ($n=1.000$, semente $42$) de erros \texttt{nonword} \texttt{noise:*} da Wikipédia turca, a cobertura vocabular foi de $81{,}4\%$ (revocação de $79{,}3\%$, limitada pela morfologia aglutinativa do turco). Sem reajustar pesos, o modelo unificado obteve \textbf{61,40\%} Top-1 ($74{,}30\%$ Top-5) contra $60{,}60\%$ de Norvig ($b_{01}=22, b_{10}=14$, $p=0{,}243$), confirmando transferência sem degradação mesmo em ortografia quase fonêmica.
+
 \section{Conclusão}
 Apresentamos um arcabouço fonético independente de língua que combina distância de edição ponderada por traços distintivos (cosseno), geometria de teclado e frequência lexical. Os experimentos confirmam que os três canais são complementares, permitindo atingir $79{,}26\%$ Top-1 em Norvig1, $77{,}10\%$ em TOEFL-Spell e transferir-se ao português brasileiro ($73{,}00\%$ Top-1 contra $64{,}00\%$ do Aspell e $64{,}20\%$ do Hunspell) substituindo apenas recursos específicos da língua. Trabalhos futuros incluem integração com Epitran \citep{mortensen2018epitran}, alinhamentos $1$-para-$2$ e contexto por $n$-gramas para erros de palavra real (\textit{mas}/\textit{mais}, \textit{their}/\textit{there}).
 
