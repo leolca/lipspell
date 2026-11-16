@@ -43,11 +43,8 @@ def candidate_recall_breakdown(checker: SpellChecker, pairs: List[Tuple[str, str
 
 def main() -> None:
     data_dir = Path("/home/leoca/ee/research/spellcheck/data")
-    local_data = Path("/home/leoca/ee/research/phoneticspellchecker/data")
-    features_csv = Path(
-        "/home/leoca/ee/research/phoneticspellchecker/phoneticspell/data/distinctivefeatures_ipa.csv"
-    )
-    features = DistinctiveFeatures(features_csv, metric="cosine")
+    local_data = Path(__file__).resolve().parent.parent / "data"
+    features = DistinctiveFeatures(metric="cosine")
 
     # 1. Verify Birkbeck dev vs Holbrook overlap
     eval_pairs_all: Set[Tuple[str, str]] = set()

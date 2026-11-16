@@ -71,7 +71,7 @@ def main() -> None:
     parser.add_argument(
         "--tr-dir",
         type=Path,
-        default=Path("/home/leoca/ee/research/phoneticspellchecker/data/tr"),
+        default=Path(__file__).resolve().parent.parent / "data" / "tr",
     )
     parser.add_argument("--max-words", type=int, default=250_000)
     parser.add_argument("--sample-size", type=int, default=1000)

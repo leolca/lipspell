@@ -133,7 +133,7 @@ def analyze_dataset(
 
 def main() -> None:
     data_dir = Path("/home/leoca/ee/research/spellcheck/data")
-    local_data = Path("/home/leoca/ee/research/phoneticspellchecker/data")
+    local_data = Path(__file__).resolve().parent.parent / "data"
 
     features = DistinctiveFeatures(metric="cosine")
     syll_idx = features.feature_names.index("syll")

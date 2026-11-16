@@ -9,7 +9,7 @@ import numpy as np
 
 
 def main() -> None:
-    out_dir = Path("/home/leoca/ee/research/phoneticspellchecker/paper/figures")
+    out_dir = Path(__file__).resolve().parent.parent / "paper" / "figures"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     plt.rcParams.update(

@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument(
         "--toefl-path",
         type=Path,
-        default=Path("/home/leoca/ee/research/phoneticspellchecker/data/toefl_spell_annotations.tsv"),
+        default=Path(__file__).resolve().parent.parent / "data" / "toefl_spell_annotations.tsv",
     )
     parser.add_argument(
         "--wordlist",

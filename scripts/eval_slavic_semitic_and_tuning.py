@@ -120,7 +120,7 @@ def run_lang(
 
 
 def main() -> None:
-    data_root = Path("/home/leoca/ee/research/phoneticspellchecker/data")
+    data_root = Path(__file__).resolve().parent.parent / "data"
     features = DistinctiveFeatures(metric="cosine")
 
     # 1. Russian (Slavic, Cyrillic)

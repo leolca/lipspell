@@ -60,7 +60,7 @@ def main() -> None:
     parser.add_argument(
         "--pt-dir",
         type=Path,
-        default=Path("/home/leoca/ee/research/phoneticspellchecker/data"),
+        default=Path(__file__).resolve().parent.parent / "data",
     )
     parser.add_argument("--max-items", type=int, default=None)
     args = parser.parse_args()

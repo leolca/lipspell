@@ -38,7 +38,7 @@ def main() -> None:
     parser.add_argument(
         "--fr-dir",
         type=Path,
-        default=Path("/home/leoca/ee/research/phoneticspellchecker/data/fr"),
+        default=Path(__file__).resolve().parent.parent / "data" / "fr",
     )
     parser.add_argument("--max-words", type=int, default=200_000)
     args = parser.parse_args()
