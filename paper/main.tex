@@ -3,6 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage[safe]{tipa}
 \usepackage{hyperref}
 \usepackage{natbib}
 \usepackage[margin=2.5cm]{geometry}
@@ -83,7 +84,7 @@ We evaluate across seven real-world misspelling benchmarks in two languages:
     \item \textbf{English ($78{,}393$ indexed words):} Unigram counts from \texttt{big.txt} merged with \texttt{/usr/share/dict/american-english} (floor count $1$). Evaluation sets are \textbf{Norvig1} ($n=270$), \textbf{Norvig2} ($n=400$), \textbf{Aspell} ($n=516$), \textbf{Wikipedia-EN} ($n=300$ pairs), \textbf{Holbrook} ($n=300$ pairs), and \textbf{TOEFL-Spell} \citep{flor2019toefl} ($n=1{,}000$ unique non-native English learner misspellings).
     \item \textbf{Brazilian Portuguese ($240{,}040$ indexed words):} Unigram counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (floor count $1$). Evaluation set is $500$ single-word misspellings extracted from \textit{Wikip\'edia: Lista de erros comuns} (A--Z).
 \end{itemize}
-We compare our \textbf{Unified} model against **Norvig** (orthographic edit distance $\le 2$ ranked by unigram frequency), **Aspell 0.60.8.2** (\texttt{-a -l en\_US} / \texttt{pt\_BR}), and **Hunspell 1.7.2** (\texttt{-a -d en\_US} / \texttt{pt\_BR}), reporting Top-1 accuracy, Top-5 accuracy, and average latency (ms/word).
+We compare our \textbf{Unified} model against \textbf{Norvig} (orthographic edit distance $\le 2$ ranked by unigram frequency), \textbf{Aspell 0.60.8.2} (\texttt{-a -l en\_US} / \texttt{pt\_BR}), and \textbf{Hunspell 1.7.2} (\texttt{-a -d en\_US} / \texttt{pt\_BR}), reporting Top-1 accuracy, Top-5 accuracy, and average latency (ms/word).
 
 \section{Results and Discussion}
 
