@@ -47,7 +47,7 @@ Following generative phonology \parencite{chomsky1968sound}, each IPA segment $p
 
 We precompute the $|P|\times|P|$ substitution matrix $M$ and indel vector $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$ once at initialization, making every DP transition an $O(1)$ array lookup. We compare three metrics:
 \begin{enumerate}
-    \item \textbf{Uniform $L_1$:} $M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^{F} |v_{u,k} - v_{v,k}|$ ($F=24$). Because unspecified ($0$) features contribute $0$ to the numerator, phones sharing many $0$s appear spuriously close under $L_1$.
+    \item \textbf{Uniform $L_1$\footnote{Throughout, $L_1$ denotes the normalized Manhattan ($\ell_1$-norm) distance between ternary phonological feature vectors---not first language (L1) or $L_1$ regularization---and \emph{salience} denotes fixed phonological feature weights $w_k$ following Kondrak's ALINE \parencite{kondrak2003phonetic}, rather than machine-learning feature-attribution saliency.}:} $M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^{F} |v_{u,k} - v_{v,k}|$ ($F=24$). Because unspecified ($0$) features contribute $0$ to the numerator, phones sharing many $0$s appear spuriously close under $L_1$.
     \item \textbf{Salience-weighted $L_1$:} Inspired by ALINE \parencite{kondrak2003phonetic}, $M_{u,v}^{\text{sal}} = \frac{\sum_{k=1}^{F} w_k |v_{u,k} - v_{v,k}|}{2\sum_{k=1}^{F} w_k}$, assigning lower weights to voicing ($w_{\text{voi}}=0.6$) and vowel tenseness ($w_{\text{tns}}=0.5$) and higher weights to major-class and place features ($w_{\text{syll}}=2.0$, $w_{\text{cons}}=1.8$, $w_{\text{lab}}=w_{\text{cor}}=w_{\text{dor}}=1.5$).
     \item \textbf{Cosine distance:}
     \begin{equation}
