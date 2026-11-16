@@ -12,4 +12,10 @@ paper/*.blg
 paper/*.log
 paper/*.out
 paper/*.toc
+paper/linguamatica/*.aux
+paper/linguamatica/*.bbl
+paper/linguamatica/*.blg
+paper/linguamatica/*.log
+paper/linguamatica/*.out
+paper/linguamatica/*.toc
 
