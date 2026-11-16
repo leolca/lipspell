@@ -58,7 +58,7 @@ Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing
 | **Hebrew** (Semitic / Abjad) | 122 | 39.34 / 84.43 | 33.61 / 91.80 | 62.30 / 95.08 | 63.93 / 95.90 | **74.59 / 98.36** | `(1, 4, 4, 1)` |
 | **Portuguese** (Romance / Latin) | 499 | 67.13 / 79.96 | 70.14 / 84.77 | 76.75 / 92.59 | 83.57 / 95.99 | **85.97 / 96.39** | `(1, 4, 1, 6)` |
 | **Turkish** (Turkic / Latin) | 420 | 26.67 / 33.10 | 47.14 / 61.43 | 79.05 / 95.00 | 79.52 / 95.48 | **81.90 / 96.19** | `(1, 8, 4, 1)` |
-| **French** (Romance / Latin) | 106 | 62.26 / 67.92 | **82.08 / 94.34** | 67.92 / 91.51 | 68.87 / 85.85 | 73.58 / 88.68 | `(1, 4, 4, 6)` |
+| **French** (Romance / Latin) | 106 | 62.26 / 67.92 | **82.08 / 94.34** | 67.92 / 91.51 | 68.87 / 86.79 | 74.53 / 90.57 | `(1, 4, 4, 6)` |
 
 ### Turkish (`tr`, non-Indo-European pilot, `250,000` words from `FrequencyWords` + `TurkishWikiSpellingMistakes`, $n=1{,}000$)
 
