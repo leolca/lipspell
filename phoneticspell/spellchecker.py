@@ -56,7 +56,7 @@ class SpellChecker:
             {w: c for w, c in word_counts.items() if c >= min_freq}
         )
         self.total_tokens = max(sum(self.counts.values()), 1)
-        self.log_total = math.log(self.total_tokens)
+        self.log_total = math.log(self.total_tokens + 0.5 * len(self.counts))
         self.features = features
         self.g2p = g2p
         self.keyboard = keyboard or KeyboardLayout()

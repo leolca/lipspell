@@ -148,7 +148,7 @@ def main() -> None:
     en_counts = merge_wordlist(load_corpus_counts(en_data / "big.txt"), Path("/usr/share/dict/american-english"), 1)
     en_pairs = load_toefl_pairs(data_root / "toefl_spell_annotations.tsv", 1000)
     en_rule = EnglishG2P(cmudict_path=None)
-    en_cmu = EnglishG2P()
+    en_cmu = EnglishG2P(cmudict_path=en_data / "cmudict-0.7b")
     run_case("English-CMU", en_counts, en_pairs, KeyboardLayout(), en_rule, en_cmu, (1.0, 4.0, 2.0, 2.0), features)
     en_ipa_lex = load_ipa_lexicon(ipa_dir / "en_US.txt")
     run_case("English-IPA", en_counts, en_pairs, KeyboardLayout(), en_rule, DictFallbackG2P(en_ipa_lex, en_rule), (1.0, 4.0, 2.0, 2.0), features)
