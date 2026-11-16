@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage[margin=2.5cm]{geometry}
+
+\title{A Language-Agnostic Phonetic Spell Checker Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
+\author{Leonardo Araujo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---failing on cognitive and phonetic misspellings---or on language-specific phonetic hashes such as Soundex and Metaphone, which are tailored to English and collapse distinct sounds into coarse buckets. We present a unified, language-agnostic noisy-channel spell checker that combines: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal IPA distinctive features, (2) physical keyboard layout distances (QWERTY and ABNT2), and (3) corpus word-frequency priors, accelerated by a two-stage symmetric-delete and coarse articulatory-skeleton index. In ablations across five English benchmarks plus TOEFL-Spell ($n=1000$ L2 errors), cosine distance over ternary distinctive-feature vectors outperforms uniform $L_1$ and salience-weighted feature distances, and the unified model consistently outperforms Norvig's baseline and Hunspell while remaining competitive with Aspell. Crucially, swapping only the grapheme-to-phoneme rules, keyboard layout, and lexicon transfers the approach to Brazilian Portuguese (\textit{Wikip\'edia: Lista de erros comuns}, $n=500$), achieving 73.00\% Top-1 accuracy compared to 66.60\% for Norvig and 64.20\% for Hunspell.
+\end{abstract}
+
+\section{Introduction}
+Spelling errors arise from two distinct mechanisms \citep{kukich1992techniques,toutanova2002pronunciation}: \emph{typographical errors} caused by motor slips on a keyboard (e.g., adjacent-key substitutions or transpositions), and \emph{cognitive or phonetic errors} where the writer approximates a word's pronunciation (e.g., \textit{nite} $\rightarrow$ \textit{night}, \textit{escencial} $\rightarrow$ \textit{essential}, or in Portuguese \textit{escess\~ao} $\rightarrow$ \textit{exce\c{c}\~ao}).
+
+While \citet{damerau1964technique} and noisy-channel character models \citep{brill2000improved} handle typographical errors effectively, purely orthographic distances fail when a phonetic spelling differs by multiple letters. Conversely, classic phonetic indexing algorithms such as Soundex and Metaphone encode English-specific consonant rules into coarse keys and do not generalize cleanly across languages. In phonological theory and computational linguistics, speech segments are decomposed into universal \emph{distinctive features} (e.g., $[\pm\text{syllabic}, \pm\text{voice}, \pm\text{nasal}]$), enabling gradient articulatory distance metrics \citep{kondrak2003phonetic,mortensen2016panphon}.
+
+Building on our earlier prototype \citep{araujo2018phonetic}, this paper makes three contributions:
+\begin{enumerate}
+    \item We formulate a fast, unified scoring model combining unnormalized orthographic, keyboard, and distinctive-feature phonetic Damerau--Levenshtein distances with corpus unigram priors, using $O(1)$ precomputed lookup matrices.
+    \item We evaluate three feature-vector metrics ($L_1$, ALINE-style salience, and cosine) across six English datasets---including L2 learner errors from TOEFL-Spell \citep{flor2019toefl}---and compare against Norvig, Aspell, and Hunspell.
+    \item We demonstrate cross-lingual portability to Brazilian Portuguese using only a rule-based Portuguese G2P, an ABNT2 keyboard layout, and Enelvo lexicons \citep{bertaglia2016enelvo}, outperforming both Norvig and Hunspell on real Wikipedia misspellings.
+\end{enumerate}
+
+\section{Methodology}
+
+\subsection{Precomputed Distinctive-Feature Phone Distances}
+Each IPA segment $p \in P$ is represented by a 24-dimensional ternary articulatory vector $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$ (following the Hulden IPA feature chart). Rather than querying feature tables inside the dynamic-programming inner loop, we precompute the $|P|\times|P|$ substitution matrix $M$ and insertion/deletion vector $\mathbf{d}_{\text{indel}}$ once at initialization. We compare three metrics:
+\begin{itemize}
+    \item \textbf{Uniform $L_1$:} $M_{u,v} = \frac{1}{2F}\sum_{k=1}^F |v_{u,k} - v_{v,k}|$.
+    \item \textbf{Salience-weighted $L_1$:} $M_{u,v} = \frac{\sum_k w_k |v_{u,k} - v_{v,k}|}{2\sum_k w_k}$, assigning higher weight to major-class/place/manner features and lower weight to voicing and tense/lax distinctions.
+    \item \textbf{Cosine distance:} $M_{u,v} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\|\mathbf{v}_u\|_2 \|\mathbf{v}_v\|_2}\right)$, which naturally normalizes for feature sparsity between consonants and vowels (where unspecified features take $0$).
+\end{itemize}
+
+\subsection{Two-Stage Candidate Generation and Unified Ranking}
+Evaluating weighted edit distance against an entire dictionary ($78\text{k}$--$240\text{k}$ words) is prohibitively slow. We combine two $O(1)$-lookup indices: (1) a SymSpell-style symmetric delete index up to orthographic edit distance $2$, and (2) a coarse articulatory-skeleton index collapsing each phone into 7 broad classes (\texttt{V, N, L, S, P, T, K}) with 1-delete tolerance, sorted by descending word frequency.
+
+For a query $x$ and candidate $w$, the unified noisy-channel score is:
+\begin{equation}
+    S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)),
+\end{equation}
+where $\phi(\cdot)$ is a G2P function (CMUdict + rule-based fallback for English; rule-based G2P for Portuguese) and $d_{\text{orth}}, d_{\text{kb}}, d_{\text{phon}}$ are unnormalized Damerau--Levenshtein distances. Weights $(1.0, 4.0, 1.5, 4.0)$ were tuned via coordinate search on a disjoint $800$-pair sample of Birkbeck.
+
+\section{Experiments and Results}
+
+\subsection{Phone-Distance Metric Ablation (English)}
+Using a $78{,}393$-word English vocabulary (\texttt{big.txt} + \texttt{american-english}), Table~\ref{tab:ablation} compares $L_1$, salience, and cosine across five standard benchmarks. Cosine achieves the highest phonetic-only Top-1 accuracy on all five datasets and the best overall unified Top-1/Top-5 on most sets.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Phone-distance metric ablation on English ($78{,}393$ words, Top-1 / Unified Top-1 / Unified Top-5 \%).}
+\label{tab:ablation}
+\begin{tabular}{lccc}
+\toprule
+Dataset & $L_1$ (Phon / Unif T1 / T5) & Salience (Phon / Unif T1 / T5) & Cosine (Phon / Unif T1 / T5) \\
+\midrule
+Norvig1 ($n=270$)   & 38.89 / 78.15 / 91.85 & 38.15 / 77.78 / 92.22 & \textbf{41.48 / 79.26 / 92.59} \\
+Norvig2 ($n=400$)   & 35.25 / \textbf{75.25} / 88.25 & 33.25 / 74.50 / 88.25 & \textbf{37.75} / 74.75 / \textbf{88.75} \\
+Aspell ($n=516$)    & 23.84 / 56.98 / 75.58 & 24.03 / \textbf{57.17} / 75.58 & \textbf{26.16} / 56.40 / \textbf{75.78} \\
+Wikipedia ($n=300$) & 38.67 / \textbf{81.67} / 91.33 & 38.67 / 81.33 / 91.33 & \textbf{40.33 / 81.67} / 91.33 \\
+Holbrook ($n=300$)  & 11.67 / 30.33 / 45.00 & 11.67 / 31.00 / 45.33 & \textbf{13.00 / 32.00 / 46.33} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparison with Aspell, Hunspell, and Norvig (English)}
+Table~\ref{tab:english_cmp} compares our unified cosine model against \texttt{aspell 0.60.8.2}, \texttt{hunspell 1.7.2}, and Norvig across all five benchmarks plus $1{,}000$ unique L2 learner errors from TOEFL-Spell. Our model outperforms Hunspell and Norvig on every dataset and outperforms Aspell on Norvig1, Holbrook, and TOEFL-Spell.
+
+\begin{table}[h]
+\centering
+\small
+\caption{English comparison (Top-1 \% / Top-5 \%).}
+\label{tab:english_cmp}
+\begin{tabular}{lcccc}
+\toprule
+Dataset & Aspell & Hunspell & Norvig & Unified (Cosine) \\
+\midrule
+Norvig1 ($n=270$)     & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
+Norvig2 ($n=400$)     & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
+Aspell ($n=516$)      & \textbf{58.72 / 80.81} & 53.49 / 73.64 & 52.71 / 71.51 & 56.40 / 75.97 \\
+Wikipedia ($n=300$)   & \textbf{83.33} / 91.00 & 55.33 / 70.00 & 77.00 / 89.33 & 81.67 / \textbf{91.33} \\
+Holbrook ($n=300$)    & 26.67 / 42.33 & 17.33 / 31.67 & 27.67 / 42.00 & \textbf{32.00 / 46.33} \\
+TOEFL-Spell ($n=1000$)& 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & \textbf{77.10 / 91.10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Lingual Evaluation: Brazilian Portuguese}
+To test cross-lingual generality without modifying the core engine or distinctive-feature matrix, we indexed $240{,}040$ Portuguese words from Enelvo's \texttt{freq-cgu} and \texttt{unitex} lexicons \citep{bertaglia2016enelvo}, paired with a rule-based Portuguese G2P and ABNT2 keyboard layout, and evaluated on $500$ real misspellings from \textit{Wikip\'edia: Lista de erros comuns} (Table~\ref{tab:ptbr}).
+
+\begin{table}[h]
+\centering
+\small
+\caption{Brazilian Portuguese evaluation on Wikipedia typos ($n=500$).}
+\label{tab:ptbr}
+\begin{tabular}{lccc}
+\toprule
+System & Top-1 (\%) & Top-5 (\%) & Latency (ms/word) \\
+\midrule
+Aspell (\texttt{pt\_BR})   & 6.20  & 7.00  & 16.85 \\
+Hunspell (\texttt{pt\_BR}) & 64.20 & 79.00 & 39.37 \\
+Norvig                     & 66.60 & 83.00 & 0.35 \\
+Phonetic-only              & 38.40 & 67.60 & 3.27 \\
+\textbf{Unified (Cosine)}  & \textbf{73.00} & \textbf{85.20} & 15.32 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+Combining universal IPA distinctive-feature edit distance (especially cosine distance over ternary feature vectors), keyboard geometry, and corpus frequency yields a lightweight, interpretable spell checker that outperforms Norvig and Hunspell across English and Brazilian Portuguese while avoiding English-specific phonetic heuristics. Future work includes integrating \texttt{epitran} for zero-shot evaluation across additional languages and modeling 1-to-2 phone alignments for digraphs and diphthongs.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

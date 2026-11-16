@@ -5,3 +5,11 @@ __pycache__/
 build/
 dist/
 .venv/
+data/
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.toc
+
