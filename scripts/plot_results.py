@@ -50,28 +50,30 @@ def main() -> None:
     ax1.spines["right"].set_visible(False)
     ax1.legend(frameon=False, ncol=2, loc="upper right")
 
-    # Panel (b): Multilingual Cross-Family Transfer (Fixed vs Tuned)
+    # Panel (b): Multilingual Cross-Family Transfer (Hunspell vs Norvig vs LipSpell)
     langs = ["English\n(Latin)", "Russian\n(Cyrillic)", "Hebrew\n(Abjad)", "Portuguese\n(Latin)", "Turkish\n(Latin)", "French\n(Latin)"]
+    m_hun = [67.69, 69.78, 57.38, 71.94, 70.95, 60.38]
     m_norv = [79.14, 78.50, 62.30, 76.75, 79.05, 67.92]
     m_fix = [80.37, 85.67, 63.93, 83.57, 79.52, 68.87]
     m_tun = [79.75, 84.74, 74.59, 85.97, 81.90, 73.58]
 
     x2 = np.arange(len(langs))
-    w2 = 0.25
-    b1 = ax2.bar(x2 - w2, m_norv, w2, label="Norvig", color="#a1d99b", edgecolor="#333333", linewidth=0.4)
-    b2 = ax2.bar(x2, m_fix, w2, label="LipSpell (Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
-    b3 = ax2.bar(x2 + w2, m_tun, w2, label="LipSpell (Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
+    w2 = 0.20
+    b0 = ax2.bar(x2 - 1.5 * w2, m_hun, w2, label="Hunspell", color="#fdae6b", edgecolor="#333333", linewidth=0.4)
+    b1 = ax2.bar(x2 - 0.5 * w2, m_norv, w2, label="Norvig", color="#a1d99b", edgecolor="#333333", linewidth=0.4)
+    b2 = ax2.bar(x2 + 0.5 * w2, m_fix, w2, label="LipSpell (Fixed)", color="#5b8db8", edgecolor="#111111", linewidth=0.4)
+    b3 = ax2.bar(x2 + 1.5 * w2, m_tun, w2, label="LipSpell (Tuned)", color="#2b5c8f", edgecolor="#111111", linewidth=0.5)
 
-    for bars in (b1, b2, b3):
+    for bars in (b0, b1, b2, b3):
         for bar in bars:
             h = bar.get_height()
             ax2.text(
                 bar.get_x() + bar.get_width() / 2.0,
-                h + 0.8,
-                f"{h:.1f}",
+                h + 0.6,
+                f"{h:.0f}",
                 ha="center",
                 va="bottom",
-                fontsize=6.5,
+                fontsize=6.0,
             )
 
     ax2.set_ylabel("Top-1 Accuracy (%)")

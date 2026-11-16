@@ -51,13 +51,14 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 
 Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing fixed English weights `(1.0, 4.0, 1.5, 4.0)` vs. per-language tuned weights):
 
-| Language (Family / Script) | Test $n$ | Norvig T1 / T5 | LipSpell (Fixed) T1 / T5 | LipSpell (Tuned) T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
-| :--- | ---: | :---: | :---: | :---: | :---: |
-| **Russian** (Slavic / Cyrillic) | 321 | 78.50 / 90.34 | **85.67 / 95.64** | 84.74 / 95.33 | `(1, 2, 4, 1)` |
-| **Hebrew** (Semitic / Abjad) | 122 | 62.30 / 95.08 | 63.93 / 95.90 | **74.59 / 98.36** | `(1, 4, 4, 1)` |
-| **Portuguese** (Romance / Latin) | 499 | 76.75 / 92.59 | 83.57 / 95.99 | **85.97 / 96.39** | `(1, 4, 1, 6)` |
-| **Turkish** (Turkic / Latin) | 420 | 79.05 / 95.00 | 79.52 / 95.48 | **81.90 / 96.19** | `(1, 8, 4, 1)` |
-| **French** (Romance / Latin) | 106 | 67.92 / **91.51** | 68.87 / 85.85 | **73.58** / 88.68 | `(1, 4, 4, 6)` |
+| Language (Family / Script) | Test $n$ | Hunspell T1 / T5 | Norvig T1 / T5 | LipSpell (Fixed) T1 / T5 | LipSpell (Tuned) T1 / T5 | Tuned $(\lambda_{\text{freq}},\lambda_{\text{orth}},\lambda_{\text{kb}},\lambda_{\text{phon}})$ |
+| :--- | ---: | :---: | :---: | :---: | :---: | :---: |
+| **English** (Germanic / Latin) | 489 | 67.69 / 87.32 | 79.14 / 92.02 | **80.37** / 92.64 | 79.75 / **92.84** | `(1, 4, 2, 2)` |
+| **Russian** (Slavic / Cyrillic) | 321 | 69.78 / 87.54 | 78.50 / 90.34 | **85.67 / 95.64** | 84.74 / 95.33 | `(1, 2, 4, 1)` |
+| **Hebrew** (Semitic / Abjad) | 122 | 57.38 / 84.43 | 62.30 / 95.08 | 63.93 / 95.90 | **74.59 / 98.36** | `(1, 4, 4, 1)` |
+| **Portuguese** (Romance / Latin) | 499 | 71.94 / 88.38 | 76.75 / 92.59 | 83.57 / 95.99 | **85.97 / 96.39** | `(1, 4, 1, 6)` |
+| **Turkish** (Turkic / Latin) | 420 | 70.95 / 90.00 | 79.05 / 95.00 | 79.52 / 95.48 | **81.90 / 96.19** | `(1, 8, 4, 1)` |
+| **French** (Romance / Latin) | 106 | 60.38 / 84.91 | 67.92 / **91.51** | 68.87 / 85.85 | **73.58** / 88.68 | `(1, 4, 4, 6)` |
 
 ### Turkish (`tr`, non-Indo-European pilot, `250,000` words from `FrequencyWords` + `TurkishWikiSpellingMistakes`, $n=1{,}000$)
 
