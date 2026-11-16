@@ -51,10 +51,10 @@ def main() -> None:
     ax1.legend(frameon=False, ncol=2, loc="upper right")
 
     # Panel (b): Multilingual Cross-Family Transfer (Fixed vs Tuned)
-    langs = ["Russian\n(Cyrillic)", "Hebrew\n(Abjad)", "Portuguese\n(Latin)", "Turkish\n(Latin)"]
-    m_norv = [79.38, 53.06, 76.75, 77.95]
-    m_fix = [85.31, 55.10, 83.57, 80.77]
-    m_tun = [84.69, 55.10, 85.97, 81.28]
+    langs = ["English\n(Latin)", "Russian\n(Cyrillic)", "Hebrew\n(Abjad)", "Portuguese\n(Latin)", "Turkish\n(Latin)"]
+    m_norv = [79.14, 79.38, 53.06, 76.75, 77.95]
+    m_fix = [80.37, 85.31, 55.10, 83.57, 80.77]
+    m_tun = [79.75, 84.69, 55.10, 85.97, 81.28]
 
     x2 = np.arange(len(langs))
     w2 = 0.25
