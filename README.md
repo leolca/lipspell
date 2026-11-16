@@ -31,19 +31,19 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 ### Key Improvements Achieved
 
 * **Outperforms Norvig on all 7 datasets:** `+6.40%` Top-1 on Brazilian Portuguese (`73.00%` vs. `66.60%`), `+4.67%` on English Wikipedia (`81.67%` vs. `77.00%`), `+4.45%` on `norvig1`, `+4.33%` on `holbrook`, `+3.69%` on `aspell`, `+2.50%` on `norvig2`, and `+0.30%` on `TOEFL-Spell`.
-* **Outperforms Hunspell on all 7 datasets:** `+8.80%` Top-1 on Portuguese (`73.00%` vs. `64.20%`) at `2.5×` lower latency (`15.32` vs. `39.37 ms/word`), and `+2.9%` to `+26.3%` Top-1 across English benchmarks.
+* **Outperforms Hunspell on all 7 datasets:** `+8.80%` Top-1 on Portuguese (`73.00%` vs. `64.20%`, $n=500$; `72.15%` vs. `63.19%`, full $n=1{,}149$) at `2.6×` lower latency (`15.46` vs. `41.07 ms/word`), and `+2.9%` to `+26.3%` Top-1 across English benchmarks.
 * **Language-agnostic advantage over Aspell:** Beats `aspell` on Portuguese `pt_BR` (`73.00%` vs. `64.00%`), L2 learner errors (`TOEFL-Spell`: `77.10%` vs. `72.80%`), `norvig1` (`79.26%` vs. `75.56%`), and `holbrook` (`32.00%` vs. `26.67%`), without any English-specific Soundex/Metaphone rules.
 * **Cosine feature distance + fast indexing:** Switching from `l1`/`salience` to `cosine` over ternary distinctive-feature vectors consistently improves phonetic-only Top-1 (`+1.33` to `+2.59` percentage points), while precomputed lookup matrices and two-stage indexing keep unified scoring at `~9–15 ms/word` over `78k–240k` words.
 
-### Brazilian Portuguese (`pt_BR`, `240,040` words from Enelvo + `Wikipédia: Lista de erros comuns`, $n=500$)
+### Brazilian Portuguese (`pt_BR`, `240,040` words from Enelvo + `Wikipédia: Lista de erros comuns`)
 
-| System | Top-1 (%) | Top-5 (%) | ms/word |
-| :--- | ---: | ---: | ---: |
-| `aspell` (`pt_BR`) | 64.00 | 76.80 | 16.09 |
-| `hunspell` (`pt_BR`) | 64.20 | 79.00 | 41.07 |
-| `norvig` | 66.60 | 83.00 | 0.36 |
-| `phonetic` (alone) | 38.80 | 67.60 | 3.28 |
-| **`unified` (`cosine`)** | **73.00** | **85.20** | 15.46 |
+| System | Top-1 ($n=500$) | Top-5 ($n=500$) | Top-1 (full $n=1{,}149$) | ms/word ($n=500$) |
+| :--- | ---: | ---: | ---: | ---: |
+| `aspell` (`pt_BR`) | 64.00 | 76.80 | 60.14 | 16.09 |
+| `hunspell` (`pt_BR`) | 64.20 | 79.00 | 63.19 | 41.07 |
+| `norvig` | 66.60 | 83.00 | 66.23 | 0.36 |
+| `phonetic` (alone) | 38.80 | 67.60 | — | 3.28 |
+| **`unified` (`cosine`)** | **73.00** | **85.20** | **72.15** | 15.46 |
 
 ### English (`78,393` words from `big.txt` + `american-english`, Top-1 % / Top-5 %)
 
@@ -62,7 +62,7 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 | :--- | :---: | :---: | :---: |
 | `norvig1` ($n=270$) | 38.89 / 78.15 / 91.85 | 38.15 / 77.78 / 92.22 | **41.48 / 79.26 / 92.59** |
 | `norvig2` ($n=400$) | 35.25 / **75.25** / 88.25 | 33.25 / 74.50 / 88.25 | **37.75** / 74.75 / **88.75** |
-| `aspell` ($n=516$) | 23.84 / 56.98 / 75.58 | 24.03 / **57.17** / 75.58 | **26.16** / 56.40 / **75.78** |
+| `aspell` ($n=516$) | 23.84 / 56.98 / 75.58 | 24.03 / **57.17** / 75.58 | **26.16** / 56.40 / **75.97** |
 | `wikipedia` ($n=300$) | 38.67 / **81.67** / 91.33 | 38.67 / 81.33 / 91.33 | **40.33 / 81.67** / 91.33 |
 | `holbrook` ($n=300$) | 11.67 / 30.33 / 45.00 | 11.67 / 31.00 / 45.33 | **13.00 / 32.00 / 46.33** |
 
@@ -70,10 +70,10 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 
 ## Repository Structure
 
-* `phoneticspell/` — Core library (`features.py`, `keyboard.py`, `g2p.py`, `distance.py`, `candidates.py`, `spellchecker.py`)
-* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`
+* `phoneticspell/` — Core library (`features.py`, `keyboard.py`, `g2p.py`, `distance.py`, `candidates.py`, `spellchecker.py`, `data/distinctivefeatures_ipa.csv`)
+* `scripts/` — `benchmark.py`, `tune_weights.py`, `ablate_metrics.py`, `compare_system_spellers.py`, `eval_toefl_spell.py`, `eval_portuguese.py`, `paper_analyses.py`, `run_review_experiments.py`
 * `tests/` — Unit tests (`test_spellchecker.py`, `test_portuguese.py`)
-* `paper/main.tex` — English manuscript (`paper/main.pdf`)
+* `paper/main.tex` — English manuscript for Cambridge *Natural Language Processing* (`paper/main.pdf`)
 * `paper/linguamatica/artigo.tex` — Portuguese manuscript for *Linguamática* (`paper/linguamatica/artigo.pdf`)
 
 ## Quick Start
@@ -84,4 +84,6 @@ python3 scripts/benchmark.py --wordlist /usr/share/dict/american-english --min-f
 python3 scripts/compare_system_spellers.py
 python3 scripts/eval_toefl_spell.py
 python3 scripts/eval_portuguese.py --max-items 500
+python3 scripts/paper_analyses.py
+python3 scripts/run_review_experiments.py
 ```
