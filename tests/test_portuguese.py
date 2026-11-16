@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from phoneticspell.features import DistinctiveFeatures
+from phoneticspell.features import DEFAULT_FEATURES_CSV, DistinctiveFeatures
 from phoneticspell.g2p import PortugueseG2P
 from phoneticspell.keyboard import KeyboardLayout
 from phoneticspell.spellchecker import SpellChecker
 
-FEATURES_CSV = Path("/home/leoca/ee/research/spellcheck/data/distinctivefeatures_ipa_mhulden.csv")
+FEATURES_CSV = DEFAULT_FEATURES_CSV
 
 
 @pytest.fixture(scope="module")

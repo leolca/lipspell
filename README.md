@@ -33,7 +33,7 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 * **Outperforms Norvig on all 7 datasets:** `+6.40%` Top-1 on Brazilian Portuguese (`73.00%` vs. `66.60%`), `+4.67%` on English Wikipedia (`81.67%` vs. `77.00%`), `+4.45%` on `norvig1`, `+4.33%` on `holbrook`, `+3.69%` on `aspell`, `+2.50%` on `norvig2`, and `+0.30%` on `TOEFL-Spell`.
 * **Outperforms Hunspell on all 7 datasets:** `+8.80%` Top-1 on Portuguese (`73.00%` vs. `64.20%`) at `2.5×` lower latency (`15.32` vs. `39.37 ms/word`), and `+2.9%` to `+26.3%` Top-1 across English benchmarks.
 * **Language-agnostic advantage over Aspell:** Beats `aspell` on Portuguese `pt_BR` (`73.00%` vs. `64.00%`), L2 learner errors (`TOEFL-Spell`: `77.10%` vs. `72.80%`), `norvig1` (`79.26%` vs. `75.56%`), and `holbrook` (`32.00%` vs. `26.67%`), without any English-specific Soundex/Metaphone rules.
-* **Cosine feature distance + fast indexing:** Switching from `l1`/`salience` to `cosine` over ternary distinctive-feature vectors consistently improves phonetic-only Top-1 (`+1.66%` to `+2.59%`), while precomputed lookup matrices and two-stage indexing keep unified scoring at `~9–15 ms/word` over `78k–240k` words.
+* **Cosine feature distance + fast indexing:** Switching from `l1`/`salience` to `cosine` over ternary distinctive-feature vectors consistently improves phonetic-only Top-1 (`+1.33` to `+2.59` percentage points), while precomputed lookup matrices and two-stage indexing keep unified scoring at `~9–15 ms/word` over `78k–240k` words.
 
 ### Brazilian Portuguese (`pt_BR`, `240,040` words from Enelvo + `Wikipédia: Lista de erros comuns`, $n=500$)
 

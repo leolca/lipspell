@@ -50,7 +50,7 @@ Pré-computamos uma única vez a matriz de substituição $M \in \mathbb{R}^{|P|
     \begin{equation}
         M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
     \end{equation}
-    Como $\mathbf{v}_p \in \{-1,0,+1\}^{24}$, o cosseno varia em $[-1,1]$ e o fator $\frac{1}{2}$ reescala para $[0,1]$. Consoantes possuem em média $18{,}12 \pm 1{,}48$ traços ativos ($n=26$) contra $19{,}94 \pm 0{,}87$ das vogais ($n=17$); normalizar por $\lVert \mathbf{v}_p \rVert_2$ reduz a influência dessa diferença de magnitude, embora zeros não aplicáveis ainda possam produzir similaridades interclasses imperfeitas.
+    Como $\mathbf{v}_p \in \{-1,0,+1\}^{24}$, o cosseno varia em $[-1,1]$ e o fator $\frac{1}{2}$ reescala para $[0,1]$. Na tabela de 45 segmentos, consoantes possuem em média $18{,}25 \pm 1{,}50$ traços ativos ($n=28$) contra $19{,}94 \pm 0{,}87$ das vogais ($n=17$); normalizar por $\lVert \mathbf{v}_p \rVert_2$ reduz a influência dessa diferença de magnitude, embora zeros não aplicáveis ainda possam produzir similaridades interclasses imperfeitas.
 \end{itemize}
 Como os custos são não uniformes (e $1-\cos$ não satisfaz necessariamente a desigualdade triangular), o alinhamento resultante é uma \emph{distância de edição ponderada generalizada}, plenamente válida na programação dinâmica.
 
@@ -67,22 +67,22 @@ com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados em uma amostra de $800$
 Todos os experimentos foram executados em Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy), medindo latência média com cache aquecido (excluindo construção do índice). Código e scripts estão disponíveis em \url{https://github.com/leolca/phoneticspellchecker}.
 
 \subsection{Português Brasileiro (\textit{Wikipédia: Lista de erros comuns})}
-Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção) a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (piso $1$), avaliando nos primeiros $500$ pares alfabéticos únicos de \textit{Wikipédia: Lista de erros comuns} (cobertura vocabular de $96{,}8\%$ e revocação de candidatos de $96{,}4\%$). O modelo unificado atinge \textbf{73,00\%} Top-1 (\textbf{85,20\%} Top-5), superando significativamente Norvig ($p=5{,}42\times 10^{-7}$), Hunspell ($p=6{,}29\times 10^{-5}$, $2{,}6\times$ mais rápido) e Aspell ($p=3{,}87\times 10^{-5}$) (Tabela~\ref{tab:ptbr}). Em erros com $d_{\text{orth}}\ge 2$ ($n=77$), o modelo unificado atinge $40{,}26\%$ contra $25{,}97\%$ de Norvig ($+14{,}29$ pontos percentuais).
+Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção, $1.836{,}6$\,MiB RSS) a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (piso $1$), avaliando tanto nos primeiros $500$ pares quanto no conjunto completo A--Z ($n=1.149$ pares alfabéticos únicos de \textit{Wikipédia: Lista de erros comuns}, eliminando viés alfabético). Mesmo com cobertura vocabular ligeiramente inferior à do Aspell e Hunspell ($96{,}8\%$ vs.\ $98{,}4\%$ em $n=500$; $95{,}8\%$ vs.\ $97{,}4\%$ em $n=1.149$), o modelo unificado atinge \textbf{73,00$\pm$3,89\%} Top-1 (\textbf{85,20\%} Top-5) em $n=500$ ($p \le 6{,}29\times 10^{-5}$) e \textbf{72,15$\pm$2,59\%} Top-1 em $n=1.149$ contra $66{,}23\%$ de Norvig ($p=3{,}60\times 10^{-13}$), $63{,}19\%$ do Hunspell ($p=1{,}99\times 10^{-9}$) e $60{,}14\%$ do Aspell ($p=7{,}86\times 10^{-16}$) (Tabela~\ref{tab:ptbr}). Em erros com $d_{\text{orth}}\ge 2$ ($n=189$ em $n=1.149$), o modelo unificado atinge $43{,}92\%$ contra $28{,}04\%$ de Norvig ($+15{,}88$ pontos percentuais).
 
 \begin{table}[ht]
 \centering
 \small
-\caption{Avaliação em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, $n=500$).}
+\caption{Avaliação em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, $n=500$ e conjunto completo $n=1.149$).}
 \label{tab:ptbr}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Sistema & Top-1 (\%) & Top-5 (\%) & Latência (ms/palavra) \\
+Sistema & Vocab ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1149$) \\
 \midrule
-Aspell (\texttt{pt\_BR}, UTF-8)   & 64,00 & 76,80 & 16,09 \\
-Hunspell (\texttt{pt\_BR}, UTF-8) & 64,20 & 79,00 & 41,07 \\
-Norvig                     & 66,60 & 83,00 & 0,36 \\
-Somente fonético           & 38,80 & 67,60 & 3,28 \\
-\textbf{Unificado (Cosseno)} & \textbf{73,00} & \textbf{85,20} & 15,46 \\
+Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\% \\
+Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% \\
+Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% \\
+Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & --- \\
+\textbf{Unificado (Cosseno)} & 96,8\% / 95,8\% & \textbf{73,00\%} & \textbf{85,20\%} & \textbf{72,15\%} \\
 \bottomrule
 \end{tabular}
 \end{table}

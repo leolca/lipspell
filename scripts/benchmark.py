@@ -83,10 +83,7 @@ def main() -> None:
     counts = load_corpus_counts(args.data_dir / "big.txt")
     if args.wordlist is not None and args.wordlist.exists():
         counts = merge_wordlist(counts, args.wordlist, floor=max(args.min_freq, 1))
-    features = DistinctiveFeatures(
-        args.data_dir / "distinctivefeatures_ipa_mhulden.csv",
-        metric=args.metric,
-    )
+    features = DistinctiveFeatures(metric=args.metric)
     g2p = EnglishG2P(args.data_dir / "cmudict-0.7b")
     kb = KeyboardLayout.from_json(args.data_dir / "qwertyKeymap.json")
     checker = SpellChecker(counts, features=features, g2p=g2p, keyboard=kb, min_freq=args.min_freq)

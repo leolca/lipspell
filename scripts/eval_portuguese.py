@@ -8,7 +8,7 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Tuple
 
-from phoneticspell.features import DistinctiveFeatures
+from phoneticspell.features import DEFAULT_FEATURES_CSV, DistinctiveFeatures
 from phoneticspell.g2p import PortugueseG2P
 from phoneticspell.keyboard import KeyboardLayout
 from phoneticspell.spellchecker import SpellChecker
@@ -55,7 +55,7 @@ def main() -> None:
     parser.add_argument(
         "--features-csv",
         type=Path,
-        default=Path("/home/leoca/ee/research/spellcheck/data/distinctivefeatures_ipa_mhulden.csv"),
+        default=DEFAULT_FEATURES_CSV,
     )
     parser.add_argument(
         "--pt-dir",

@@ -52,7 +52,7 @@ We precompute the $|P|\times|P|$ substitution matrix $M$ and indel vector $\math
     \begin{equation}
         M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
     \end{equation}
-    Because $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$, cosine similarity lies in $[-1, 1]$, so $1-\cos \in [0, 2]$ and $\frac{1}{2}$ rescales to $[0, 1]$. In our table, consonants average $18.12 \pm 1.48$ active (non-zero) features ($n=26$) versus $19.94 \pm 0.87$ for vowels ($n=17$); normalizing by $\lVert \mathbf{v}_p \rVert_2$ reduces the influence of differences in feature-vector magnitude, though non-applicable $0$s can still yield unintuitive cross-class similarities.
+    Because $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$, cosine similarity lies in $[-1, 1]$, so $1-\cos \in [0, 2]$ and $\frac{1}{2}$ rescales to $[0, 1]$. In our 45-segment table, consonants average $18.25 \pm 1.50$ active (non-zero) features ($n=28$) versus $19.94 \pm 0.87$ for vowels ($n=17$); normalizing by $\lVert \mathbf{v}_p \rVert_2$ reduces the influence of differences in feature-vector magnitude, though non-applicable $0$s can still yield unintuitive cross-class similarities.
 \end{enumerate}
 For $L_1$ and salience, $\mathbf{d}_{\text{indel}}(p)$ is proportional to active feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p)=0.5$. Because $M$ and $\mathbf{d}_{\text{indel}}$ assign non-uniform costs (and $1-\cos$ need not satisfy the triangle inequality), the resulting alignment is a \emph{generalized weighted edit distance} rather than a strict metric, which remains valid for dynamic programming.
 
@@ -80,8 +80,8 @@ This is a \emph{noisy-channel-inspired scoring function}: the three edit distanc
 \section{Datasets and Experimental Setup}
 All pairs are deduplicated lowercase alphabetic \texttt{(typo, target)} pairs with \texttt{typo != target}:
 \begin{itemize}
-    \item \textbf{English ($78{,}393$ words, $3.04$\,s build):} Word counts from \texttt{big.txt} summed with \texttt{/usr/share/dict/american-english} (floor $1$). Benchmarks: \textbf{Norvig1} ($n=270$), \textbf{Norvig2} ($n=400$), \textbf{Aspell} ($n=516$), \textbf{Wikipedia-EN} (first $300$ pairs), \textbf{Holbrook} (first $300$ pairs), and \textbf{TOEFL-Spell} \parencite{flor2019toefl} ($1{,}000$ unique pairs from \texttt{Annotations.tsv}). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all evaluation sets (including Holbrook).
-    \item \textbf{Brazilian Portuguese ($240{,}040$ words, $11.90$\,s build):} Counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$). Evaluation: first $500$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns} (A--Z). Larger files were capped at $300$--$1{,}000$ items for fast, repeatable benchmarking.
+    \item \textbf{English ($78{,}393$ words, $3.04$\,s build, $497.4$\,MiB RSS, $2.37\text{M}$ delete keys, $180\text{k}$ skeleton keys):} Word counts from \texttt{big.txt} summed with \texttt{/usr/share/dict/american-english} (floor $1$). Benchmarks: \textbf{Norvig1} ($n=270$), \textbf{Norvig2} ($n=400$), \textbf{Aspell} ($n=516$), \textbf{Wikipedia-EN} (first $300$ pairs), \textbf{Holbrook} (first $300$ pairs), and \textbf{TOEFL-Spell} \parencite{flor2019toefl} ($1{,}000$ unique pairs from \texttt{Annotations.tsv}). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all evaluation sets (including Holbrook).
+    \item \textbf{Brazilian Portuguese ($240{,}040$ words, $11.90$\,s build, $1{,}836.6$\,MiB RSS, $8.82\text{M}$ delete keys, $510\text{k}$ skeleton keys):} Counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$). We evaluate both on the $n=500$ slice and on the complete A--Z dataset ($n=1{,}149$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns}) to rule out alphabetical prefix bias.
 \end{itemize}
 Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). Reported latencies are warm-cache means per word excluding index construction. We compare against \textbf{Norvig}, \textbf{Aspell 0.60.8.2} (\texttt{-a -l en\_US} / \texttt{-l pt\_BR --encoding=utf-8}), and \textbf{Hunspell 1.7.2} (\texttt{-a -d en\_US} / \texttt{-d pt\_BR -i utf-8}), reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/phoneticspellchecker}.
 
@@ -147,23 +147,23 @@ Configuration & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
 \end{table}
 
 \subsection{Comparison with Aspell, Hunspell, and Norvig (RQ2, RQ3)}
-Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare Unified (Cosine) against Norvig, Aspell, and Hunspell. On English, Unified outperforms Norvig and Hunspell on every set and beats Aspell on Norvig1, Holbrook ($p=0.0226$), and TOEFL-Spell ($p=0.0018$). On Brazilian Portuguese, Unified achieves \textbf{73.00\%} Top-1 (\textbf{85.20\%} Top-5) at $15.46$\,ms/word, significantly beating Norvig ($p=5.42\times 10^{-7}$), Hunspell ($p=6.29\times 10^{-5}$, $2.6\times$ faster), and Aspell ($p=3.87\times 10^{-5}$). On multi-edit errors ($d_{\text{orth}}\ge 2$), Unified outperforms Norvig by $+15.15$ pp on Norvig1, $+14.28$ pp on Wikipedia-EN, $+14.29$ pp on PT-Wiki, $+6.75$ pp on Aspell, and $+4.71$ pp on TOEFL-Spell.
+Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare Unified (Cosine) against Norvig, Aspell, and Hunspell, including target vocabulary coverage for each system (\texttt{Ours/Asp/Hun}). On English, Unified outperforms Norvig and Hunspell on every set ($p < 10^{-4}$ vs.\ Hunspell on five of six sets, surviving Holm--Bonferroni correction across all pairwise comparisons) and beats Aspell on Norvig1, Holbrook ($p=0.0226$), and TOEFL-Spell ($p=0.0018$). On Brazilian Portuguese, even though Aspell and Hunspell have higher target vocabulary coverage ($98.4\%$ vs.\ $96.8\%$ on $n=500$; $97.4\%$ vs.\ $95.8\%$ on the full $n=1{,}149$ A--Z set), Unified achieves \textbf{73.00$\pm$3.89\%} Top-1 (\textbf{85.20\%} Top-5) on $n=500$ ($p \le 6.29\times 10^{-5}$ vs.\ all three baselines) and \textbf{72.15$\pm$2.59\%} Top-1 on the full $n=1{,}149$ A--Z set vs.\ $66.23\%$ for Norvig ($p=3.60\times 10^{-13}$), $63.19\%$ for Hunspell ($p=1.99\times 10^{-9}$), and $60.14\%$ for Aspell ($p=7.86\times 10^{-16}$). On multi-edit errors ($d_{\text{orth}}\ge 2$), Unified outperforms Norvig by $+15.88$ pp on full PT-Wiki ($43.92\%$ vs.\ $28.04\%$, $n=189$), $+13.64$ pp on Norvig1, $+10.20$ pp on Wikipedia-EN, $+6.75$ pp on Aspell, and $+5.84$ pp on Holbrook.
 
 \begin{table}[ht]
 \centering
 \small
-\caption{English comparison (Top-1 \% / Top-5 \%). Note: Hunspell performs morphological analysis; Unified and Norvig are isolated-word rankers.}
+\caption{English comparison (Top-1 \% / Top-5 \%) and target vocabulary coverage (\texttt{Ours/Asp/Hun} \%).}
 \label{tab:english_cmp}
 \begin{tabular}{lccccc}
 \toprule
-Dataset & Vocab\% & Aspell & Hunspell & Norvig & Unified \\
+Dataset & Vocab (\texttt{O/A/H}\%) & Aspell & Hunspell & Norvig & Unified \\
 \midrule
-Norvig1 ($n=270$)      & 98.5 & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
-Norvig2 ($n=400$)      & 97.0 & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
-Aspell ($n=516$)       & 99.0 & \textbf{58.72 / 80.81} & 53.49 / 73.64 & 52.71 / 71.51 & 56.40 / 75.97 \\
-Wikipedia ($n=300$)    & 97.3 & \textbf{83.33} / 91.00 & 55.33 / 70.00 & 77.00 / 89.33 & 81.67 / \textbf{91.33} \\
-Holbrook ($n=300$)     & 97.0 & 26.67 / 42.33 & 17.33 / 31.67 & 27.67 / 42.00 & \textbf{32.00 / 46.33} \\
-TOEFL-Spell ($n=1000$) & 98.7 & 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & \textbf{77.10 / 91.10} \\
+Norvig1 ($n=270$)      & 98.5 / 98.5 / 99.3 & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
+Norvig2 ($n=400$)      & 97.0 / 95.5 / 96.0 & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
+Aspell ($n=516$)       & 99.0 / 97.7 / 98.1 & \textbf{58.72 / 80.81} & 53.49 / 73.64 & 52.71 / 71.51 & 56.40 / 75.97 \\
+Wikipedia ($n=300$)    & 97.3 / 70.3 / 71.7 & \textbf{83.33} / 91.00 & 55.33 / 70.00 & 77.00 / 89.33 & 81.67 / \textbf{91.33} \\
+Holbrook ($n=300$)     & 97.0 / 86.3 / 86.3 & 26.67 / 42.33 & 17.33 / 31.67 & 27.67 / 42.00 & \textbf{32.00 / 46.33} \\
+TOEFL-Spell ($n=1000$) & 98.7 / 97.5 / 97.8 & 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & \textbf{77.10 / 91.10} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -171,17 +171,17 @@ TOEFL-Spell ($n=1000$) & 98.7 & 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & 
 \begin{table}[ht]
 \centering
 \small
-\caption{Brazilian Portuguese evaluation on Wikipedia typos ($n=500$, $240{,}040$ words, $96.8\%$ vocab coverage).}
+\caption{Brazilian Portuguese evaluation on Wikipedia typos ($n=500$ slice and full $n=1{,}149$ A--Z set).}
 \label{tab:ptbr}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-System & Top-1 (\%) & Top-5 (\%) & Latency (ms/word) \\
+System & Vocab ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1149$) \\
 \midrule
-Aspell (\texttt{pt\_BR})   & 64.00 & 76.80 & 16.09 \\
-Hunspell (\texttt{pt\_BR}) & 64.20 & 79.00 & 41.07 \\
-Norvig                     & 66.60 & 83.00 & 0.36 \\
-Phonetic-only              & 38.80 & 67.60 & 3.28 \\
-\textbf{Unified (Cosine)}  & \textbf{73.00} & \textbf{85.20} & 15.46 \\
+Aspell (\texttt{pt\_BR})   & 98.4\% / 97.4\% & 64.00\% & 76.80\% & 60.14\% \\
+Hunspell (\texttt{pt\_BR}) & 98.4\% / 97.4\% & 64.20\% & 79.00\% & 63.19\% \\
+Norvig                     & 96.8\% / 95.8\% & 66.60\% & 83.00\% & 66.23\% \\
+Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
+\textbf{Unified (Cosine)}  & 96.8\% / 95.8\% & \textbf{73.00\%} & \textbf{85.20\%} & \textbf{72.15\%} \\
 \bottomrule
 \end{tabular}
 \end{table}

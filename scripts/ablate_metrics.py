@@ -42,9 +42,7 @@ def main() -> None:
     ]
 
     for metric in ("l1", "salience", "cosine"):
-        features = DistinctiveFeatures(
-            args.data_dir / "distinctivefeatures_ipa_mhulden.csv", metric=metric
-        )
+        features = DistinctiveFeatures(metric=metric)
         checker = SpellChecker(counts, features=features, g2p=g2p, keyboard=kb, min_freq=1)
         print(f"\n=== metric={metric} ===")
         print(f"{'dataset':<12} {'phonetic_t1':>12} {'unified_t1':>12} {'unified_t5':>12}")

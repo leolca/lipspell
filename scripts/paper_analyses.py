@@ -39,6 +39,26 @@ def ispell_top1_flags(cmd: List[str], pairs: List[Tuple[str, str]]) -> List[bool
     return flags
 
 
+def ispell_vocab_coverage(cmd: List[str], pairs: List[Tuple[str, str]]) -> float:
+    payload = "\n".join(f"^{target}" for _, target in pairs) + "\n"
+    proc = subprocess.run(cmd, input=payload, text=True, capture_output=True, check=True)
+    in_voc = 0
+    for line in proc.stdout.splitlines():
+        if not line or line.startswith("@"):
+            continue
+        if line.startswith(("*", "+", "-")):
+            in_voc += 1
+    return 100.0 * in_voc / max(len(pairs), 1)
+
+
+def get_rss_mb() -> float:
+    with open("/proc/self/status", "r", encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith("VmRSS:"):
+                return float(line.split()[1]) / 1024.0
+    return 0.0
+
+
 def mcnemar_p(a: Sequence[bool], b: Sequence[bool]) -> float:
     """Exact two-sided McNemar p-value (binomial test on discordant pairs)."""
     b01 = sum(1 for x, y in zip(a, b) if x and not y)
@@ -89,15 +109,19 @@ def analyze_dataset(
 
     aspell_flags = ispell_top1_flags(aspell_cmd, pairs)
     hunspell_flags = ispell_top1_flags(hunspell_cmd, pairs)
+    asp_voc = ispell_vocab_coverage(aspell_cmd, pairs)
+    hun_voc = ispell_vocab_coverage(hunspell_cmd, pairs)
 
     n = len(pairs)
+    u_acc = 100.0 * sum(unif_flags) / n
+    u_ci = 196.0 * math.sqrt((u_acc / 100.0) * (1.0 - u_acc / 100.0) / n)
     p_norv = mcnemar_p(unif_flags, norvig_flags)
     p_asp = mcnemar_p(unif_flags, aspell_flags)
     p_hun = mcnemar_p(unif_flags, hunspell_flags)
 
     print(
-        f"{name:<12} n={n:<4} | Vocab={100*in_vocab/n:5.1f}% CandRec={100*cand_recall/n:5.1f}% | "
-        f"Unif={100*sum(unif_flags)/n:5.2f}% Norv={100*sum(norvig_flags)/n:5.2f}% (p={p_norv:.4g}) | "
+        f"{name:<12} n={n:<4} | Voc(Ours/Asp/Hun)={100*in_vocab/n:4.1f}/{asp_voc:4.1f}/{hun_voc:4.1f}% CandRec={100*cand_recall/n:4.1f}% | "
+        f"Unif={u_acc:5.2f}±{u_ci:4.2f}% Norv={100*sum(norvig_flags)/n:5.2f}% (p={p_norv:.4g}) | "
         f"Asp={100*sum(aspell_flags)/n:5.2f}% (p={p_asp:.4g}) | "
         f"Hun={100*sum(hunspell_flags)/n:5.2f}% (p={p_hun:.4g})"
     )
@@ -111,7 +135,7 @@ def main() -> None:
     data_dir = Path("/home/leoca/ee/research/spellcheck/data")
     local_data = Path("/home/leoca/ee/research/phoneticspellchecker/data")
 
-    features = DistinctiveFeatures(data_dir / "distinctivefeatures_ipa_mhulden.csv", metric="cosine")
+    features = DistinctiveFeatures(metric="cosine")
     syll_idx = features.feature_names.index("syll")
     cons_nnz = [int(np.count_nonzero(v)) for v in features.vectors if v[syll_idx] <= 0]
     vow_nnz = [int(np.count_nonzero(v)) for v in features.vectors if v[syll_idx] > 0]
@@ -122,6 +146,7 @@ def main() -> None:
     )
 
     # English
+    rss0 = get_rss_mb()
     en_counts = merge_wordlist(
         load_corpus_counts(data_dir / "big.txt"),
         Path("/usr/share/dict/american-english"),
@@ -134,6 +159,8 @@ def main() -> None:
         keyboard=KeyboardLayout.from_json(data_dir / "qwertyKeymap.json"),
         min_freq=1,
     )
+    en_rss = get_rss_mb() - rss0
+    print(f"English Index RSS delta: {en_rss:.1f} MiB, delete keys: {len(en_checker.index.delete_index)}, skel keys: {len(en_checker.index.skel_index)}")
     en_sets = [
         ("norvig1", load_testset(data_dir / "spell-testset-norvig1.txt")),
         ("norvig2", load_testset(data_dir / "spell-testset-norvig2.txt")),
@@ -153,6 +180,7 @@ def main() -> None:
         )
 
     # Portuguese
+    rss_pt0 = get_rss_mb()
     pt_counts = load_pt_counts(
         local_data / "enelvo/freq-cgu.txt",
         local_data / "enelvo/unitex-full-clean+enelvo-ja-corrigido.txt",
@@ -164,12 +192,22 @@ def main() -> None:
         keyboard=KeyboardLayout.abnt2(),
         min_freq=1,
     )
+    pt_rss = get_rss_mb() - rss_pt0
+    print(f"\nPortuguese Index RSS delta: {pt_rss:.1f} MiB, delete keys: {len(pt_checker.index.delete_index)}, skel keys: {len(pt_checker.index.skel_index)}")
     pt_pairs = load_tsv_pairs(local_data / "pt_wikipedia_typos.tsv", max_items=500)
+    pt_pairs_full = load_tsv_pairs(local_data / "pt_wikipedia_typos.tsv", max_items=None)
     print("\n=== Portuguese Coverage, McNemar p-values, and d_orth Breakdown ===")
     analyze_dataset(
-        "pt_wiki",
+        "pt_wiki_500",
         pt_checker,
         pt_pairs,
+        aspell_cmd=["aspell", "-a", "-l", "pt_BR", "--encoding=utf-8"],
+        hunspell_cmd=["hunspell", "-a", "-d", "pt_BR", "-i", "utf-8"],
+    )
+    analyze_dataset(
+        "pt_wiki_full",
+        pt_checker,
+        pt_pairs_full,
         aspell_cmd=["aspell", "-a", "-l", "pt_BR", "--encoding=utf-8"],
         hunspell_cmd=["hunspell", "-a", "-d", "pt_BR", "-i", "utf-8"],
     )

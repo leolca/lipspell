@@ -40,12 +40,15 @@ DEFAULT_SALIENCE: Dict[str, float] = {
 }
 
 
+DEFAULT_FEATURES_CSV = Path(__file__).resolve().parent / "data" / "distinctivefeatures_ipa.csv"
+
+
 class DistinctiveFeatures:
     """Loads an IPA distinctive-feature CSV and precomputes phone-to-phone distances."""
 
     def __init__(
         self,
-        csv_path: str | Path,
+        csv_path: str | Path = DEFAULT_FEATURES_CSV,
         metric: str = "salience",
         salience: Dict[str, float] | None = None,
     ) -> None:
