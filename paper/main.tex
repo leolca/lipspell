@@ -10,7 +10,7 @@
 \usepackage{graphicx}
 \usepackage[safe]{tipa}
 
-\title{A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
+\title{LipSpell: A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
 
 \author{Leonardo Araujo}
 \affiliation{Department of Computer Science, Universidade Federal de S\~ao Jo\~ao del-Rei (UFSJ), S\~ao Jo\~ao del-Rei, MG, Brazil}
@@ -23,13 +23,13 @@
 \begin{document}
 
 \begin{abstract}
-Automatic spelling correction must handle both typographical slips on a keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which struggle when phonetic errors diverge by multiple characters---or on English-centric phonetic hashes such as Soundex and Metaphone. We present a unified, language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) that integrates: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal IPA distinctive features, (2) physical keyboard geometry, and (3) corpus unigram frequency priors, accelerated by a two-stage symmetric-delete and seven-class articulatory-skeleton index. Across six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), the unified model outperforms Norvig's baseline and Hunspell on every dataset and beats Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Evaluated across five additional languages spanning four families and three writing systems, the framework transfers zero-shot to Brazilian Portuguese ($73.00\%$ Top-1 vs.\ $66.60\%$ Norvig, $64.20\%$ Hunspell, $64.00\%$ Aspell), Russian Cyrillic ($85.31\%$ vs.\ $79.38\%$), Turkish ($80.77\%$ vs.\ $77.95\%$), French ($59.32\%$ vs.\ $57.63\%$), and Hebrew Abjad ($55.10\%$ vs.\ $53.06\%$), with per-language weight tuning reflecting orthographic depth (lifting Portuguese to $85.97\%$ and Turkish to $81.28\%$).
+Automatic spelling correction must handle both typographical slips on a keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which struggle when phonetic errors diverge by multiple characters---or on English-centric phonetic hashes such as Soundex and Metaphone. We present \textbf{LipSpell}, a unified, language-independent phonetic scoring framework (paired with swappable language-specific frontends and lexicons) that integrates: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal IPA distinctive features, (2) physical keyboard geometry, and (3) corpus unigram frequency priors, accelerated by a two-stage symmetric-delete and seven-class articulatory-skeleton index. Across six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), LipSpell outperforms Norvig's baseline and Hunspell on every dataset and beats Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Evaluated across five additional languages spanning four families and three writing systems, LipSpell transfers zero-shot to Brazilian Portuguese ($73.00\%$ Top-1 vs.\ $66.60\%$ Norvig, $64.20\%$ Hunspell, $64.00\%$ Aspell), Russian Cyrillic ($85.31\%$ vs.\ $79.38\%$), Turkish ($80.77\%$ vs.\ $77.95\%$), French ($59.32\%$ vs.\ $57.63\%$), and Hebrew Abjad ($55.10\%$ vs.\ $53.06\%$), with per-language weight tuning reflecting orthographic depth (lifting Portuguese to $85.97\%$ and Turkish to $81.28\%$).
 \end{abstract}
 
 \section{Introduction}
 Spelling correction is a core component of text editors, search engines, OCR post-processing, and assistive writing tools \parencite{kukich1992techniques}. Non-word errors fall broadly into two categories \parencite{damerau1964technique,toutanova2002pronunciation}: \emph{typographical errors} caused by motor slips on a keyboard, and \emph{cognitive or phonetic errors} where the writer spells a word according to its perceived pronunciation (e.g., \textit{nite} $\rightarrow$ \textit{night}, \textit{escencial} $\rightarrow$ \textit{essential}, or in Portuguese \textit{escess\~ao} $\rightarrow$ \textit{exce\c{c}\~ao}).
 
-Our contribution lies primarily in the \emph{integration and engineering} of complementary signals into a language-independent phonetic scoring framework with swappable language-specific frontends and resources. Specifically, we investigate three research questions:
+Our contribution lies primarily in the \emph{integration and engineering} of complementary signals into \textbf{LipSpell}, a language-independent phonetic scoring framework with swappable language-specific frontends and resources. The name \emph{LipSpell} (\textbf{L}anguage-\textbf{I}ndependent \textbf{P}honetic \textbf{Spell}ing) evokes both the articulatory organs of speech production ($[+\text{labial}]$) and a phonetic misspelling pun on \emph{leap} (e.g., \textit{lip ov fayth} $\rightarrow$ \textit{leap of faith}), where /\textsci/ $\leftrightarrow$ /i/ and /v/ $\leftrightarrow$ /f/ differ by only a single distinctive feature (tense/lax and voicing). Specifically, we investigate three research questions:
 \begin{enumerate}
     \item[\textbf{RQ1:}] Does a distinctive-feature representation---and which feature-vector distance metric---improve phonetic spelling correction?
     \item[\textbf{RQ2:}] Are orthographic edit distance, keyboard geometry, distinctive-feature phonetic distance, and corpus frequency complementary when combined?
@@ -76,7 +76,7 @@ For query $x$ and candidate $w$, we compute generalized weighted edit distances 
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)).
 \end{equation}
-This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order. We refer to this four-signal model (using the cosine phone metric unless noted) as \textbf{Unified (Cosine)} to distinguish it from single-channel baselines (\texttt{Norvig}, \texttt{Keyboard}, \texttt{Phonetic-only}), while the overall scoring framework itself is language-independent.
+This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order. We refer to this four-signal model (using the cosine phone metric unless noted) as \textbf{LipSpell} to distinguish it from single-channel baselines (\texttt{Norvig}, \texttt{Keyboard}, \texttt{Phonetic-only}), while the overall scoring framework itself is language-independent.
 
 \section{Datasets and Experimental Setup}
 All pairs are deduplicated lowercase alphabetic \texttt{(typo, target)} pairs with \texttt{typo != target}:
@@ -195,11 +195,11 @@ Table~\ref{tab:multilingual} compares Norvig, Unified with fixed English weights
 \begin{table}[ht]
 \centering
 \small
-\caption{Cross-lingual transfer across four families and three scripts using \textbf{Unified (Cosine)} (50/50 clean non-word splits; Top-1 / Top-5 \%).}
+\caption{Cross-lingual transfer across four families and three scripts using \textbf{LipSpell} (Cosine metric, 50/50 clean non-word splits; Top-1 / Top-5 \%).}
 \label{tab:multilingual}
 \begin{tabular}{lccccc}
 \toprule
-Language (Family / Script) & Test $n$ & Norvig & Unified (Fixed) & Unified (Tuned) & Tuned $\boldsymbol{\lambda}$ \\
+Language (Family / Script) & Test $n$ & Norvig & LipSpell (Fixed) & LipSpell (Tuned) & Tuned $\boldsymbol{\lambda}$ \\
 \midrule
 Russian (Slavic / Cyrillic)  & 320 & 79.38 / 89.38 & \textbf{85.31 / 95.00} & 84.69 / 95.00 & $(1,2,4,2)$ \\
 Hebrew (Semitic / Abjad)     & 49  & 53.06 / 89.80 & \textbf{55.10} / 91.84 & \textbf{55.10 / 93.88} & $(1,4,4,0)$ \\
@@ -212,7 +212,7 @@ Turkish (Turkic / Latin)     & 390 & 77.95 / \textbf{95.64} & 80.77 / 95.38 & \t
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/results_overview.pdf}
-\caption{Summary of Top-1 accuracy across (a) English and Brazilian Portuguese benchmarks compared against Aspell, Hunspell, and Norvig, and (b) cross-family transfer on 50/50 clean non-word splits comparing \textbf{Unified (Cosine)} with fixed English weights vs.\ per-language tuned weights.}
+\caption{Summary of Top-1 accuracy across (a) English and Brazilian Portuguese benchmarks compared against Aspell, Hunspell, and Norvig, and (b) cross-family transfer on 50/50 clean non-word splits comparing \textbf{LipSpell} (Cosine) with fixed English weights vs.\ per-language tuned weights.}
 \label{fig:overview}
 \end{figure}
 

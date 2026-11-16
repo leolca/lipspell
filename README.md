@@ -1,6 +1,6 @@
-# Phonetic Spell Checker
+# LipSpell
 
-A fast, language-agnostic spell checker combining **IPA distinctive-feature phonetic edit distance**, **physical keyboard geometry**, and **corpus word-frequency priors** in a unified noisy-channel model.
+**LipSpell** (**L**anguage-**I**ndependent **P**honetic **Spell**ing) is a fast, language-agnostic spell checker combining **IPA distinctive-feature phonetic edit distance**, **physical keyboard geometry**, and **corpus word-frequency priors** in a unified noisy-channel-inspired model. The name evokes both speech articulation (`[+labial]`) and the phonetic misspelling pun *lip* $\leftrightarrow$ *leap* (*"lip ov fayth"* $\rightarrow$ *"leap of faith"*), where `/ɪ/ ↔ /i/` and `/v/ ↔ /f/` differ by a single distinctive feature.
 
 Unlike Soundex or Metaphone—which hardcode English-specific consonant rules into coarse buckets—this approach uses a **universal IPA articulatory feature matrix**, requiring only a grapheme-to-phoneme (G2P) converter, a word-frequency list, and a keyboard layout to adapt to a new language.
 
