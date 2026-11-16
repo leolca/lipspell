@@ -92,7 +92,7 @@ All evaluation sets consist of deduplicated lowercase alphabetic misspelling--ta
     \item \textbf{Turkish} ($|V|=777{,}340$): Hunspell \texttt{index.dic} merged with top $500\text{k}$ OpenSubtitles frequencies; evaluated on the $50/50$ clean non-word split of Turkish Wikipedia typos ($1{,}000$-pair sample, $n=420$).
     \item \textbf{French} ($|V|=74{,}544$): Top $250\text{k}$ OpenSubtitles frequencies restricted to Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of French Wikipedia typos ($n=106$).
 \end{itemize}
-Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of keys in the symmetric-delete and articulatory-skeleton hash tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). On large agglutinative vocabularies such as Turkish ($|V|=777\text{k}$), the $0$--$2$-character symmetric-delete index ($39.44\text{M}$ keys) drives peak RSS to $8.65$\,GiB. For the cross-lingual experiments, \emph{50/50 clean non-word splits} are constructed by retaining single lowercase alphabetic pairs $(x, w^*)$ with $x \notin V$, $w^* \in V$, and $x \neq w^*$, shuffling deterministically (\texttt{seed=42}), and splitting evenly into a $50\%$ development half (used solely for weight tuning $\boldsymbol{\lambda}$, never for G2P rule design) and a $50\%$ test half. Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/lipspell}.
+Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of keys in the symmetric-delete and articulatory-skeleton hash tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). On large agglutinative vocabularies such as Turkish ($|V|=777\text{k}$), the $0$--$2$-character symmetric-delete index ($39.44\text{M}$ keys) drives peak RSS to $8.65$\,GiB. For the cross-lingual experiments, \emph{50/50 clean non-word splits} are constructed by retaining single lowercase alphabetic pairs $(x, w^*)$ with $x \notin V$, $w^* \in V$, and $x \neq w^*$, shuffling deterministically (\texttt{seed=42}), and splitting evenly into a $50\%$ development half (used solely for unregularized grid search over $\lambda_{\text{freq}}=1$, $\lambda_{\text{orth}}\in\{2,4,6,8\}$, $\lambda_{\text{kb}}\in\{0,1,2,4\}$, $\lambda_{\text{phon}}\in\{0,1,2,4,6\}$, never for G2P rule design) and a $50\%$ test half. All language-specific G2P rules, keyboard layouts, and weak-character indel costs were specified prior to test-set evaluation. Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values (using the same denominator for all systems, counting OOV targets as incorrect) and $95\%$ Wilson confidence intervals. Code and scripts are at \url{https://github.com/leolca/lipspell}.
 
 \begin{table}[ht]
 \centering
@@ -216,7 +216,24 @@ Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & --- \\
 \end{table}
 
 \subsection{Multilingual Pilots (Slavic, Semitic, Turkic, French) and Per-Language Tuning}
-To stress-test portability across distinct language families and writing systems, we pair the language-specific frontends and lexicons from Sections~3.1 and~4 with targeted phonological and orthographic refinements: word-final obstruent devoicing in \texttt{RussianG2P}, a $0.25$ indel cost for Hebrew \textit{matres lectionis} (\textit{alef}/\textit{vav}/\textit{yod}), nasal-vowel rules in \texttt{FrenchG2P}, and universal Unicode NFD diacritic-drop tolerance ($0.15$ cost) in \texttt{KeyboardLayout}.
+To stress-test portability across distinct language families and writing systems, we pair the language-specific frontends and lexicons from Sections~3.1 and~4 with targeted phonological and orthographic refinements: word-final obstruent devoicing in \texttt{RussianG2P}, a $0.25$ indel cost for Hebrew \textit{matres lectionis} (\textit{alef}/\textit{vav}/\textit{yod}), nasal-vowel rules in \texttt{FrenchG2P}, and universal Unicode NFD diacritic-drop tolerance ($0.15$ cost) in \texttt{KeyboardLayout} (summarized in Table~\ref{tab:lang_components}).
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Language-specific resources and refinements paired with the common LipSpell scoring engine.}
+\label{tab:lang_components}
+\begin{tabular}{lcccccc}
+\toprule
+Component & English & Portuguese & Russian & Hebrew & Turkish & French \\
+\midrule
+Rule-based G2P & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+Phonological / orthographic rules & \checkmark & \checkmark & \checkmark & --- & --- & \checkmark \\
+Weak-character indel overrides & --- & --- & --- & \checkmark & --- & --- \\
+Pronunciation dictionary & CMUdict & --- & --- & --- & --- & \texttt{ipa-dict} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Table~\ref{tab:multilingual} compares Aspell, Hunspell, Norvig, LipSpell (Fixed), and LipSpell (Tuned) on 50/50 clean non-word splits, where \emph{LipSpell (Fixed)} applies the default English-tuned channel weights $(1.0, 4.0, 1.5, 4.0)$ across languages without per-language adjustment, whereas \emph{LipSpell (Tuned)} selects the channel weights $\boldsymbol{\lambda}$ (rightmost column) via grid search on each language's held-out $50\%$ development split before evaluating on the disjoint $50\%$ test split. Clean lexicons, per-language G2P refinements, and weak-character indel overrides substantially boost performance across all four languages without degrading English ($79.26\%$ vs.\ $74.81\%$ Norvig on Norvig1). LipSpell outperforms Aspell on all six languages ($+2.45$ to $+55.00$ percentage points Top-1, where official \texttt{aspell-tr} covers only $80{,}261$ uninflected forms) and outperforms Hunspell on five of the six languages by $+10.43$ to $+40.98$ percentage points Top-1: English (with CMUdict) reaches $80.37\%$ fixed ($79.75\%$ tuned vs.\ $77.51\%$ Aspell / $69.94\%$ Hunspell), Russian reaches $85.67\%$ with Fixed English weights (vs.\ $71.96\%$ Aspell / $67.60\%$ Hunspell, $p=1.52\times 10^{-5}$ vs.\ Norvig; per-language tuning on the small dev split slightly overfits to $84.42\%$), Hebrew jumps to $74.59\%$ tuned (vs.\ $39.34\%$ Aspell / $33.61\%$ Hunspell, $98.36\%$ Top-5), Portuguese reaches $86.97\%$ tuned (vs.\ $67.13\%$ Aspell / $70.14\%$ Hunspell), and Turkish reaches $81.67\%$ tuned (vs.\ $26.67\%$ Aspell / $47.14\%$ Hunspell), while Hunspell leads on French ($82.08\%$ vs.\ $74.53\%$ tuned LipSpell with \texttt{ipa-dict} and $62.26\%$ Aspell) due to its rich morphological affix rules. Notably, the tuned $\boldsymbol{\lambda}$ weights reflect orthographic depth: opaque orthographies (Portuguese and French) emphasize phonetics ($\lambda_{\text{phon}}=6$), transparent Turkish emphasizes orthography ($\lambda_{\text{orth}}=8, \lambda_{\text{kb}}=4$), and consonantal Hebrew balances keyboard proximity and phonetics ($\lambda_{\text{kb}}=4, \lambda_{\text{phon}}=1$). Furthermore, Aspell and Hunspell both achieve high target coverage on Hebrew ($93.44\%$ and $100.00\%$) and strong Top-5 recall ($84.43\%$ and $91.80\%$), so their low Hebrew Top-1 ($39.34\%$ and $33.61\%$) stems from ranking ties among unvocalized consonant-root neighbors without frequency priors or \textit{matres lectionis} weighting; on Turkish, \texttt{aspell-tr} accepts only $32.14\%$ of inflected targets ($80{,}261$ static forms), whereas Hunspell accepts $89.76\%$ via affixes yet achieves only $47.14\%$ Top-1 / $61.43\%$ Top-5 without corpus frequency priors.
 
@@ -236,6 +253,27 @@ Hebrew (Semitic / Abjad)     & 122 & 39.34 / 84.43 & 33.61 / 91.80 & 62.30 / 95.
 Portuguese (Romance / Latin) & 499 & 67.13 / 79.96 & 70.14 / 84.77 & 76.75 / 92.59 & 86.57 / 96.19 & \textbf{86.97 / 96.79} & $(1,4,1,6)$ \\
 Turkish (Turkic / Latin)     & 420 & 26.67 / 33.10 & 47.14 / 61.43 & 79.05 / 95.00 & 79.29 / 95.24 & \textbf{81.67 / 95.95} & $(1,8,4,1)$ \\
 French (Romance / Latin)     & 106 & 62.26 / 67.92 & \textbf{82.08 / 94.34} & 67.92 / 91.51 & 68.87 / 86.79 & 74.53 / 90.57 & $(1,4,4,6)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:multilingual_cov} reports target-vocabulary coverage for Aspell and Hunspell alongside LipSpell's development-split Top-1 (Fixed / Tuned) and $95\%$ Wilson confidence intervals on the best test-split Top-1 (LipSpell and Norvig have $100\%$ target coverage on these splits by construction). Tuned gains generalize well from dev to test on Portuguese ($88.76\% \rightarrow 86.97\%$), Turkish ($78.10\% \rightarrow 81.67\%$), Hebrew ($79.34\% \rightarrow 74.59\%$), and French ($76.42\% \rightarrow 74.53\%$), whereas wider Wilson intervals on Hebrew ($n=122$) and French ($n=106$) reflect their smaller test samples.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\caption{Target-vocabulary coverage (Aspell / Hunspell \%), dev-split Top-1 (Fixed / Tuned \%), and $95\%$ Wilson CI on best LipSpell test Top-1.}
+\label{tab:multilingual_cov}
+\begin{tabular}{lccccc}
+\toprule
+Language & $n_{\text{dev}} / n_{\text{test}}$ & Aspell Cov (\%) & Hunspell Cov (\%) & Dev Top-1 (Fix / Tun) & Best Test Top-1 (95\% CI) \\
+\midrule
+English    & 489 / 489 & 98.77 & 98.77 & 77.71 / 79.55 & 80.37 [76.62, 83.65] \\
+Russian    & 320 / 321 & 98.75 & 99.07 & 85.62 / 85.62 & 85.67 [81.41, 89.08] \\
+Hebrew     & 121 / 122 & 93.44 & 100.00 & 70.25 / 79.34 & 74.59 [66.20, 81.48] \\
+Portuguese & 498 / 499 & 99.40 & 99.40 & 85.74 / 88.76 & 86.97 [83.73, 89.64] \\
+Turkish    & 420 / 420 & 32.14 & 89.76 & 75.48 / 78.10 & 81.67 [77.69, 85.08] \\
+French     & 106 / 106 & 76.42 & 95.28 & 68.87 / 76.42 & 74.53 [65.48, 81.87] \\
 \bottomrule
 \end{tabular}
 \end{table}
