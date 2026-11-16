@@ -85,14 +85,33 @@ This is a \emph{noisy-channel-inspired scoring function}: the three edit distanc
 \section{Datasets and Experimental Setup}
 All evaluation sets consist of deduplicated lowercase alphabetic misspelling--target pairs $(x, w^*)$ with $x \neq w^*$:
 \begin{itemize}
-    \item \textbf{English} ($78{,}393$ words, $3.04$\,s build, $497.4$\,MiB RSS, $2.37\text{M}$ delete keys, $180\text{k}$ skeleton keys): Word counts from \texttt{big.txt} summed with \texttt{/usr/share/dict/american-english} (floor $1$). Benchmarks: Norvig1 ($n=270$), Norvig2 ($n=400$), Aspell ($n=516$), Wikipedia-EN (first $300$ pairs), Holbrook (first $300$ pairs), and TOEFL-Spell \parencite{flor2019toefl} ($1{,}000$ unique pairs from \texttt{Annotations.tsv}; $50/50$ clean non-word split test $n=489$). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all evaluation sets (including Holbrook).
-    \item \textbf{Brazilian Portuguese} ($240{,}040$ words, $11.90$\,s build, $1{,}836.6$\,MiB RSS, $8.82\text{M}$ delete keys, $510\text{k}$ skeleton keys): Counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$). We evaluate on the $n=500$ slice, the complete A--Z dataset ($n=1{,}149$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns}), and the $50/50$ clean non-word split (test $n=499$).
-    \item \textbf{Russian} ($358{,}624$ words): Hunspell \texttt{index.dic} merged with top $250\text{k}$ \texttt{FrequencyWords}; evaluated on the $50/50$ clean non-word split of \texttt{RUSpellRU} (test $n=321$).
-    \item \textbf{Hebrew} ($339{,}791$ words): Clean \texttt{index.dic}-restricted \texttt{FrequencyWords} ($250\text{k}$); evaluated on the $50/50$ clean non-word split of Wikipedia bot typos (test $n=122$).
-    \item \textbf{Turkish} ($777{,}340$ words): Hunspell \texttt{index.dic} merged with top $500\text{k}$ \texttt{FrequencyWords}; evaluated on the $50/50$ clean non-word split of \texttt{TurkishWikiSpellingMistakes} ($1{,}000$-pair sample, test $n=420$).
-    \item \textbf{French} ($74{,}544$ words): Clean \texttt{index.dic}-restricted \texttt{FrequencyWords} ($250\text{k}$); evaluated on the $50/50$ clean non-word split of French Wikipedia typos (test $n=106$).
+    \item \textbf{English} ($|V|=78{,}393$): Word counts from \texttt{big.txt} summed with \texttt{/usr/share/dict/american-english} (floor $1$). Benchmarks: Norvig1 ($n=270$), Norvig2 ($n=400$), Aspell ($n=516$), Wikipedia-EN (first $300$ pairs), Holbrook (first $300$ pairs), and TOEFL-Spell \parencite{flor2019toefl} ($1{,}000$ unique pairs from \texttt{Annotations.tsv}; $50/50$ clean non-word split test $n=489$). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all evaluation sets (including Holbrook).
+    \item \textbf{Brazilian Portuguese} ($|V|=240{,}040$): Counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$). We evaluate on the $n=500$ slice, the complete A--Z dataset ($n=1{,}149$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns}), and the $50/50$ clean non-word split (test $n=499$).
+    \item \textbf{Russian} ($|V|=358{,}624$): Hunspell dictionary wordlist (\texttt{index.dic}) merged with top $250\text{k}$ \texttt{FrequencyWords}; evaluated on the $50/50$ clean non-word split of \texttt{RUSpellRU} (test $n=321$).
+    \item \textbf{Hebrew} ($|V|=339{,}791$): \texttt{FrequencyWords} ($250\text{k}$) restricted to words in Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of Wikipedia bot typos (test $n=122$).
+    \item \textbf{Turkish} ($|V|=777{,}340$): Hunspell \texttt{index.dic} merged with top $500\text{k}$ \texttt{FrequencyWords}; evaluated on the $50/50$ clean non-word split of \texttt{TurkishWikiSpellingMistakes} ($1{,}000$-pair sample, test $n=420$).
+    \item \textbf{French} ($|V|=74{,}544$): \texttt{FrequencyWords} ($250\text{k}$) restricted to Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of French Wikipedia typos (test $n=106$).
 \end{itemize}
-Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). Reported latencies are warm-cache means per word excluding index construction. We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/lipspell}.
+Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of keys in the symmetric-delete and articulatory-skeleton hash tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). Reported latencies are warm-cache means per word excluding index construction. We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/lipspell}.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Startup candidate-index footprint across all six languages (isolated process measurements).}
+\label{tab:index_stats}
+\begin{tabular}{lrrrrr}
+\toprule
+Language & $|V|$ (words) & Build (s) & Delete Keys & Skeleton Keys & Peak RSS (MiB) \\
+\midrule
+French     &  74,544 &  3.55 &  3.18M & 195k &   783.2 \\
+English    &  78,393 &  3.04 &  2.37M & 180k &   497.4 \\
+Portuguese & 240,040 & 11.90 &  8.82M & 510k & 1,836.6 \\
+Hebrew     & 339,791 &  9.12 &  3.04M & 161k &   971.7 \\
+Russian    & 358,624 & 18.46 & 13.92M & 1.27M & 3,456.4 \\
+Turkish    & 777,340 & 51.58 & 39.44M & 2.14M & 8,650.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Results and Discussion}
 
