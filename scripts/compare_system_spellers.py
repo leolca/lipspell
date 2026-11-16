@@ -28,16 +28,19 @@ def eval_ispell_pipe(cmd: List[str], pairs: List[Tuple[str, str]]) -> Dict[str, 
     )
     elapsed = time.perf_counter() - t0
 
+    body_lines = [l for l in proc.stdout.splitlines() if not l.startswith("@")]
+    body = "\n".join(body_lines).strip("\n")
+    blocks = body.split("\n\n") if body else []
+
     suggestions: List[List[str]] = []
-    for line in proc.stdout.splitlines():
-        if not line or line.startswith("@"):
-            continue
-        if line.startswith(("*", "+", "-", "#")):
-            suggestions.append([])
-        elif line.startswith("&"):
-            _, rhs = line.split(":", 1)
+    for block in blocks:
+        blines = [l for l in block.splitlines() if l.strip()]
+        if len(blines) == 1 and blines[0].startswith("&"):
+            _, rhs = blines[0].split(":", 1)
             cands = [c.strip().lower() for c in rhs.split(",") if c.strip()]
             suggestions.append(cands)
+        else:
+            suggestions.append([])
 
     top1 = 0
     top5 = 0
