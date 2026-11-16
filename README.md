@@ -45,7 +45,7 @@ Unlike Soundex or Metaphone—which hardcode English-specific consonant rules in
 | `hunspell` (`pt_BR`) | 64.20 | 79.00 | 63.19 | 41.07 |
 | `norvig` | 66.60 | 83.00 | 66.23 | 0.36 |
 | `phonetic` (alone) | 38.80 | 67.60 | — | 3.28 |
-| **`unified` (`cosine`)** | **73.00** | **85.20** | **72.15** | 15.46 |
+| **`LipSpell`** | **73.00** | **85.20** | **72.15** | 15.46 |
 
 ### Multilingual Extension & Per-Language Weight Tuning (6 Languages, 4 Families, 3 Scripts)
 
@@ -65,7 +65,7 @@ Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing
 | `norvig` | 60.60 | 74.30 | 0.43 |
 | `keyboard` | 35.70 | 59.40 | 2.33 |
 | `phonetic` | 27.10 | 49.50 | 3.53 |
-| **`unified` (`cosine`)** | **61.40** | **74.30** | 15.86 |
+| **`LipSpell`** | **61.40** | **74.30** | 15.86 |
 
 ### French (`fr`, opaque orthography pilot, `200,000` words from `FrequencyWords` + French Wikipedia non-word typos, $n=118$)
 
@@ -74,11 +74,11 @@ Evaluated on clean in-vocabulary non-word typos (50/50 dev/test split, comparing
 | `norvig` | 57.63 | **85.59** |
 | `keyboard` | 33.90 | 56.78 |
 | `phonetic` | 21.19 | 42.37 |
-| **`unified` (`cosine`)** | **59.32** | 83.90 |
+| **`LipSpell`** | **59.32** | 83.90 |
 
 ### English (`78,393` words from `big.txt` + `american-english`, Top-1 % / Top-5 %)
 
-| Dataset | `aspell` | `hunspell` | `norvig` | **`unified` (`cosine`)** |
+| Dataset | `aspell` | `hunspell` | `norvig` | **`LipSpell`** |
 | :--- | :---: | :---: | :---: | :---: |
 | `norvig1` ($n=270$) | 75.56 / **92.59** | 64.44 / 84.07 | 74.81 / 91.11 | **79.26 / 92.59** |
 | `norvig2` ($n=400$) | **77.25** / 87.00 | 65.50 / 84.00 | 72.25 / 87.50 | 74.75 / **88.75** |
