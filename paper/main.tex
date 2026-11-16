@@ -22,7 +22,7 @@
 \begin{document}
 
 \begin{abstract}
-Automatic spelling correction must address two fundamentally different error sources: motor slips on a physical keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which fail when phonetic errors diverge by multiple characters---or on language-specific phonetic hashes such as Soundex and Metaphone, which encode English-centric consonant rules into coarse, discrete buckets. We present a unified, language-agnostic noisy-channel spell checker that combines: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal International Phonetic Alphabet (IPA) distinctive features, (2) physical keyboard layout distances (QWERTY and ABNT2), and (3) corpus word-frequency priors, accelerated by a two-stage index pairing symmetric deletions with a coarse articulatory skeleton. Across six English benchmarks---including $1{,}000$ second-language learner errors from TOEFL-Spell---cosine distance over ternary distinctive-feature vectors consistently outperforms uniform $L_1$ and salience-weighted feature distances, and the unified model outperforms Norvig's baseline and Hunspell on every dataset while beating Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Crucially, transferring the system to Brazilian Portuguese by swapping only the grapheme-to-phoneme rules, keyboard map, and lexicon ($240{,}040$ words from Enelvo) yields $73.00\%$ Top-1 accuracy ($85.20\%$ Top-5) on $500$ real misspellings from \textit{Wikip\'edia: Lista de erros comuns}, outperforming Norvig ($66.60\%$), Hunspell ($64.20\%$), and Aspell ($6.20\%$) while running $2.5\times$ faster than Hunspell.
+Automatic spelling correction must address two fundamentally different error sources: motor slips on a physical keyboard and cognitive or phonetic misspellings in which writers approximate a word's pronunciation. Conventional spell checkers rely either on orthographic edit distance and keyboard proximity---which fail when phonetic errors diverge by multiple characters---or on language-specific phonetic hashes such as Soundex and Metaphone, which encode English-centric consonant rules into coarse, discrete buckets. We present a unified, language-agnostic noisy-channel spell checker that combines: (1) a precomputed $|P|\times|P|$ phone-distance matrix derived from universal International Phonetic Alphabet (IPA) distinctive features, (2) physical keyboard layout distances (QWERTY and ABNT2), and (3) corpus word-frequency priors, accelerated by a two-stage index pairing symmetric deletions with a coarse articulatory skeleton. Across six English benchmarks---including $1{,}000$ second-language learner errors from TOEFL-Spell---cosine distance over ternary distinctive-feature vectors consistently outperforms uniform $L_1$ and salience-weighted feature distances on phonetic-only Top-1 and unified Top-5, and the unified model outperforms Norvig's baseline and Hunspell on every dataset while beating Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$). Crucially, transferring the system to Brazilian Portuguese by swapping only the grapheme-to-phoneme rules, keyboard map, and lexicon ($240{,}040$ words from Enelvo) yields $73.00\%$ Top-1 accuracy ($85.20\%$ Top-5) on $500$ real misspellings from \textit{Wikip\'edia: Lista de erros comuns}, significantly outperforming Norvig ($66.60\%$, $p < 10^{-6}$), Hunspell ($64.20\%$, $p < 10^{-4}$), and Aspell ($64.00\%$, $p < 10^{-4}$) while running $2.6\times$ faster than Hunspell.
 \end{abstract}
 
 \section{Introduction}
@@ -45,7 +45,7 @@ Under this representation, substituting $/p/$ with $/b/$ differs in only a singl
     \begin{equation}
         M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^{F} |v_{u,k} - v_{v,k}|,
     \end{equation}
-    where $F=24$ and $2F$ is the maximum possible distance between two vectors in $\{-1,0,+1\}^F$.
+    where $F=24$ and $2F$ is the maximum possible distance between two vectors in $\{-1,0,+1\}^F$. Note that unspecified ($0$) features contribute $0$ to the numerator, so phones sharing many $0$s appear spuriously close under $L_1$.
     \item \textbf{Salience-weighted $L_1$:} Inspired by ALINE \parencite{kondrak2003phonetic}, each feature $k$ receives a linguistic salience weight $w_k > 0$:
     \begin{equation}
         M_{u,v}^{\text{sal}} = \frac{\sum_{k=1}^{F} w_k |v_{u,k} - v_{v,k}|}{2\sum_{k=1}^{F} w_k},
@@ -53,11 +53,11 @@ Under this representation, substituting $/p/$ with $/b/$ differs in only a singl
     assigning lower penalties to commonly confused distinctions such as voicing ($w_{\text{voi}}=0.6$) and vowel tenseness ($w_{\text{tns}}=0.5$), and higher penalties to major-class, place, and manner changes ($w_{\text{syll}}=2.0$, $w_{\text{cons}}=1.8$, $w_{\text{lab}}=w_{\text{cor}}=w_{\text{dor}}=1.5$).
     \item \textbf{Cosine distance:}
     \begin{equation}
-        M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\|\mathbf{v}_u\|_2 \|\mathbf{v}_v\|_2}\right) \in [0, 1].
+        M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
     \end{equation}
-    Because consonants and vowels have different numbers of non-zero specified features, unnormalized $L_1$ distances can be skewed by vector sparsity. Cosine distance naturally normalizes by each phone's active feature norm $\|\mathbf{v}_p\|_2$.
+    Because feature values lie in $\{-1, 0, +1\}$, cosine similarity ranges in $[-1, 1]$; thus $1 - \cos \in [0, 2]$ and the factor $\frac{1}{2}$ rescales to $[0, 1]$. In the Hulden IPA table, consonants average $18.12 \pm 1.48$ active (non-zero) features ($n=26$) whereas vowels average $19.94 \pm 0.87$ ($n=17$); normalizing by $\lVert \mathbf{v}_p \rVert_2$ removes this sparsity bias.
 \end{enumerate}
-For $L_1$ and salience, insertion/deletion costs $\mathbf{d}_{\text{indel}}(p)$ are proportional to phone feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p) = 0.5$. Note that spectral divergences such as the Itakura--Saito distance require strictly positive continuous power spectra and are not directly defined on discrete $\{-1, 0, +1\}$ feature vectors, though any precomputed perceptual or acoustic matrix can be plugged directly into $M$ without runtime overhead.
+For $L_1$ and salience, insertion/deletion costs $\mathbf{d}_{\text{indel}}(p)$ are proportional to phone feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p) = 0.5$. Because $M$ is precomputed, any perceptual or acoustic phone-distance matrix (such as MFCC-based divergences) can be plugged into future work without runtime overhead.
 
 \section{Unified Architecture}
 
@@ -84,12 +84,12 @@ For a query $x$ and candidate $w$, we compute unnormalized Damerau--Levenshtein 
 Using unnormalized edit costs preserves the noisy-channel interpretation $\log P(w) + \log P(x \mid w)$, avoiding the length bias introduced when dividing edit distance by word length. Weights $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search plus coordinate refinement on an $800$-pair sample of Birkbeck disjoint from all evaluation sets ($77.47\%$ dev Top-1 on the $586$ pairs whose target appeared in the candidate set).
 
 \section{Datasets and Experimental Setup}
-We evaluate across seven real-world misspelling benchmarks in two languages:
+We evaluate across seven real-world misspelling benchmarks in two languages (all pairs are deduplicated lowercase alphabetic `(typo, target)` pairs with `typo != target`):
 \begin{itemize}
-    \item \textbf{English ($78{,}393$ indexed words):} Unigram counts from \texttt{big.txt} merged with \texttt{/usr/share/dict/american-english} (floor count $1$). Evaluation sets are \textbf{Norvig1} ($n=270$), \textbf{Norvig2} ($n=400$), \textbf{Aspell} ($n=516$), \textbf{Wikipedia-EN} ($n=300$ pairs), \textbf{Holbrook} ($n=300$ pairs), and \textbf{TOEFL-Spell} \parencite{flor2019toefl} ($n=1{,}000$ unique non-native English learner misspellings).
-    \item \textbf{Brazilian Portuguese ($240{,}040$ indexed words):} Unigram counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor count $1$). Evaluation set is $500$ single-word misspellings extracted from \textit{Wikip\'edia: Lista de erros comuns} (A--Z).
+    \item \textbf{English ($78{,}393$ indexed words, $3.04$\,s build time):} Unigram counts from \texttt{big.txt} merged with \texttt{/usr/share/dict/american-english} (floor count $1$). Evaluation sets are \textbf{Norvig1} ($n=270$), \textbf{Norvig2} ($n=400$), \textbf{Aspell} ($n=516$), \textbf{Wikipedia-EN} (first $n=300$ pairs), \textbf{Holbrook} (first $n=300$ pairs), and \textbf{TOEFL-Spell} \parencite{flor2019toefl} ($n=1{,}000$ unique single-word non-native English learner misspellings from \texttt{Annotations.tsv}).
+    \item \textbf{Brazilian Portuguese ($240{,}040$ indexed words, $11.90$\,s build time):} Unigram counts from Enelvo's \texttt{freq-cgu.txt} merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor count $1$). Evaluation set is the first $500$ single-word alphabetic pairs extracted from \textit{Wikip\'edia: Lista de erros comuns} (A--Z).
 \end{itemize}
-We compare our \textbf{Unified} model against \textbf{Norvig} (orthographic edit distance $\le 2$ ranked by unigram frequency), \textbf{Aspell 0.60.8.2} (\texttt{-a -l en\_US} / \texttt{pt\_BR}), and \textbf{Hunspell 1.7.2} (\texttt{-a -d en\_US} / \texttt{pt\_BR}), reporting Top-1 accuracy, Top-5 accuracy, and average latency (ms/word).
+All experiments run in Python 3.14 with NumPy-precomputed lookup matrices. We compare our \textbf{Unified} model against \textbf{Norvig} (orthographic edit distance $\le 2$ ranked by unigram frequency), \textbf{Aspell 0.60.8.2} (\texttt{-a -l en\_US} / \texttt{-l pt\_BR --encoding=utf-8}), and \textbf{Hunspell 1.7.2} (\texttt{-a -d en\_US} / \texttt{-d pt\_BR -i utf-8}), reporting Top-1/Top-5 accuracy, vocabulary coverage, two-stage candidate recall, two-sided McNemar $p$-values, and average latency (ms/word). Code, G2P rules, and evaluation scripts are publicly available at \url{https://github.com/leolca/phoneticspellchecker}.
 
 \section{Results and Discussion}
 
@@ -115,29 +115,31 @@ Holbrook ($n=300$)  & 11.67 / 30.33 / 45.00 & 11.67 / 31.00 / 45.33 & \textbf{13
 \end{table}
 
 \subsection{English Comparison with Aspell, Hunspell, and Norvig}
-Table~\ref{tab:english_cmp} summarizes results across all six English benchmarks. Our unified cosine model outperforms Norvig and Hunspell on every single dataset (e.g., $+4.45\%$ over Norvig on Norvig1, $+4.67\%$ on Wikipedia, $+4.33\%$ on Holbrook, and $+10.20\%$ over Hunspell on TOEFL-Spell). Against Aspell---a mature C++ engine that incorporates Metaphone and hand-crafted English phonetic rules---our pure-Python model wins Top-1 on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$), and matches or beats Aspell on Top-5 in four of six sets, while Aspell leads Top-1 on Norvig2, Aspell, and Wikipedia.
+Table~\ref{tab:english_cmp} summarizes results across all six English benchmarks. Our unified cosine model outperforms Norvig on every dataset (statistically significant via two-sided McNemar tests on Aspell $p=0.0037$, Wikipedia $p=0.0070$, and Holbrook $p=0.0106$) and significantly outperforms Hunspell on five of six sets ($p < 10^{-4}$, e.g., $+10.20\%$ on TOEFL-Spell, $p=6.54\times 10^{-13}$). Against Aspell---a mature C++ engine incorporating Metaphone and hand-crafted English phonetic rules---our model wins Top-1 on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$, $p=0.0226$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$, $p=0.0018$), while Aspell leads Top-1 on Norvig2, Aspell, and Wikipedia ($p > 0.23$, not statistically significant).
 
 \begin{table}[ht]
 \centering
 \small
-\caption{English comparison against Aspell, Hunspell, and Norvig (Top-1 \% / Top-5 \%).}
+\caption{English comparison against Aspell, Hunspell, and Norvig (Top-1 \% / Top-5 \%), with vocabulary coverage and two-stage candidate recall.}
 \label{tab:english_cmp}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Dataset & Aspell & Hunspell & Norvig & Unified (Cosine) \\
+Dataset & Vocab / CandRec & Aspell & Hunspell & Norvig & Unified (Cosine) \\
 \midrule
-Norvig1 ($n=270$)      & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
-Norvig2 ($n=400$)      & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
-Aspell ($n=516$)       & \textbf{58.72 / 80.81} & 53.49 / 73.64 & 52.71 / 71.51 & 56.40 / 75.97 \\
-Wikipedia ($n=300$)    & \textbf{83.33} / 91.00 & 55.33 / 70.00 & 77.00 / 89.33 & 81.67 / \textbf{91.33} \\
-Holbrook ($n=300$)     & 26.67 / 42.33 & 17.33 / 31.67 & 27.67 / 42.00 & \textbf{32.00 / 46.33} \\
-TOEFL-Spell ($n=1000$) & 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & \textbf{77.10 / 91.10} \\
+Norvig1 ($n=270$)      & 98.5 / 98.5 & 75.56 / \textbf{92.59} & 64.44 / 84.07 & 74.81 / 91.11 & \textbf{79.26 / 92.59} \\
+Norvig2 ($n=400$)      & 97.0 / 95.2 & \textbf{77.25} / 87.00 & 65.50 / 84.00 & 72.25 / 87.50 & 74.75 / \textbf{88.75} \\
+Aspell ($n=516$)       & 99.0 / 89.0 & \textbf{58.72 / 80.81} & 53.49 / 73.64 & 52.71 / 71.51 & 56.40 / 75.97 \\
+Wikipedia ($n=300$)    & 97.3 / 95.0 & \textbf{83.33} / 91.00 & 55.33 / 70.00 & 77.00 / 89.33 & 81.67 / \textbf{91.33} \\
+Holbrook ($n=300$)     & 97.0 / 80.7 & 26.67 / 42.33 & 17.33 / 31.67 & 27.67 / 42.00 & \textbf{32.00 / 46.33} \\
+TOEFL-Spell ($n=1000$) & 98.7 / 94.9 & 72.80 / 90.40 & 66.90 / 86.90 & 76.80 / 90.40 & \textbf{77.10 / 91.10} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+Stratifying errors by orthographic edit distance confirms that the phonetic channel drives the largest gains on harder, multi-edit misspellings ($d_{\text{orth}} \ge 2$): Unified outperforms Norvig by $+15.15\%$ on Norvig1 ($66.67\%$ vs.\ $51.52\%$, $n=66$), $+14.28\%$ on Wikipedia ($57.14\%$ vs.\ $42.86\%$, $n=49$), $+6.75\%$ on Aspell ($35.86\%$ vs.\ $29.11\%$, $n=237$), and $+4.71\%$ on TOEFL-Spell ($42.92\%$ vs.\ $38.21\%$, $n=212$).
+
 \subsection{Cross-Lingual Transfer to Brazilian Portuguese}
-Table~\ref{tab:ptbr} highlights the practical payoff of a language-agnostic phonetic model. While Aspell's English-centric strengths do not carry over to its \texttt{pt\_BR} configuration ($6.20\%$ Top-1) and Hunspell reaches $64.20\%$ at $39.37$ ms/word, our unified model achieves \textbf{73.00\%} Top-1 (\textbf{85.20\%} Top-5) at $15.32$ ms/word---surpassing Norvig by $+6.40\%$ and Hunspell by $+8.80\%$ without changing the feature matrix or scoring engine.
+Table~\ref{tab:ptbr} highlights the practical payoff of a language-agnostic phonetic model ($96.8\%$ vocabulary coverage, $96.4\%$ candidate recall). Without changing the feature matrix or scoring engine, our unified model achieves \textbf{73.00\%} Top-1 (\textbf{85.20\%} Top-5) at $15.46$ ms/word---statistically significantly outperforming Norvig ($66.60\%$, $p=5.42\times 10^{-7}$), Hunspell ($64.20\%$, $p=6.29\times 10^{-5}$), and Aspell ($64.00\%$, $p=3.87\times 10^{-5}$) while running $2.6\times$ faster than Hunspell (note that Hunspell also performs morphological analysis whereas Norvig and Unified are isolated-word rankers). On harder Portuguese errors ($d_{\text{orth}} \ge 2$, $n=77$), Unified reaches $40.26\%$ vs.\ $25.97\%$ for Norvig ($+14.29\%$).
 
 \begin{table}[ht]
 \centering
@@ -148,11 +150,11 @@ Table~\ref{tab:ptbr} highlights the practical payoff of a language-agnostic phon
 \toprule
 System & Top-1 (\%) & Top-5 (\%) & Latency (ms/word) \\
 \midrule
-Aspell (\texttt{pt\_BR})   & 6.20  & 7.00  & 16.85 \\
-Hunspell (\texttt{pt\_BR}) & 64.20 & 79.00 & 39.37 \\
-Norvig                     & 66.60 & 83.00 & 0.35 \\
-Phonetic-only              & 38.40 & 67.60 & 3.27 \\
-\textbf{Unified (Cosine)}  & \textbf{73.00} & \textbf{85.20} & 15.32 \\
+Aspell (\texttt{pt\_BR})   & 64.00 & 76.80 & 16.09 \\
+Hunspell (\texttt{pt\_BR}) & 64.20 & 79.00 & 41.07 \\
+Norvig                     & 66.60 & 83.00 & 0.36 \\
+Phonetic-only              & 38.80 & 67.60 & 3.28 \\
+\textbf{Unified (Cosine)}  & \textbf{73.00} & \textbf{85.20} & 15.46 \\
 \bottomrule
 \end{tabular}
 \end{table}

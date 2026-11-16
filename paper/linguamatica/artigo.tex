@@ -17,7 +17,7 @@
 \maketitle
 
 \begin{abstract}
-Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone, que agrupam sons em chaves grosseiras e não se transferem diretamente para outras línguas. Neste trabalho, apresentamos um corretor ortográfico unificado e independente de língua que combina: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado (QWERTY e ABNT2) e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório). Em experimentos de ablação sobre seis conjuntos de dados em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno sobre vetores ternários de traços distintivos superou as métricas $L_1$ uniforme e ponderada por saliência, e o modelo unificado superou sistematicamente o corretor de Norvig e o Hunspell. Na avaliação em português brasileiro com $240.040$ palavras do Enelvo e $500$ erros reais da \textit{Wikipédia: Lista de erros comuns}, o modelo atingiu \textbf{73,00\%} de acurácia Top-1 (\textbf{85,20\%} Top-5), superando Norvig (66,60\%), Hunspell (64,20\%) e Aspell (6,20\%).
+Corretores ortográficos tradicionais baseiam-se em distância de edição sobre grafemas e proximidade de teclado --- falhando em erros cognitivos e fonéticos --- ou em codificações fonéticas específicas para o inglês, como Soundex e Metaphone, que agrupam sons em chaves grosseiras e não se transferem diretamente para outras línguas. Neste trabalho, apresentamos um corretor ortográfico unificado e independente de língua que combina: (1) uma matriz pré-computada $|P|\times|P|$ de distâncias entre fones derivada de traços distintivos universais do Alfabeto Fonético Internacional (AFI/IPA), (2) geometria física de teclado (QWERTY e ABNT2) e (3) probabilidades a priori de frequência lexical, acelerado por uma indexação em dois estágios (remoções simétricas e esqueleto articulatório). Em experimentos de ablação sobre seis conjuntos de dados em inglês (incluindo $1.000$ erros de aprendizes L2 do TOEFL-Spell), a distância cosseno sobre vetores ternários de traços distintivos superou as métricas $L_1$ uniforme e ponderada por saliência, e o modelo unificado superou sistematicamente o corretor de Norvig e o Hunspell. Na avaliação em português brasileiro com $240.040$ palavras do Enelvo e $500$ erros reais da \textit{Wikipédia: Lista de erros comuns}, o modelo atingiu \textbf{73,00\%} de acurácia Top-1 (\textbf{85,20\%} Top-5), superando Norvig (66,60\%, $p < 10^{-6}$), Hunspell (64,20\%, $p < 10^{-4}$) e Aspell (64,00\%, $p < 10^{-4}$).
 
 \medskip
 \noindent\textbf{Palavras-chave:} correção ortográfica, traços distintivos, distância fonética, distância de edição, português brasileiro.
@@ -25,7 +25,7 @@ Corretores ortográficos tradicionais baseiam-se em distância de edição sobre
 
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-agnostic spell checker combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry (QWERTY and ABNT2), and corpus frequency priors, accelerated by symmetric-delete and coarse articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance over ternary feature vectors outperforms uniform $L_1$ and salience-weighted metrics, and the unified model consistently outperforms Norvig and Hunspell. Evaluated on Brazilian Portuguese ($240{,}040$ words from Enelvo and $500$ real errors from \textit{Wikipédia: Lista de erros comuns}), our approach achieves \textbf{73.00\%} Top-1 accuracy (\textbf{85.20\%} Top-5), outperforming Norvig (66.60\%), Hunspell (64.20\%), and Aspell (6.20\%).
+Conventional spell checkers rely either on grapheme edit distance and keyboard proximity---failing on cognitive and phonetic errors---or on English-centric phonetic codes such as Soundex and Metaphone. We present a language-agnostic spell checker combining a precomputed $|P|\times|P|$ phone-distance matrix built from universal IPA distinctive features, keyboard geometry (QWERTY and ABNT2), and corpus frequency priors, accelerated by symmetric-delete and coarse articulatory-skeleton indexing. On six English benchmarks (including $1{,}000$ L2 learner errors from TOEFL-Spell), cosine distance over ternary feature vectors outperforms uniform $L_1$ and salience-weighted metrics, and the unified model consistently outperforms Norvig and Hunspell. Evaluated on Brazilian Portuguese ($240{,}040$ words from Enelvo and $500$ real errors from \textit{Wikipédia: Lista de erros comuns}), our approach achieves \textbf{73.00\%} Top-1 accuracy (\textbf{85.20\%} Top-5), outperforming Norvig (66.60\%), Hunspell (64.20\%), and Aspell (64.00\%).
 
 \medskip
 \noindent\textbf{Keywords:} spelling correction, distinctive features, phonetic distance, edit distance, Brazilian Portuguese.
@@ -76,11 +76,11 @@ Sem alterar o núcleo do motor nem a tabela universal de traços distintivos, in
 \toprule
 Sistema & Top-1 (\%) & Top-5 (\%) & Latência (ms/palavra) \\
 \midrule
-Aspell (\texttt{pt\_BR})   & 6,20  & 7,00  & 16,85 \\
-Hunspell (\texttt{pt\_BR}) & 64,20 & 79,00 & 39,37 \\
-Norvig                     & 66,60 & 83,00 & 0,35 \\
-Somente fonético           & 38,40 & 67,60 & 3,27 \\
-\textbf{Unificado (Cosseno)} & \textbf{73,00} & \textbf{85,20} & 15,32 \\
+Aspell (\texttt{pt\_BR})   & 64,00 & 76,80 & 16,09 \\
+Hunspell (\texttt{pt\_BR}) & 64,20 & 79,00 & 41,07 \\
+Norvig                     & 66,60 & 83,00 & 0,36 \\
+Somente fonético           & 38,80 & 67,60 & 3,28 \\
+\textbf{Unificado (Cosseno)} & \textbf{73,00} & \textbf{85,20} & 15,46 \\
 \bottomrule
 \end{tabular}
 \end{table}

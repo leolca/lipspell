@@ -82,8 +82,8 @@ def main() -> None:
     print(f"\n=== PT-BR Wikipedia Typos (n={len(pairs)}) ===")
     print(f"{'system':<12} {'top1 %':>8} {'top5 %':>8} {'ms/word':>9}")
     for label, fn in (
-        ("aspell", lambda p: eval_ispell_pipe(["aspell", "-a", "-l", "pt_BR"], p)),
-        ("hunspell", lambda p: eval_ispell_pipe(["hunspell", "-a", "-d", "pt_BR"], p)),
+        ("aspell", lambda p: eval_ispell_pipe(["aspell", "-a", "-l", "pt_BR", "--encoding=utf-8"], p)),
+        ("hunspell", lambda p: eval_ispell_pipe(["hunspell", "-a", "-d", "pt_BR", "-i", "utf-8"], p)),
         ("norvig", lambda p: evaluate(checker, p, mode="norvig", weights=weights)),
         ("phonetic", lambda p: evaluate(checker, p, mode="phonetic", weights=weights)),
         ("unified", lambda p: evaluate(checker, p, mode="unified", weights=weights)),

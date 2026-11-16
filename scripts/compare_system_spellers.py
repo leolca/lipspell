@@ -32,9 +32,7 @@ def eval_ispell_pipe(cmd: List[str], pairs: List[Tuple[str, str]]) -> Dict[str, 
     for line in proc.stdout.splitlines():
         if not line or line.startswith("@"):
             continue
-        if line.startswith("*"):
-            suggestions.append([])
-        elif line.startswith("#"):
+        if line.startswith(("*", "+", "-", "#")):
             suggestions.append([])
         elif line.startswith("&"):
             _, rhs = line.split(":", 1)
