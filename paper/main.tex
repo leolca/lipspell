@@ -92,7 +92,7 @@ All pairs are deduplicated lowercase alphabetic \texttt{(typo, target)} pairs wi
     \item \textbf{Turkish} ($777{,}340$ words): Hunspell \texttt{index.dic} merged with top $500\text{k}$ \texttt{FrequencyWords}; evaluated on the $50/50$ clean non-word split of \texttt{TurkishWikiSpellingMistakes} ($1{,}000$-pair sample, test $n=420$).
     \item \textbf{French} ($74{,}544$ words): Clean \texttt{index.dic}-restricted \texttt{FrequencyWords} ($250\text{k}$); evaluated on the $50/50$ clean non-word split of French Wikipedia typos (test $n=106$).
 \end{itemize}
-Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). Reported latencies are warm-cache means per word excluding index construction. We compare against Norvig, Aspell 0.60.8.2 (\texttt{-a -l <lang> --encoding=utf-8}), and Hunspell 1.7.2 (\texttt{-a -d <lang> -i utf-8}), reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/lipspell}.
+Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). Reported latencies are warm-cache means per word excluding index construction. We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values. Code and scripts are at \url{https://github.com/leolca/lipspell}.
 
 \section{Results and Discussion}
 
