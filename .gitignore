@@ -12,6 +12,8 @@ paper/*.blg
 paper/*.log
 paper/*.out
 paper/*.toc
+paper/*.bcf
+paper/*.run.xml
 paper/linguamatica/*.aux
 paper/linguamatica/*.bbl
 paper/linguamatica/*.blg
