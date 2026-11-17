@@ -8,7 +8,7 @@
 
 \bibliographystyle{sp_por}
 
-\submitted{17 de \NOV{} 2026}
+\submitted{17 de \NOV{} de 2026}
 \accepted{---}
 
 \title{LipSpell em Português Brasileiro: Correção Ortográfica Fonética com Traços Distintivos, Regras G2P e Análise de Erros}
@@ -48,7 +48,7 @@ Seguindo a fonologia gerativa \citep{chomsky1968sound}, cada segmento do Alfabet
 Pré-computamos uma única vez a matriz de substituição $M \in \mathbb{R}^{|P|\times|P|}$ e o vetor de inserção/remoção $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$ (acesso $O(1)$ na programação dinâmica). Comparamos três métricas:
 \begin{itemize}
     \item \textbf{$L_1$ uniforme\footnote{Neste artigo, $L_1$ designa a distância de Manhattan (norma $\ell_1$) normalizada entre vetores ternários de traços fonológicos --- não primeira língua (L1) nem regularização $L_1$ ---, e \emph{saliência} designa pesos fonológicos fixos $w_k$ inspirados no ALINE \citep{kondrak2003phonetic}, e não mapas de saliência de aprendizado de máquina.}:} $M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^F |v_{u,k} - v_{v,k}|$ ($F=24$). Como zeros não aplicáveis contribuem com $0$, fones com muitos zeros compartilhados parecem artificialmente próximos sob $L_1$.
-    \item \textbf{$L_1$ ponderado por saliência:} Inspirado no ALINE \citep{kondrak2003phonetic}, $M_{u,v}^{\text{sal}} = \frac{\sum_k w_k |v_{u,k} - v_{v,k}|}{2\sum_k w_k}$, com menor peso para vozeamento ($w_{\text{voi}}=0{,}6$) e tensão vocálica ($w_{\text{tns}}=0{,}5$) e maior peso para classe principal e ponto de articulação.
+    \item \textbf{$L_1$ ponderado por saliência:} Inspirado no ALINE \citep{kondrak2003phonetic}, $M_{u,v}^{\text{sal}} = \frac{\sum_k w_k |v_{u,k} - v_{v,k}|}{2\sum_k w_k}$, atribuindo pesos completos aos 24 traços: $w_{\text{syll}}=2{,}0$, $w_{\text{cons}}=1{,}8$, $1{,}5$ para \texttt{son/cont/nas/lab/cor/dor}, $1{,}2$ para \texttt{approx}, $1{,}0$ para \texttt{delrel/labdent/strid/lat}, $0{,}8$ para \texttt{round/ant/hi/lo/fr/bk}, $0{,}6$ para \texttt{voi/dist} e $0{,}5$ para \texttt{spread/constr/tns}.
     \item \textbf{Distância cosseno:}
     \begin{equation}
         M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
@@ -110,7 +110,8 @@ Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\
 Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% \\
 Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% \\
 Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & 39,60\% \\
-\textbf{LipSpell} & 96,8\% / 95,8\% & \textbf{73,00\%} & \textbf{85,20\%} & \textbf{72,15\%} \\
+\textbf{LipSpell} (transf.\ direta) & 96,8\% / 95,8\% & 73,00\% & \textbf{85,20\%} & 72,15\% \\
+\textbf{LipSpell (NFD)}            & 96,8\% / 95,8\% & \textbf{75,80\%} & \textbf{85,20\%} & \textbf{74,76\%} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -150,7 +151,7 @@ Categoria de Erro & $n$ & Proporção (\%) & Norvig (\%) & LipSpell (\%) & Ganho
 \midrule
 Apenas diacrítico          & 628 & 54,66 & 67,04 & \textbf{78,34} & $+11{,}30$ \\
 Substituição ($d=1$)       & 222 & 19,32 & 81,08 & \textbf{82,43} & $+1{,}35$ \\
-Ins./Rem./Transp. ($d=1$)  & 136 & 11,84 & \textbf{85,29} & 84,56 & $-0{,}74$ \\
+Ins./Rem./Transp. ($d=1$)  & 136 & 11,84 & \textbf{85,29} & 84,56 & $-0{,}73$ \\
 Múltiplas edições ($d\ge 2$)& 163 & 14,19 & 26,99 & \textbf{42,33} & $+15{,}34$ \\
 \bottomrule
 \end{tabular}
