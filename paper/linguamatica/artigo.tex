@@ -119,16 +119,16 @@ Para avaliar se dicionários externos de pronúncia melhoram o \texttt{Portugues
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\caption{G2P por regras vs.\ dicionários de pronúncia com \textit{fallback} por regras em português brasileiro (Top-1 / Top-5 \%).}
+\caption{G2P por regras vs.\ dicionários de pronúncia externos (ABG \citep{benevides2017abg}, \texttt{ipa-dict} \citep{opendictipadict} e WikiPron \citep{lee2020wikipron}) com \textit{fallback} por regras em português brasileiro (Top-1 / Top-5 \%).}
 \label{tab:pt_dicts}
 \begin{tabular}{lcccc}
 \toprule
 Conversor G2P & PT-Wiki ($n=500$) & PT-Wiki ($n=1.149$) & 50/50 Fixo ($n=499$) & 50/50 Ajustado ($n=499$) \\
 \midrule
 Somente regras (\texttt{PortugueseG2P}) & 75,80 / \textbf{85,20} & 74,76 / \textbf{84,07} & \textbf{86,57 / 96,59} & \textbf{86,97 / 96,79} \\
-ABG \citep{benevides2017abg} (76k)      & \textbf{76,20} / 84,60 & \textbf{75,02} / 83,64 & 86,37 / 96,19 & 86,17 / 96,39 \\
-\texttt{ipa-dict} \citep{opendictipadict} (96k)    & 74,00 / 84,20 & 74,06 / 83,55 & 85,77 / 95,79 & 85,37 / 95,99 \\
-WikiPron \citep{lee2020wikipron} (188k) & 75,20 / 84,40 & 74,33 / 83,38 & 85,17 / 95,59 & 84,17 / 96,19 \\
+ABG (76k)      & \textbf{76,20} / 84,60 & \textbf{75,02} / 83,64 & 86,37 / 96,19 & 86,17 / 96,39 \\
+\texttt{ipa-dict} (96k)    & 74,00 / 84,20 & 74,06 / 83,55 & 85,77 / 95,79 & 85,37 / 95,99 \\
+WikiPron (188k) & 75,20 / 84,40 & 74,33 / 83,38 & 85,17 / 95,59 & 84,17 / 96,19 \\
 \bottomrule
 \end{tabular}
 \end{table*}
