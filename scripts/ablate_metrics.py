@@ -45,11 +45,14 @@ def main() -> None:
         features = DistinctiveFeatures(metric=metric)
         checker = SpellChecker(counts, features=features, g2p=g2p, keyboard=kb, min_freq=1)
         print(f"\n=== metric={metric} ===")
-        print(f"{'dataset':<12} {'phonetic_t1':>12} {'unified_t1':>12} {'unified_t5':>12}")
+        print(f"{'dataset':<12} {'phon_t1':>10} {'phon_t5':>10} {'unif_t1':>10} {'unif_t5':>10}")
         for name, pairs in testsets:
             ph = evaluate(checker, pairs, mode="phonetic", weights=weights)
             un = evaluate(checker, pairs, mode="unified", weights=weights)
-            print(f"{name:<12} {ph['top1']:>11.2f}% {un['top1']:>11.2f}% {un['top5']:>11.2f}%")
+            print(
+                f"{name:<12} {ph['top1']:>9.2f}% {ph['top5']:>9.2f}% "
+                f"{un['top1']:>9.2f}% {un['top5']:>9.2f}%"
+            )
 
 
 if __name__ == "__main__":
