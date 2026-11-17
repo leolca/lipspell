@@ -99,19 +99,20 @@ Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção, $1.836
 
 \begin{table*}[ht]
 \centering
-\small
-\caption{Avaliação em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, $n=500$ e conjunto completo $n=1.149$).}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Avaliação em português brasileiro (\textit{Wikipédia: Lista de erros comuns}, $n=500$ e conjunto completo $n=1.149$). \textit{Cobertura} indica a porcentagem das palavras-alvo presentes no léxico de cada sistema.}
 \label{tab:ptbr}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Sistema & Vocab ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1149$) \\
+Sistema & Cobertura ($500$/$1.149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1.149$) & Top-5 ($n=1.149$) \\
 \midrule
-Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\% \\
-Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% \\
-Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% \\
-Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & 39,60\% \\
-\textbf{LipSpell} (transf.\ direta) & 96,8\% / 95,8\% & 73,00\% & \textbf{85,20\%} & 72,15\% \\
-\textbf{LipSpell (NFD)}            & 96,8\% / 95,8\% & \textbf{75,80\%} & \textbf{85,20\%} & \textbf{74,76\%} \\
+Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\% & 72,93\% \\
+Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% & 76,33\% \\
+Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% & 81,29\% \\
+Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & 39,60\% & 67,97\% \\
+\textbf{LipSpell} (transf.\ direta) & 96,8\% / 95,8\% & 73,00\% & \textbf{85,20\%} & 72,15\% & --- \\
+\textbf{LipSpell (NFD)}            & 96,8\% / 95,8\% & \textbf{75,80\%} & \textbf{85,20\%} & \textbf{74,76\%} & \textbf{83,90\%} \\
 \bottomrule
 \end{tabular}
 \end{table*}
