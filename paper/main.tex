@@ -60,7 +60,7 @@ For $L_1$ and salience, $\mathbf{d}_{\text{indel}}(p)$ is proportional to active
 \section{Unified Architecture}
 
 \subsection{Keyboard Geometry, G2P Frontends, and IPA Tokenization}
-Physical key distances are precomputed in a $|K|\times|K|$ matrix for QWERTY (English), ABNT2 (Portuguese, including \texttt{\c{c}} and accents), JCUKEN (Russian), SI-1452 (Hebrew), Turkish-Q, and AZERTY (French), saturated at $3.0$ key widths and normalized to $[0,1]$, with universal Unicode NFD diacritic-drop tolerance ($0.15$ cost).
+Physical key distances are precomputed in a $|K|\times|K|$ matrix for QWERTY (English), ABNT2 (Portuguese, including \texttt{\c{c}} and accents), JCUKEN (Russian), SI-1452 (Hebrew), Turkish-Q, and AZERTY (French), saturated at $3.0$ key widths and normalized to $[0,1]$. To tolerate omitted or swapped accents, we apply Unicode canonical decomposition (NFD), splitting each character into its base letter and combining diacritic (e.g., \textit{\'a}$\rightarrow$\textit{a}+\,\textasciiacute) and assigning a low substitution cost of $0.15$ whenever two characters share the same base letter.
 
 For G2P conversion $\phi(w)$, only English uses a pronunciation dictionary; all five other languages use purely rule-based G2P without any pronunciation lexicon:
 \begin{itemize}
