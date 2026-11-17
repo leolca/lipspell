@@ -108,7 +108,7 @@ Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & 39,60\% \\
 \end{table}
 
 \subsection{Dicionários de Pronúncia vs.\ G2P por Regras em Português}
-Para avaliar se dicionários externos de pronúncia melhoram o \texttt{PortugueseG2P}, comparamos a abordagem puramente baseada em regras contra três dicionários de pronúncia do português brasileiro (com \textit{fallback} por regras para palavras fora do dicionário): (1) \textbf{ABG} (\texttt{corpusabg\_ipa.csv}, $76.291$ formas), (2) \textbf{ipa-dict} (\texttt{pt\_BR.txt}, derivado do Wiktionary, $95.933$ formas) e (3) \textbf{WikiPron} (\texttt{por\_latn\_bz\_broad.tsv}, $188.055$ formas), normalizando marcas supra-segmentais e diacríticos combinantes. Conforme a Tabela~\ref{tab:pt_dicts}, o dicionário ABG supera ligeiramente as regras puras em Top-1 nas fatias completas ($76{,}20\%$ vs.\ $75{,}80\%$ em $n=500$; $75{,}02\%$ vs.\ $74{,}76\%$ em $n=1.149$), enquanto \texttt{PortugueseG2P} obtém o maior Top-5 nessas fatias ($85{,}20\%$ e $84{,}07\%$) e supera todos os três dicionários na divisão $50/50$ limpa ($86{,}57\%$ fixo e $86{,}97\%$ ajustado). Isso ocorre porque manter a consulta errada e os candidatos do léxico sob a mesma convenção fonética determinística evita desencontros entre transcrições estreitas de dicionário e o \textit{fallback} por regras.
+Para avaliar se dicionários externos de pronúncia melhoram o \texttt{PortugueseG2P}, comparamos a abordagem puramente baseada em regras contra três dicionários de pronúncia do português brasileiro (com \textit{fallback} por regras para palavras fora do dicionário): (1) \textbf{Corpus ABG} \citep{benevides2017abg} (\texttt{corpusabg\_ipa.csv}, $76.291$ formas), (2) \textbf{ipa-dict} (\texttt{pt\_BR.txt}, derivado do Wiktionary, $95.933$ formas) e (3) \textbf{WikiPron} (\texttt{por\_latn\_bz\_broad.tsv}, $188.055$ formas), normalizando marcas supra-segmentais e diacríticos combinantes. Conforme a Tabela~\ref{tab:pt_dicts}, o dicionário ABG supera ligeiramente as regras puras em Top-1 nas fatias completas ($76{,}20\%$ vs.\ $75{,}80\%$ em $n=500$; $75{,}02\%$ vs.\ $74{,}76\%$ em $n=1.149$), enquanto \texttt{PortugueseG2P} obtém o maior Top-5 nessas fatias ($85{,}20\%$ e $84{,}07\%$) e supera todos os três dicionários na divisão $50/50$ limpa ($86{,}57\%$ fixo e $86{,}97\%$ ajustado). Isso ocorre porque manter a consulta errada e os candidatos do léxico sob a mesma convenção fonética determinística evita desencontros entre transcrições estreitas de dicionário e o \textit{fallback} por regras.
 
 \begin{table}[ht]
 \centering
@@ -120,7 +120,7 @@ Para avaliar se dicionários externos de pronúncia melhoram o \texttt{Portugues
 Conversor G2P & PT-Wiki ($n=500$) & PT-Wiki ($n=1.149$) & 50/50 Fixo ($n=499$) & 50/50 Ajustado ($n=499$) \\
 \midrule
 Somente regras (\texttt{PortugueseG2P}) & 75,80 / \textbf{85,20} & 74,76 / \textbf{84,07} & \textbf{86,57 / 96,59} & \textbf{86,97 / 96,79} \\
-ABG (\texttt{corpusabg\_ipa}, 76k)      & \textbf{76,20} / 84,60 & \textbf{75,02} / 83,64 & 86,37 / 96,19 & 86,17 / 96,39 \\
+ABG \citep{benevides2017abg} (76k)      & \textbf{76,20} / 84,60 & \textbf{75,02} / 83,64 & 86,37 / 96,19 & 86,17 / 96,39 \\
 \texttt{ipa-dict} / Wiktionary (96k)    & 74,00 / 84,20 & 74,06 / 83,55 & 85,77 / 95,79 & 85,37 / 95,99 \\
 WikiPron (\texttt{por\_bz}, 188k)       & 75,20 / 84,40 & 74,33 / 83,38 & 85,17 / 95,59 & 84,17 / 96,19 \\
 \bottomrule
