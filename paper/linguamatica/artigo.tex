@@ -87,7 +87,7 @@ com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados previamente em uma amos
 Todos os experimentos foram executados em Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy), medindo latência média com cache aquecido (excluindo construção do índice). Código e scripts estão disponíveis em \url{https://github.com/leolca/lipspell}.
 
 \subsection{Português Brasileiro (\textit{Wikipédia: Lista de erros comuns})}
-Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção, $1.836{,}6$\,MiB RSS) a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (piso $1$), avaliando tanto nos primeiros $500$ pares quanto no conjunto completo A--Z ($n=1.149$ pares alfabéticos únicos de \textit{Wikipédia: Lista de erros comuns}, eliminando viés alfabético). Mesmo com cobertura vocabular ligeiramente inferior à do Aspell e Hunspell ($96{,}8\%$ vs.\ $98{,}4\%$ em $n=500$; $95{,}8\%$ vs.\ $97{,}4\%$ em $n=1.149$), o modelo unificado atinge $73{,}00\pm3{,}89\%$ Top-1 ($85{,}20\%$ Top-5) em $n=500$ ($p \le 6{,}29\times 10^{-5}$) e $72{,}15\pm2{,}59\%$ Top-1 em $n=1.149$ contra $66{,}23\%$ de Norvig ($p=3{,}60\times 10^{-13}$), $63{,}19\%$ do Hunspell ($p=1{,}99\times 10^{-9}$) e $60{,}14\%$ do Aspell ($p=7{,}86\times 10^{-16}$) (Tabela~\ref{tab:ptbr}). Em erros com $d_{\text{orth}}\ge 2$ ($n=189$ em $n=1.149$), o modelo unificado atinge $43{,}92\%$ contra $28{,}04\%$ de Norvig ($+15{,}88$ pontos percentuais).
+Indexamos $240.040$ palavras em português ($11{,}90$\,s de construção, $1.836{,}6$\,MiB RSS) a partir de \texttt{freq-cgu.txt} e \texttt{unitex-full-clean} \citep{bertaglia2016enelvo} (piso $1$), avaliando tanto nos primeiros $500$ pares quanto no conjunto completo A--Z ($n=1.149$ pares alfabéticos únicos de \textit{Wikipédia: Lista de erros comuns}, eliminando viés alfabético). Mesmo com cobertura vocabular ligeiramente inferior à do Aspell e Hunspell ($96{,}8\%$ vs.\ $98{,}4\%$ em $n=500$; $95{,}8\%$ vs.\ $97{,}4\%$ em $n=1.149$), o modelo unificado atinge $73{,}00\pm3{,}89\%$ Top-1 ($85{,}20\%$ Top-5) em $n=500$ ($p \le 6{,}29\times 10^{-5}$) e $72{,}15\pm2{,}59\%$ Top-1 em $n=1.149$ contra $66{,}23\%$ de Norvig ($p=3{,}60\times 10^{-13}$), $63{,}19\%$ do Hunspell ($p=1{,}99\times 10^{-9}$) e $60{,}14\%$ do Aspell ($p=7{,}86\times 10^{-16}$) (Tabela~\ref{tab:ptbr}). Em erros com $d_{\text{orth}}\ge 2$ ($n=189$ em $n=1.149$), o modelo unificado atinge $43{,}92\%$ contra $28{,}04\%$ de Norvig ($+15{,}88$ pontos percentuais). Nota-se também que o modo \textit{Somente fonético} atinge $38{,}80\%$ Top-1 em $n=500$ ($39{,}60\%$ em $n=1.149$), apesar de alcançar $67{,}60\%$ em Top-5: sem os critérios ortográfico e de teclado para desempatar palavras homófonas ou erros apenas de acentuação, a frequência lexical tende a promover outra palavra foneticamente equivalente ao Top-1.
 
 \begin{table}[ht]
 \centering
@@ -101,7 +101,7 @@ Sistema & Vocab ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1
 Aspell (\texttt{pt\_BR}, UTF-8)   & 98,4\% / 97,4\% & 64,00\% & 76,80\% & 60,14\% \\
 Hunspell (\texttt{pt\_BR}, UTF-8) & 98,4\% / 97,4\% & 64,20\% & 79,00\% & 63,19\% \\
 Norvig                     & 96,8\% / 95,8\% & 66,60\% & 83,00\% & 66,23\% \\
-Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & --- \\
+Somente fonético           & 96,8\% / 95,8\% & 38,80\% & 67,60\% & 39,60\% \\
 \textbf{LipSpell} & 96,8\% / 95,8\% & \textbf{73,00\%} & \textbf{85,20\%} & \textbf{72,15\%} \\
 \bottomrule
 \end{tabular}
