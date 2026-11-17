@@ -55,7 +55,7 @@ We precompute the $|P|\times|P|$ substitution matrix $M$ and indel vector $\math
     \end{equation}
     Because $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$, cosine similarity lies in $[-1, 1]$, so $1-\cos \in [0, 2]$ and $\frac{1}{2}$ rescales to $[0, 1]$. In our 45-segment table, consonants average $18.25 \pm 1.50$ active (non-zero) features ($n=28$) versus $19.94 \pm 0.87$ for vowels ($n=17$); normalizing by $\lVert \mathbf{v}_p \rVert_2$ reduces the influence of differences in feature-vector magnitude, though non-applicable $0$s can still yield unintuitive cross-class similarities.
 \end{enumerate}
-For $L_1$ and salience, $\mathbf{d}_{\text{indel}}(p)$ is proportional to active feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p)=0.5$. Because $M$ and $\mathbf{d}_{\text{indel}}$ assign non-uniform costs (and $1-\cos$ need not satisfy the triangle inequality), the resulting alignment is a \emph{generalized weighted edit distance} rather than a strict metric, which remains valid for dynamic programming.
+For $L_1$ and salience, $\mathbf{d}_{\text{indel}}(p)$ is proportional to active feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p)=0.5$. Because $M$ and $\mathbf{d}_{\text{indel}}$ assign non-uniform costs (and cosine distance need not satisfy the triangle inequality), the resulting alignment is a \emph{generalized weighted edit distance} rather than a strict metric, which remains valid for dynamic programming.
 
 \section{Unified Architecture}
 
