@@ -9,6 +9,8 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[safe]{tipa}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \title{LipSpell: A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
 
@@ -27,72 +29,234 @@ Automatic spelling correction must handle both typographical slips on a keyboard
 \end{abstract}
 
 \section{Introduction}
-Spelling correction is a core component of text editors, search engines, OCR post-processing, and assistive writing tools \parencite{kukich1992techniques}. Non-word errors fall broadly into two categories \parencite{damerau1964technique,toutanova2002pronunciation}: \emph{typographical errors} caused by motor slips on a keyboard, and \emph{cognitive or phonetic errors} where the writer spells a word according to its perceived pronunciation (e.g., \textit{nite} $\rightarrow$ \textit{night}, \textit{escencial} $\rightarrow$ \textit{essential}, or in Portuguese \textit{escess\~ao} $\rightarrow$ \textit{exce\c{c}\~ao}).
+Automatic spelling correction is a foundational component of text editors, search engines, optical character recognition (OCR) post-processing, clinical and educational writing tools, and noisy-text normalization pipelines \parencite{kukich1992techniques}. Human non-word spelling errors fall broadly into two distinct generative mechanisms \parencite{damerau1964technique,toutanova2002pronunciation}: \emph{typographical errors}, which arise from motor slips on a physical or virtual keyboard (such as hitting an adjacent key, omitting a keystroke, or transposing two consecutive characters), and \emph{cognitive or phonetic errors}, in which the writer knows or approximates the spoken form of a word but maps its phonemes onto an implausible or non-standard orthography (e.g., \textit{nite} $\rightarrow$ \textit{night}, \textit{semetary} $\rightarrow$ \textit{cemetery}, \textit{proplen} $\rightarrow$ \textit{problem}, or in Brazilian Portuguese \textit{escess\~ao} $\rightarrow$ \textit{exce\c{c}\~ao} and \textit{aterisagem} $\rightarrow$ \textit{aterrissagem}). Second-language (L2) learners, dyslexic writers, and users typing on mobile devices produce high proportions of cognitive-phonetic errors that frequently diverge from the target word by two or more grapheme edits.
 
-Our contribution lies primarily in the \emph{integration and engineering} of complementary signals into \textbf{LipSpell}, a language-independent phonetic scoring framework with swappable language-specific frontends and resources. The name \emph{LipSpell} (\textbf{L}anguage-\textbf{I}ndependent \textbf{P}honetic \textbf{Spell}ing) evokes both the articulatory organs of speech production ($[+\text{labial}]$) and a phonetic misspelling pun on \emph{leap} (e.g., \textit{lip ov fayth} $\rightarrow$ \textit{leap of faith}), where /\textsci/ $\leftrightarrow$ /i/ and /v/ $\leftrightarrow$ /f/ differ by only a single distinctive feature (tense/lax and voicing). Specifically, we investigate three research questions:
+Conventional spell checkers struggle to bridge both error types in a language-independent manner. Purely orthographic algorithms based on Levenshtein or Damerau--Levenshtein edit distance \parencite{damerau1964technique,norvig2007spell} and symmetric-delete indexing \parencite{garbe2012symspell} excel at single-edit typographical slips ($d_{\text{orth}} = 1$), yet fail sharply when a phonetic misspelling differs by multiple characters or when an intervening high-frequency orthographic neighbor lies closer in character-edit space (for example, \textit{albun} $\rightarrow$ \textit{algum} at $d_{\text{orth}}=1$ rather than \textit{\'album} at $d_{\text{orth}}=2$). Conversely, classical phonetic hashing schemes such as Soundex and Metaphone collapse entire consonant classes into coarse English-centric codes, losing fine-grained articulatory distinctions and requiring manual redesign for every new language or script.
+
+Our contribution lies in the principled \emph{integration and engineering} of complementary orthographic, motor-geometric, phonological, and lexical signals into \textbf{LipSpell}, a language-independent phonetic scoring framework paired with swappable, lightweight language-specific frontends and lexicons. The name \emph{LipSpell} (\textbf{L}anguage-\textbf{I}ndependent \textbf{P}honetic \textbf{Spell}ing) evokes both the articulatory organs of speech production ($[+\text{labial}]$) and a phonetic misspelling pun on \emph{leap} (e.g., \textit{lip ov fayth} $\rightarrow$ \textit{leap of faith}), where /\textsci/ $\leftrightarrow$ /i/ and /v/ $\leftrightarrow$ /f/ differ by only a single distinctive feature (tense/lax and voicing, respectively). Rather than treating phoneme substitutions as binary equal/unequal events, LipSpell precomputes a $|P|\times|P|$ phone-distance matrix directly from universal International Phonetic Alphabet (IPA) distinctive features and embeds it inside a generalized weighted Damerau--Levenshtein dynamic program. To scale to lexicons of $75\text{k}$--$777\text{k}$ words without scanning the entire vocabulary, LipSpell pairs a $0$--$2$-character symmetric-delete index with a seven-class phonetic-code index derived directly from the distinctive-feature table.
+
+Specifically, we investigate three research questions:
 \begin{enumerate}
-    \item[\textbf{RQ1:}] Does a distinctive-feature representation---and which feature-vector distance metric---improve phonetic spelling correction?
-    \item[\textbf{RQ2:}] Are orthographic edit distance, keyboard geometry, distinctive-feature phonetic distance, and corpus frequency complementary when combined?
-    \item[\textbf{RQ3:}] Can the same phonetic scoring and indexing engine transfer across multiple languages, families, and scripts when only the G2P frontend, keyboard map, and lexicon are replaced?
+    \item[\textbf{RQ1:}] Does a universal distinctive-feature phone representation---and which feature-vector distance metric ($L_1$, salience-weighted $L_1$, or cosine)---maximize phonetic spelling correction and two-stage candidate recall?
+    \item[\textbf{RQ2:}] Are orthographic edit distance, physical keyboard geometry (with diacritic tolerance), distinctive-feature phonetic distance, and corpus frequency priors complementary when combined in a unified scoring function?
+    \item[\textbf{RQ3:}] Can the same phonetic scoring and indexing engine transfer across multiple typologically diverse languages, language families, and writing systems when only the G2P frontend, keyboard layout, and lexicon are replaced?
 \end{enumerate}
 
-\subsection{Related Work}
-\textcite{damerau1964technique} observed that over $80\%$ of typing errors correspond to a single insertion, deletion, substitution, or transposition. Noisy-channel models \parencite{church1991probability} rank candidate corrections $w$ for input $x$ via $P(w)P(x\mid w)$; \textcite{brill2000improved} generalized character edits to substring substitutions, while \textcite{norvig2007spell} popularized edit-distance-1/2 generation ranked by unigram frequency. To capture pronunciation errors, \textcite{toutanova2002pronunciation} introduced a composed pronunciation noisy channel. Open-source systems such as \texttt{aspell} rely on Metaphone-style keys and hand-authored per-language phonetic tables, whereas \texttt{hunspell} emphasizes morphological affixation and orthographic edits.
+The remainder of this article is organized as follows. Section~\ref{sec:related} situates LipSpell within prior work on noisy-channel spelling correction, phonetic hashing, and computational phonology. Section~\ref{sec:phonology} formalizes the ternary distinctive-feature representation, the three phone-distance metrics, and the generalized weighted edit distance. Section~\ref{sec:architecture} details the unified architecture, including keyboard layouts with Unicode NFD diacritic tolerance, the six language-specific G2P frontends, and the two-stage candidate-generation and scoring algorithm. Section~\ref{sec:setup} describes the corpora, benchmarks, clean $50/50$ non-word split construction, and index footprints across all six languages. Section~\ref{sec:results} presents ablation studies, full-benchmark comparisons against Aspell, Hunspell, and Norvig, cross-lingual transfer and per-language tuning, G2P dictionary ablations, qualitative error analysis, and limitations. Finally, Section~\ref{sec:conclusion} summarizes our findings and outlines future directions.
 
-In computational phonology, ALINE \parencite{kondrak2003phonetic} aligns phonetic sequences using multivalued articulatory features and salience weights, and PanPhon \parencite{mortensen2016panphon} and Epitran \parencite{mortensen2018epitran} provide universal IPA feature tables and multilingual G2P, respectively. Building on our earlier prototype \parencite{araujo2018phonetic}, we combine precomputed distinctive-feature matrices, keyboard geometry, and SymSpell-style indexing \parencite{garbe2012symspell} into a unified spell checker.
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Orthographic Edit Distance and Noisy-Channel Models}
+Early work by \textcite{damerau1964technique} established that more than $80\%$ of typographical errors in typed text correspond to a single character insertion, deletion, substitution, or adjacent transposition. Building on this observation, \textcite{church1991probability} formulated spelling correction as a Bayesian noisy-channel problem, ranking each candidate word $w$ for an observed misspelling $x$ by $P(w)\,P(x \mid w)$, where $P(w)$ is a corpus unigram prior and $P(x \mid w)$ models character-level confusion probabilities estimated from large corpora. \textcite{brill2000improved} extended the noisy-channel error model from single-character edits to arbitrary substring substitutions ($a \rightarrow b$), allowing multi-character orthographic patterns such as \texttt{ph} $\rightarrow$ \texttt{f} or \texttt{ent} $\rightarrow$ \texttt{ant} to be learned from paired misspelling data. \textcite{norvig2007spell} popularized a clean, parameter-free baseline that generates all strings within Damerau--Levenshtein distance $1$ or $2$ of $x$ and selects the candidate maximizing unigram corpus probability.
+
+To accelerate candidate retrieval on large vocabularies, \textcite{garbe2012symspell} introduced the Symmetric Delete (\textit{SymSpell}) algorithm: instead of generating deletions, insertions, substitutions, and transpositions of the query at lookup time, SymSpell pre-indexes all $0$--$k$-character deletions of every dictionary word and intersects them only with $0$--$k$-character deletions of the query. LipSpell adopts SymSpell-style $0$--$2$-character orthographic deletions as its first retrieval stage, but pairs it with a second phonetic-code stage so that multi-edit phonetic misspellings ($d_{\text{orth}} > 2$) still enter the candidate pool.
+
+\subsection{Phonetic Hashing and Pronunciation-Aware Systems}
+Classical phonetic indexing algorithms such as Soundex and Metaphone map letter sequences into coarse, language-specific consonant skeletons designed for English proper names and ASCII text. Widely deployed open-source spell checkers illustrate the limitations of hard-coded language heuristics: GNU Aspell combines edit distance with Metaphone-style keys and hand-authored per-language phonetic replacement tables, while Hunspell emphasizes morphological affixation rules and orthographic edit suggestions. Because these heuristics are coupled to specific alphabets or hand-crafted phonetic rules, their accuracy varies sharply across scripts and morphologically rich languages (e.g., GNU Aspell's Turkish dictionary covers only static uninflected forms, whereas Hunspell lacks corpus frequency priors to break ties among unvocalized Hebrew roots).
+
+To model pronunciation errors in a probabilistic framework, \textcite{toutanova2002pronunciation} composed a letter-to-phone and phone-to-letter noisy channel with an orthographic channel, demonstrating substantial gains over purely orthographic models on English. However, training character-to-phone confusion tables requires aligned misspelling corpora for each target language. LipSpell avoids per-language confusion-matrix training by deriving phone substitution costs directly from universal articulatory distinctive features.
+
+\subsection{Distinctive Features and Cross-Lingual Computational Phonology}
+In generative phonology \parencite{chomsky1968sound}, speech sounds are decomposed into binary or ternary articulatory and acoustic distinctive features (such as $[\pm\text{syllabic}]$, $[\pm\text{consonantal}]$, $[\pm\text{voice}]$, and place/manner specifications). \textcite{hulden2012distinctive} compiled a compact $24$-feature ternary IPA table ($\{-1, 0, +1\}$) within the \texttt{foma} finite-state toolkit, which we adopt and extend with Portuguese palatal consonants. In computational phonology, Kondrak's ALINE algorithm \parencite{kondrak2003phonetic} computes phonetic sequence alignments for cognate identification using multivalued articulatory features and salience weights that penalize major-class mismatches more strongly than voicing or vowel-height shifts. Later resources such as PanPhon \parencite{mortensen2016panphon} and Epitran \parencite{mortensen2018epitran} provide broad-coverage IPA feature vectors and multilingual rule-based G2P transducers, respectively. Expanding our earlier English prototype \parencite{araujo2018phonetic}, LipSpell precomputes feature-based phone substitution matrices in NumPy, unifies them with physical keyboard geometry and corpus frequency priors, and evaluates transfer across six languages and three writing systems.
+
+\subsection{Multilingual and L2 Spelling Benchmarks}
+Standard English evaluations rely on historical collections such as Birkbeck \parencite{mitton1985birkbeck} (including the Holbrook schoolchild subset), Norvig's two test sets, and Aspell's benchmark list \parencite{norvig2007spell}. More recently, \textcite{flor2019toefl} introduced TOEFL-Spell, a large corpus of non-native L2 English learner misspellings where phonetic approximations and vowel confusions are prevalent. For Brazilian Portuguese, \textcite{bertaglia2016enelvo} released normalized user-generated corpora and clean lexicons (\texttt{Enelvo}), while pronunciation resources include Corpus ABG \parencite{benevides2017abg}, \texttt{ipa-dict} \parencite{opendictipadict}, and WikiPron \parencite{lee2020wikipron}. Cross-lingual benchmarks in Russian (\texttt{RUSpellRU}), Hebrew, Turkish, and French paired with OpenSubtitles frequency lists \parencite{lison2016opensubtitles} allow systematic testing of orthographic depth---from shallow Turkish to deep/opaque French and unvocalized Hebrew Abjad.
 
 \section{Phonological Principles and Feature-Based Metrics}
 \label{sec:phonology}
-Following generative phonology \parencite{chomsky1968sound}, each IPA segment $p \in P$ is represented as a $24$-dimensional ternary vector $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$ from the Hulden IPA feature table \parencite{hulden2012distinctive}, extended with palatal nasal /\textipa{J}/ and palatal lateral /\textturny/ for Portuguese. Values $+1$ and $-1$ indicate feature presence or absence, while $0$ denotes an unspecified (non-applicable) feature (e.g., vowel height is $0$ for consonants).
+Following generative phonology \parencite{chomsky1968sound}, each IPA segment $p \in P$ is represented as a $24$-dimensional ternary vector $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$ from the Hulden IPA feature table \parencite{hulden2012distinctive}, extended with the palatal nasal /\textipa{J}/ (\texttt{nh}) and palatal lateral /\textturny/ (\texttt{lh}) required for Portuguese. Values $+1$ and $-1$ indicate feature presence or absence, while $0$ denotes an unspecified (non-applicable) feature (e.g., vowel height features \texttt{hi}, \texttt{lo}, \texttt{fr}, \texttt{bk}, and \texttt{tns} take value $0$ for consonants, whereas consonant place features such as \texttt{labdent}, \texttt{ant}, and \texttt{dist} take value $0$ for vowels).
 
-We precompute the $|P|\times|P|$ substitution matrix $M$ and indel vector $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$ once at initialization, making every dynamic programming (DP) transition an expected $O(1)$ array lookup. We compare three metrics:
+We precompute the $|P|\times|P|$ substitution matrix $M$ and indel vector $\mathbf{d}_{\text{indel}} \in \mathbb{R}^{|P|}$ once at initialization, making every dynamic programming (DP) transition an expected $O(1)$ array lookup. We compare three distance metrics over $\mathbf{v}_u, \mathbf{v}_v$:
 \begin{enumerate}
-    \item \textbf{Uniform $L_1$\footnote{Throughout, $L_1$ denotes the normalized Manhattan ($\ell_1$-norm) distance between ternary phonological feature vectors---not first language (L1) or $L_1$ regularization---and \emph{salience} denotes fixed phonological feature weights $w_k$ following Kondrak's ALINE \parencite{kondrak2003phonetic}, rather than machine-learning feature-attribution saliency.}:} $M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^{F} |v_{u,k} - v_{v,k}|$ ($F=24$). Because unspecified ($0$) features contribute $0$ to the numerator, phones sharing many $0$s appear spuriously close under $L_1$.
-    \item \textbf{Salience-weighted $L_1$:} Inspired by ALINE \parencite{kondrak2003phonetic}, $M_{u,v}^{\text{sal}} = \frac{\sum_{k=1}^{F} w_k |v_{u,k} - v_{v,k}|}{2\sum_{k=1}^{F} w_k}$, assigning lower weights to voicing ($w_{\text{voi}}=0.6$) and vowel tenseness ($w_{\text{tns}}=0.5$) and higher weights to major-class and place features ($w_{\text{syll}}=2.0$, $w_{\text{cons}}=1.8$, $w_{\text{lab}}=w_{\text{cor}}=w_{\text{dor}}=1.5$).
+    \item \textbf{Uniform $L_1$\footnote{Throughout, $L_1$ denotes the normalized Manhattan ($\ell_1$-norm) distance between ternary phonological feature vectors---not first language (L1) or $L_1$ regularization---and \emph{salience} denotes fixed phonological feature weights $w_k$ inspired by Kondrak's ALINE \parencite{kondrak2003phonetic}, rather than machine-learning feature-attribution saliency.}:}
+    \begin{equation}
+        M_{u,v}^{L_1} = \frac{1}{2F}\sum_{k=1}^{F} |v_{u,k} - v_{v,k}|, \quad F=24.
+    \end{equation}
+    Because unspecified ($0$) features contribute $0$ to the numerator while dividing by the fixed denominator $2F=48$, segments sharing many $0$s appear spuriously close under $L_1$. For instance, two consonants sharing $5$ unspecified vowel features have their effective active feature count reduced, compressing consonant--consonant distances relative to vowel--vowel pairs.
+    \item \textbf{Salience-weighted $L_1$:} Inspired by feature weighting in ALINE \parencite{kondrak2003phonetic},
+    \begin{equation}
+        M_{u,v}^{\text{sal}} = \frac{\sum_{k=1}^{F} w_k |v_{u,k} - v_{v,k}|}{2\sum_{k=1}^{F} w_k},
+    \end{equation}
+    where fixed phonological weights $\mathbf{w}$ penalize major-class and primary-place mismatches more heavily than voicing or tense/lax vowel shifts that frequently occur in cognitive misspellings. Specifically, our $24$-feature salience vector assigns: $w_{\text{syll}}=2.0$; $w_{\text{cons}}=1.8$; $1.5$ to \texttt{son}, \texttt{cont}, \texttt{nas}, \texttt{lab}, \texttt{cor}, and \texttt{dor}; $1.2$ to \texttt{approx}; $1.0$ to \texttt{delrel}, \texttt{labdent}, \texttt{strid}, and \texttt{lat}; $0.8$ to \texttt{round}, \texttt{ant}, \texttt{hi}, \texttt{lo}, \texttt{fr}, and \texttt{bk}; $0.6$ to \texttt{voi} and \texttt{dist}; and $0.5$ to \texttt{spread}, \texttt{constr}, and \texttt{tns}. Thus, a voicing slip (/v/ $\leftrightarrow$ /f/) or tense/lax confusion (/\textsci/ $\leftrightarrow$ /i/) incurs a small substitution penalty, whereas replacing a vowel with a stop consonant incurs a large penalty.
     \item \textbf{Cosine distance:}
     \begin{equation}
         M_{u,v}^{\cos} = \frac{1}{2}\left(1 - \frac{\mathbf{v}_u \cdot \mathbf{v}_v}{\lVert \mathbf{v}_u \rVert_2 \, \lVert \mathbf{v}_v \rVert_2}\right) \in [0, 1].
     \end{equation}
-    Because $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$, cosine similarity lies in $[-1, 1]$, so $1-\cos \in [0, 2]$ and $\frac{1}{2}$ rescales to $[0, 1]$. In our 45-segment table, consonants average $18.25 \pm 1.50$ active (non-zero) features ($n=28$) versus $19.94 \pm 0.87$ for vowels ($n=17$); normalizing by $\lVert \mathbf{v}_p \rVert_2$ reduces the influence of differences in feature-vector magnitude, though non-applicable $0$s can still yield unintuitive cross-class similarities.
+    Because $\mathbf{v}_p \in \{-1, 0, +1\}^{24}$, cosine similarity lies in $[-1, 1]$, so $1-\cos \in [0, 2]$ and the factor $\frac{1}{2}$ rescales to $[0, 1]$. In our $45$-segment table, consonants average $18.25 \pm 1.50$ active (non-zero) features ($n=28$) versus $19.94 \pm 0.87$ for vowels ($n=17$). Normalizing by the $\ell_2$ norm $\lVert \mathbf{v}_p \rVert_2$ equalizes vector magnitudes across segments with different numbers of unspecified ($0$) entries, preventing sparse consonants from appearing artificially closer than vowels simply due to shared zeros, though non-applicable $0$s can still yield imperfect cross-class similarities when a consonant and vowel happen to agree on secondary manner features.
 \end{enumerate}
-For $L_1$ and salience, $\mathbf{d}_{\text{indel}}(p)$ is proportional to active feature density clipped to $[0.35, 0.75]$; for cosine, $\mathbf{d}_{\text{indel}}(p)=0.5$. Because $M$ and $\mathbf{d}_{\text{indel}}$ assign non-uniform costs (and cosine distance need not satisfy the triangle inequality), the resulting alignment is a \emph{generalized weighted edit distance} rather than a strict metric, which remains valid for dynamic programming.
+
+For insertion and deletion costs, under $L_1$ and salience-weighted $L_1$, $\mathbf{d}_{\text{indel}}(p)$ is set proportional to active feature density clipped to $[0.35, 0.75]$ (so segments with fewer active features, such as /h/ or /\textschwa/, are slightly cheaper to insert or delete than heavily specified obstruents). Under cosine distance, $\mathbf{d}_{\text{indel}}(p)=0.5$ uniformly. Table~\ref{tab:salience} lists the complete $24$-feature salience weights grouped by phonological dimension. Because $M$ and $\mathbf{d}_{\text{indel}}$ assign non-uniform, context-dependent costs (and cosine distance does not strictly satisfy the triangle inequality), the resulting phone alignment defines a \emph{generalized weighted edit distance} rather than a strict metric, which remains exact and well-defined under standard dynamic programming.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Complete $24$-feature salience weights $\mathbf{w}$ used in salience-weighted $L_1$ phone distance.}
+\label{tab:salience}
+\begin{tabular}{lll}
+\toprule
+Phonological Group & Features & Weight $w_k$ \\
+\midrule
+Major class   & \texttt{syll} & $2.0$ \\
+              & \texttt{cons} & $1.8$ \\
+              & \texttt{son} & $1.5$ \\
+Manner        & \texttt{cont}, \texttt{nas} & $1.5$ \\
+              & \texttt{approx} & $1.2$ \\
+              & \texttt{delrel}, \texttt{strid}, \texttt{lat} & $1.0$ \\
+Primary place & \texttt{lab}, \texttt{cor}, \texttt{dor} & $1.5$ \\
+              & \texttt{labdent} & $1.0$ \\
+              & \texttt{ant}, \texttt{round} & $0.8$ \\
+              & \texttt{dist} & $0.6$ \\
+Vowel space   & \texttt{hi}, \texttt{lo}, \texttt{fr}, \texttt{bk} & $0.8$ \\
+              & \texttt{tns} & $0.5$ \\
+Laryngeal     & \texttt{voi} & $0.6$ \\
+              & \texttt{spread}, \texttt{constr} & $0.5$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Unified Architecture}
+\label{sec:architecture}
 
-\subsection{Keyboard Geometry, G2P Frontends, and IPA Tokenization}
-Physical key distances are precomputed in a $|K|\times|K|$ matrix for QWERTY (English), ABNT2 (Portuguese, including \texttt{\c{c}} and accents), JCUKEN (Russian), SI-1452 (Hebrew), Turkish-Q, and AZERTY (French), saturated at $3.0$ key widths and normalized to $[0,1]$. To tolerate omitted or swapped accents, we apply Unicode canonical decomposition (NFD), splitting each character into its base letter and combining diacritic (e.g., \textit{\'a}$\rightarrow$\textit{a}+\,\textasciiacute) and assigning a low substitution cost of $0.15$ whenever two characters share the same base letter.
+\subsection{Keyboard Geometry, Diacritic Tolerance, and Weak-Character Indels}
+Physical key coordinates are modeled in two-dimensional row-staggered key-width units with horizontal row offsets $(0.0, 0.5, 0.75, 1.25)$ across six standard layouts: QWERTY (English), ABNT2 (Brazilian Portuguese, adding \texttt{\c{c}} and dead-key accents), JCUKEN (Russian Cyrillic), SI-1452 (Israeli Hebrew), Turkish-Q (adding \texttt{\u{g}}, \texttt{\"{u}}, \texttt{\c{s}}, \texttt{\i}, \texttt{\"{o}}, \texttt{\c{c}}), and AZERTY (French). For every layout, we precompute a $|K|\times|K|$ symmetric substitution matrix by clamping Euclidean key distance at a saturation radius of $3.0$ key widths and normalizing to $[0, 1]$, so an adjacent-key slip (distance $\approx 1.0$) incurs a substitution cost near $0.33$.
 
-For the grapheme-to-phoneme (G2P) mapping $\phi$, which converts a written word $w$ into its IPA phone sequence $\phi(w)$, only English uses a pronunciation dictionary; all five other languages use purely rule-based G2P without any pronunciation lexicon:
+To handle omitted or swapped diacritics in languages with accented Latin orthographies without penalizing them as distant keystrokes, \texttt{KeyboardLayout.distance} applies Unicode canonical decomposition (NFD) to both characters, separating base letters from combining diacritical marks (e.g., \textit{\'a}$\rightarrow$\textit{a}+\,\textasciiacute). Whenever two characters share the same base letter and at least one carries a combining mark (such as \textit{a}/\textit{\'a}, \textit{c}/\textit{\c{c}}, \textit{e}/\textit{\^e}, or \textit{s}/\textit{\c{s}}), the keyboard substitution cost is fixed to $0.15$ regardless of dead-key layout position. Inside the keyboard-weighted Damerau--Levenshtein DP, accidental insertion or deletion adjacent to a neighboring character $c_{\text{adj}}$ receives a reduced indel cost $\min(0.7, 0.4 + 0.6\,d_{\text{kb}}(c, c_{\text{adj}}))$, capturing finger-slip double strikes and adjacent-key insertions. Finally, for consonantal abjad scripts such as Hebrew where \textit{matres lectionis} (\textit{alef}/\textit{vav}/\textit{yod}) are optionally inserted or omitted as vowel markers without altering consonant identity, LipSpell supports per-character indel overrides ($0.25$ instead of $0.7$).
+
+\subsection{Language-Specific G2P Frontends and IPA Tokenization}
+For the grapheme-to-phoneme (G2P) mapping $\phi$, which converts a written word $w$ into its IPA phone sequence $\phi(w)$, only English optionally queries a pronunciation dictionary (\texttt{CMUdict}); all five other languages operate with compact, deterministic, purely rule-based G2P frontends requiring zero external pronunciation lexicons:
 \begin{itemize}
-    \item \textbf{English (\texttt{EnglishG2P}):} Looks up known words in CMUdict (\texttt{cmudict-0.7b}) \parencite{weide1998cmu} after stripping lexical stress digits, and falls back to an ordered rule-based G2P for misspelled/OOV inputs, including digraphs (\texttt{ph}$\rightarrow$/f/, \texttt{tion}$\rightarrow$/\textesh\textschwa n/) and CVCe vowel lengthening (\textit{nite}$\rightarrow$/na\textsci t/, matching \textit{night}).
-    \item \textbf{Portuguese (\texttt{PortugueseG2P}):} Purely rule-based deterministic approximation of Brazilian Portuguese, including \texttt{ch}/\texttt{x}$\rightarrow$/\textesh/, \texttt{nh}$\rightarrow$/\textipa{J}/, \texttt{lh}$\rightarrow$/\textturny/, \texttt{sc}/\texttt{xc} before \texttt{e}/\texttt{i}$\rightarrow$/s/, intervocalic \texttt{s}$\rightarrow$/z/, word-initial \texttt{r}$\rightarrow$/h/, \texttt{\c{c}}/\texttt{ss}$\rightarrow$/s/, and accented vowels (noting that \texttt{x} and intervocalic \texttt{s} exhibit lexical variation not modeled by simple rules).
-    \item \textbf{Russian (\texttt{RussianG2P}):} Purely rule-based Cyrillic-to-IPA mapping including iotated vowels (\textit{e/yo/yu/ya}$\rightarrow$/je,jo,ju,ja/), genitive endings (\textit{-ogo/-ego}$\rightarrow$/ovo/,/jevo/), and word-final obstruent devoicing (\textit{b,v,g,d,zh,z}$\rightarrow$/p,f,k,t,\textesh,s/).
-    \item \textbf{Hebrew (\texttt{HebrewG2P}):} Purely rule-based unvocalized abjad letter-to-IPA mapping over the $22$ consonants and $5$ final forms (merging \textit{alef}/\textit{ayin}$\rightarrow$/\textglotstop/, \textit{tet}/\textit{tav}$\rightarrow$/t/, \textit{kaf}/\textit{qof}$\rightarrow$/k/).
-    \item \textbf{Turkish (\texttt{TurkishG2P}):} Purely rule-based $1$-to-$1$ grapheme-to-IPA mapping with Turkish-aware case folding (\texttt{\.{I}}$\rightarrow$\texttt{i}, \texttt{I}$\rightarrow$\texttt{\i}, \texttt{c}$\rightarrow$/\textdyoghlig/, \texttt{\c{c}}$\rightarrow$/\textteshlig/, \texttt{\c{s}}$\rightarrow$/\textesh/, \texttt{\i}$\rightarrow$/\textturnm/, silent \texttt{\u{g}}).
-    \item \textbf{French (\texttt{FrenchG2P}):} Purely rule-based approximation with silent-final consonant/\texttt{e} stripping, multi-graphs (\texttt{eau}$\rightarrow$/o/, \texttt{tion}$\rightarrow$/sj\textopeno n/, \texttt{ch}$\rightarrow$/\textesh/, \texttt{gn}$\rightarrow$/\textipa{J}/), nasal vowels (\texttt{an}/\texttt{en}$\rightarrow$/\textscripta/, \texttt{on}$\rightarrow$/o/, \texttt{in}/\texttt{un}$\rightarrow$/\textepsilon/), and doubled-consonant collapsing.
+    \item \textbf{English (\texttt{EnglishG2P}):} Looks up known words in CMUdict (\texttt{cmudict-0.7b}) \parencite{weide1998cmu} after stripping lexical stress digits (\texttt{0/1/2}) and mapping ARPAbet phones to IPA, and falls back to an ordered rule-based G2P for misspelled or out-of-vocabulary (OOV) inputs. The rule set handles common English digraphs (\texttt{ph}$\rightarrow$/f/, \texttt{sh}$\rightarrow$/\textesh/, \texttt{ch}$\rightarrow$/\textteshlig/, \texttt{th}$\rightarrow$/\texttheta/, \texttt{tion}$\rightarrow$/\textesh\textschwa n/) and CVCe silent-\texttt{e} vowel lengthening (\textit{nite}$\rightarrow$/na\textsci t/, matching \textit{night}).
+    \item \textbf{Brazilian Portuguese (\texttt{PortugueseG2P}):} A deterministic phonemic approximation of Southeastern Brazilian Portuguese comprising ordered multi-character, contextual, and single-character rules: palatal digraphs (\texttt{ch}$\rightarrow$/\textesh/, \texttt{lh}$\rightarrow$/\textturny/, \texttt{nh}$\rightarrow$/\textipa{J}/), velar digraphs (\texttt{qu}$\rightarrow$/k/, \texttt{gu}$\rightarrow$/\textipa{g}/ applied unconditionally), contextual sibilants and rhotics (\texttt{sc}/\texttt{xc} before \texttt{e}/\texttt{i}$\rightarrow$/s/, \texttt{c}/\texttt{g} before \texttt{e}/\texttt{i}$\rightarrow$/s, \textyogh/, intervocalic \texttt{s}$\rightarrow$/z/, word-initial \texttt{r} and \texttt{rr}$\rightarrow$/h/), silent \texttt{h}, and accented vowels. Nasal vowels and diphthongs are deliberately folded onto their oral/central counterparts (\texttt{\^a/\~a}$\rightarrow$/\textturna/, \texttt{\^o/\~o}$\rightarrow$/o/, \texttt{\~ao}$\rightarrow$/a\textupsilon/, \texttt{\~oe}$\rightarrow$/o\textsci/, \texttt{\~ae}$\rightarrow$/a\textsci/) so that omitted tildes or circumflexes do not incur artificial phonetic penalties.
+    \item \textbf{Russian (\texttt{RussianG2P}):} A rule-based Cyrillic-to-IPA transducer mapping iotated vowels (\textit{e/yo/yu/ya} $\rightarrow$ /je, jo, ju, ja/), genitive endings (\textit{-ogo/-ego} $\rightarrow$ /ovo/, /jevo/), unstressed/palatalized cues, and word-final obstruent devoicing (\textit{b, v, g, d, zh, z} $\rightarrow$ /p, f, k, t, \textesh, s/), directly capturing phonetically motivated Russian spelling errors.
+    \item \textbf{Hebrew (\texttt{HebrewG2P}):} An unvocalized abjad letter-to-IPA mapping over the $22$ Hebrew consonants and $5$ word-final forms (\textit{sofit}), neutralizing historical pharyngeal/emphatic mergers common in Modern Hebrew (\textit{alef}/\textit{ayin}$\rightarrow$/\textglotstop/, \textit{tet}/\textit{tav}$\rightarrow$/t/, \textit{kaf}/\textit{qof}$\rightarrow$/k/, \textit{bet}/\textit{vav}$\rightarrow$/v/ where appropriate).
+    \item \textbf{Turkish (\texttt{TurkishG2P}):} A shallow $1$-to-$1$ grapheme-to-IPA mapping paired with Turkish-aware case folding (\texttt{\.{I}}$\rightarrow$\texttt{i}, \texttt{I}$\rightarrow$\texttt{\i}) so dotted and dotless \texttt{i}/\texttt{\i} are never conflated prior to indexing, mapping \texttt{c}$\rightarrow$/\textdyoghlig/, \texttt{\c{c}}$\rightarrow$/\textteshlig/, \texttt{\c{s}}$\rightarrow$/\textesh/, \texttt{\i}$\rightarrow$/\textturnm/, and eliding the silent lengthening \textit{yumuşak ge} (\texttt{\u{g}}).
+    \item \textbf{French (\texttt{FrenchG2P}):} A rule-based approximation of French orthography-to-IPA including silent word-final consonant (\texttt{s, t, d, p, x, z}) and silent-\texttt{e} stripping, multi-graphs (\texttt{eau/au}$\rightarrow$/o/, \texttt{tion}$\rightarrow$/sj\textopeno n/, \texttt{ch}$\rightarrow$/\textesh/, \texttt{gn}$\rightarrow$/\textipa{J}/, \texttt{ou}$\rightarrow$/u/), nasal vowel sequences (\texttt{an/am/en/em}$\rightarrow$/\textscripta/, \texttt{on/om}$\rightarrow$/o/, \texttt{in/im/un}$\rightarrow$/\textepsilon/) before consonants or word boundaries, and doubled-consonant collapsing.
 \end{itemize}
-IPA strings are segmented greedily longest-first: affricates /\textteshlig/ and /\textdyoghlig/ are single segments in $P$, diphthongs (e.g., /a\textsci/) are tokenized as two segments, and any unknown symbols or diacritics are skipped.
+Table~\ref{tab:pt_g2p} summarizes the ordered deterministic rules of \texttt{PortugueseG2P} as a representative non-English rule-based frontend. At tokenization time, IPA strings emitted by any frontend are segmented greedily longest-first against $P$: two-character affricates /\textteshlig/ and /\textdyoghlig/ are tokenized as single segments in $P$, diphthongs (e.g., /a\textsci/, /a\textupsilon/) are tokenized as two adjacent vowel segments, and any unknown symbols or suprasegmental diacritics are skipped.
 
-\subsection{Two-Stage Candidate Generation and Scoring}
-To avoid scanning $75\text{k}$--$777\text{k}$ words per query, we combine: (1) a \emph{symmetric delete index} \parencite{garbe2012symspell} storing $0$--$2$-character deletions per word, and (2) a \emph{seven-class articulatory-skeleton index}\footnote{Here \emph{seven-class articulatory skeleton} denotes a broad phonological equivalence partition of IPA segments into seven manner/place classes ($\texttt{V,N,L,S,P,T,K}$) derived from distinctive features---analogous to Soundex-style coarse phonetic keys \parencite{kukich1992techniques}---rather than seven-parameter vocal-tract articulatory models used in speech synthesis.} mapping each phone exclusively via the priority rule $\texttt{V} > \texttt{N} > \texttt{L} > \texttt{S} > \texttt{P} > \texttt{T} > \texttt{K}$ (syllabic, nasal, liquid/glide, sibilant/affricate, labial, coronal, dorsal/glottal), collapsing consecutive duplicates and indexing 1-delete variants sorted by descending frequency; this is deliberately a coarse, mutually exclusive indexing partition rather than a complete phonological representation.
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Ordered deterministic rules in \texttt{PortugueseG2P} (priority: contextual/multi-graph $\rightarrow$ single grapheme; $1$-to-$1$ consonants omitted).}
+\label{tab:pt_g2p}
+\begin{tabular}{lp{5.8cm}ll}
+\toprule
+Category & Pattern / Rule & IPA Output & Examples \\
+\midrule
+Consonant digraphs & \texttt{ch}$\rightarrow$/\textesh/, \texttt{lh}$\rightarrow$/\textturny/, \texttt{nh}$\rightarrow$/\textipa{J}/, \texttt{rr}$\rightarrow$/h/, \texttt{ss}$\rightarrow$/s/ & /\textesh, \textturny, \textipa{J}, h, s/ & \textit{chave, milho, banho, carro} \\
+Velar digraphs & \texttt{qu}$\rightarrow$/k/, \texttt{gu}$\rightarrow$/\textipa{g}/ (unconditional; omits /kw, gw/) & /k, \textipa{g}/ & \textit{queijo, guerra} \\
+Diphthongs (oralized) & \texttt{\~ao}$\rightarrow$/a\textupsilon/, \texttt{\~oe}$\rightarrow$/o\textsci/, \texttt{\~ae}$\rightarrow$/a\textsci/, \texttt{ou}$\rightarrow$/o/, \texttt{ei}$\rightarrow$/e\textsci/, \texttt{ai}$\rightarrow$/a\textsci/, \texttt{oi}$\rightarrow$/\textopeno\textsci/, \texttt{au}$\rightarrow$/a\textupsilon/ & /a\textupsilon, o\textsci, a\textsci, o, e\textsci, \textopeno\textsci/ & \textit{cora\c{c}\~ao, p\~oe, m\~ae, ouro} \\
+Contextual rules & \texttt{sc/xc}+\texttt{e,i}$\rightarrow$/s/; \texttt{c}+\texttt{e,i}$\rightarrow$/s/; \texttt{g}+\texttt{e,i}$\rightarrow$/\textyogh/; \texttt{V\_s\_V}$\rightarrow$/z/; \texttt{\#r}$\rightarrow$/h/ & /s, \textyogh, z, h/ & \textit{nascer, cedo, gelo, casa, rato} \\
+Vowels \& consonants & \texttt{\'a/\`a}$\rightarrow$/a/, \texttt{\^a/\~a}$\rightarrow$/\textturna/, \texttt{\'e}$\rightarrow$/\textepsilon/, \texttt{\^e}$\rightarrow$/e/, \texttt{\'o}$\rightarrow$/\textopeno/, \texttt{\^o/\~o}$\rightarrow$/o/, \texttt{\c{c}}$\rightarrow$/s/, \texttt{j}$\rightarrow$/\textyogh/, \texttt{x}$\rightarrow$/\textesh/, \texttt{h}$\rightarrow\emptyset$ & /a, \textturna, \textepsilon, e, \textopeno, o, s, \textyogh, \textesh/ & \textit{caf\'e, av\^o, ca\c{c}a, hora} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-For query $x$ and candidate $w$, we compute generalized weighted edit distances $d_{\text{orth}}, d_{\text{kb}}, d_{\text{phon}}$ (with a heuristic transposition cost of $0.45$ for keyboard and phonetic DP) and combine them with a smoothed unigram log-prior $\log P(w) = \log(c(w)+0.5) - \log\!\left(\sum_{v\in V} c(v) + 0.5|V|\right)$ over the merged lowercase vocabulary $V$ (where the minimum count of $1$ is applied after merging lexicon and corpus counts, preserving diacritics):
+\subsection{Two-Stage Candidate Generation and Generalized Scoring}
+\label{sec:indexing}
+To avoid scanning $75\text{k}$--$777\text{k}$ vocabulary entries on each query, LipSpell builds a two-stage inverted index at startup:
+\begin{enumerate}
+    \item \textbf{Orthographic symmetric-delete index:} Following \textcite{garbe2012symspell}, for each vocabulary word $w \in V$ we pre-index all strings obtained by deleting $0$ to $2$ characters from $w$. At query time, intersecting $0$--$2$-character deletions of $x$ with the index recovers every candidate within Damerau--Levenshtein distance $d_{\text{orth}}(x, w) \le 2$ in $O(1)$ hash lookups per deletion.
+    \item \textbf{Seven-class phonetic-code index:} Each vocabulary word's IPA phone sequence $\phi(w)$ is mapped onto a coarse seven-class phonological code via the mutually exclusive priority order $\texttt{V} > \texttt{N} > \texttt{L} > \texttt{S} > \texttt{P} > \texttt{T} > \texttt{K}$ (Table~\ref{tab:skel_classes}), collapsing consecutive identical classes and indexing both the exact code and its $1$-symbol deletions to tolerate an omitted or inserted phonological class.\footnote{In the codebase, this seven-class phonetic key is implemented as \texttt{skeleton}, denoting a Soundex-like broad phonological equivalence partition \parencite{kukich1992techniques} rather than a vocal-tract articulatory model.} Posting lists per key are sorted by descending corpus frequency and capped at $300$ hits per query to bound DP alignment cost on populated keys.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Seven-class phonetic code partition (priority $\texttt{V} > \texttt{N} > \texttt{L} > \texttt{S} > \texttt{P} > \texttt{T} > \texttt{K}$) derived from distinctive features.}
+\label{tab:skel_classes}
+\begin{tabular}{clll}
+\toprule
+Code & Phonological Class & Feature Criterion & Representative IPA Segments \\
+\midrule
+\texttt{V} & Syllabic / Vowel     & $[+\text{syll}]$ & /a, e, \textepsilon, i, \textsci, o, \textopeno, u, \textschwa, \textturna/ \\
+\texttt{N} & Nasal                & $[+\text{nas}]$ & /m, n, \textipa{N}, \textipa{J}/ \\
+\texttt{L} & Liquid / Approximant & $[+\text{approx}]$ or $[+\text{lat}]$ & /l, \textturny, \textfishhookr, \textturnr, j, w/ \\
+\texttt{S} & Sibilant / Affricate & $[+\text{strid}]$ or $[+\text{delrel}]$ & /s, z, \textesh, \textyogh, \textteshlig, \textdyoghlig/ \\
+\texttt{P} & Labial               & $[+\text{lab}]$ & /p, b, f, v/ \\
+\texttt{T} & Coronal              & $[+\text{cor}]$ & /t, d, \texttheta, \dh/ \\
+\texttt{K} & Dorsal / Glottal     & Remaining $[+\text{cons}]/\text{glottal}$ & /k, \textipa{g}, x, h, \textglotstop/ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For query $x$ and each retrieved candidate $w$, we compute generalized weighted edit distances $d_{\text{orth}}, d_{\text{kb}}, d_{\text{phon}}$ (using a heuristic adjacent-transposition cost of $0.45$ in keyboard and phonetic DP) and combine them with a Laplace-smoothed unigram log-prior $\log P(w) = \log(c(w)+0.5) - \log\!\left(\sum_{v\in V} c(v) + 0.5|V|\right)$ over the merged lowercase vocabulary $V$ (preserving diacritics):
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)).
 \end{equation}
-This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order. We refer to this four-signal model (using the cosine phone metric unless noted) as \textbf{LipSpell} to distinguish it from single-channel baselines (\texttt{Norvig}, \texttt{Keyboard}, \texttt{Phonetic-only}), while the overall scoring framework itself is language-independent.
+This is a \emph{noisy-channel-inspired scoring function}: the three edit distances are correlated rather than independent log-likelihoods, and $(\lambda_{\text{freq}}, \lambda_{\text{orth}}, \lambda_{\text{kb}}, \lambda_{\text{phon}}) = (1.0, 4.0, 1.5, 4.0)$ were tuned via grid search and coordinate refinement on an independent $800$-pair Birkbeck dev sample ($77.47\%$ dev Top-1 on the $586$ pairs in the candidate pool). Ties are broken deterministically by candidate string order. Algorithm~\ref{alg:lipspell} summarizes query-time retrieval and ranking. We refer to this four-signal model (using the cosine phone metric unless noted) as \textbf{LipSpell} to distinguish it from single-channel baselines (\texttt{Norvig}, \texttt{Keyboard}, \texttt{Phonetic-only}), while the scoring framework itself is language-independent.
+
+\begin{algorithm}[ht]
+\caption{Two-Stage Candidate Retrieval and Four-Signal Scoring in LipSpell}
+\label{alg:lipspell}
+\begin{algorithmic}[1]
+\Require Query $x$, vocabulary $V$, deletion index $\mathcal{I}_{\text{del}}$, phonetic-code index $\mathcal{I}_{\text{code}}$, weights $\boldsymbol{\lambda}$, cap $H_{\max}=300$
+\Ensure Top-$k$ ranked candidate corrections
+\State $w_{\text{low}} \gets \text{lowercase}(x)$
+\If{$w_{\text{low}} \in V$} \Return $[w_{\text{low}}]$ \Comment{Known in-vocabulary word}
+\EndIf
+\State $\mathcal{C}_{\text{orth}} \gets \bigcup_{d \in \text{Deletes}(w_{\text{low}}, 2)} \mathcal{I}_{\text{del}}[d]$ \Comment{Stage 1: SymDelete ($\le 2$ edits)}
+\State $\mathbf{p}_x \gets \text{Tokenize}(\phi(w_{\text{low}}))$; \quad $\kappa_x \gets \text{PhoneticCode}(\mathbf{p}_x)$
+\State $\mathcal{C}_{\text{phon}} \gets \emptyset$
+\For{$d \in \text{Deletes}(\kappa_x, 1)$} \Comment{Stage 2: 7-class code + 1-delete}
+    \For{$c \in \mathcal{I}_{\text{code}}[d]$} \Comment{Pre-sorted by descending corpus frequency}
+        \State $\mathcal{C}_{\text{phon}} \gets \mathcal{C}_{\text{phon}} \cup \{c\}$
+        \If{$|\mathcal{C}_{\text{phon}}| \ge H_{\max}$} \textbf{break} \EndIf
+    \EndFor
+\EndFor
+\State $\mathcal{C} \gets \mathcal{C}_{\text{orth}} \cup \mathcal{C}_{\text{phon}}$
+\For{$w \in \mathcal{C}$}
+    \State $S(w \mid x) \gets \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(w_{\text{low}}, w) - \lambda_{\text{kb}} d_{\text{kb}}(w_{\text{low}}, w) - \lambda_{\text{phon}} d_{\text{phon}}(\mathbf{p}_x, \mathbf{p}_w)$
+\EndFor
+\State \Return Top-$k$ candidates in $\mathcal{C}$ ordered by $(-S(w \mid x), w)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[ht]
+\caption{Generalized Weighted Damerau--Levenshtein Dynamic Program ($d_{\text{phon}}$ / $d_{\text{kb}}$)}
+\label{alg:weighted_dp}
+\begin{algorithmic}[1]
+\Require Sequences $A = (a_1,\dots,a_m)$ and $B = (b_1,\dots,b_n)$, substitution cost $\text{sub}(a,b)$, indel costs $\text{del}(a)$ and $\text{ins}(b)$, transposition cost $\tau = 0.45$
+\Ensure Generalized weighted edit distance $D[m, n]$
+\State $D[0, 0] \gets 0$
+\For{$i = 1 \dots m$} $D[i, 0] \gets D[i-1, 0] + \text{del}(a_i)$ \EndFor
+\For{$j = 1 \dots n$} $D[0, j] \gets D[0, j-1] + \text{ins}(b_j)$ \EndFor
+\For{$i = 1 \dots m$}
+    \For{$j = 1 \dots n$}
+        \State $c_{\text{sub}} \gets 0$ \textbf{if} $a_i = b_j$ \textbf{else} $\text{sub}(a_i, b_j)$
+        \State $D[i, j] \gets \min\big(D[i-1, j] + \text{del}(a_i),\; D[i, j-1] + \text{ins}(b_j),\; D[i-1, j-1] + c_{\text{sub}}\big)$
+        \If{$i > 1$ \textbf{and} $j > 1$ \textbf{and} $a_i = b_{j-1}$ \textbf{and} $a_{i-1} = b_j$}
+            \State $D[i, j] \gets \min\big(D[i, j],\; D[i-2, j-2] + \tau\big)$ \Comment{Adjacent transposition}
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $D[m, n]$
+\end{algorithmic}
+\end{algorithm}
 
 \section{Datasets and Experimental Setup}
-All evaluation sets consist of deduplicated lowercase alphabetic misspelling--target pairs $(x, w^*)$ with $x \neq w^*$. For English and Portuguese, we retain the standard benchmark lexicons and frequency corpora from prior work \parencite{norvig2007spell,bertaglia2016enelvo}, while for the four cross-lingual extensions we pair Hunspell dictionary headwords (\texttt{index.dic} from \texttt{wooorm/dictionaries}, floor $1$) with OpenSubtitles corpus frequencies (\texttt{FrequencyWords}) \parencite{lison2016opensubtitles}:
+\label{sec:setup}
+
+\subsection{Lexicons and Evaluation Benchmarks}
+All evaluation sets consist of deduplicated lowercase alphabetic misspelling--target pairs $(x, w^*)$ with $x \neq w^*$. For English and Brazilian Portuguese, we retain standard benchmark lexicons and frequency corpora from prior work \parencite{norvig2007spell,bertaglia2016enelvo}, whereas for the four cross-lingual extensions (Russian, Hebrew, Turkish, and French) we pair Hunspell dictionary headwords (\texttt{index.dic} from \texttt{wooorm/dictionaries}, floor count $1$) with OpenSubtitles corpus unigram frequencies (\texttt{FrequencyWords}) \parencite{lison2016opensubtitles}:
 \begin{itemize}
-    \item \textbf{English} ($|V|=78{,}393$): Word frequencies from Norvig's \texttt{big.txt} corpus \parencite{norvig2007spell} merged with \texttt{/usr/share/dict/american-english} (floor $1$). Benchmarks: Norvig1 ($n=270$) and Norvig2 ($n=400$), Norvig's two standard English test sets \parencite{norvig2007spell}; Aspell ($n=516$), GNU Aspell's benchmark error list; Wikipedia-EN (first $300$ pairs), common English Wikipedia misspellings; Holbrook (first $300$ pairs), British schoolchildren's misspellings from the Birkbeck corpus \parencite{mitton1985birkbeck}; and TOEFL-Spell \parencite{flor2019toefl} ($1{,}000$ unique pairs from \texttt{Annotations.tsv}; $50/50$ clean non-word split test $n=489$). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all evaluation sets (including Holbrook).
-    \item \textbf{Brazilian Portuguese} ($|V|=240{,}040$): Word frequencies from Enelvo's \texttt{freq-cgu.txt} corpus merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$). We evaluate on the $n=500$ slice, the complete A--Z dataset ($n=1{,}149$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns}), and the $50/50$ clean non-word split (test $n=499$).
-    \item \textbf{Russian} ($|V|=358{,}624$): Hunspell \texttt{index.dic} merged with top $250\text{k}$ OpenSubtitles frequencies; evaluated on the $50/50$ clean non-word split of \texttt{RUSpellRU} ($n=321$).
-    \item \textbf{Hebrew} ($|V|=339{,}791$): Top $250\text{k}$ OpenSubtitles frequencies restricted to Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of Wikipedia bot typos ($n=122$).
-    \item \textbf{Turkish} ($|V|=777{,}340$): Hunspell \texttt{index.dic} merged with top $500\text{k}$ OpenSubtitles frequencies; evaluated on the $50/50$ clean non-word split of Turkish Wikipedia typos ($1{,}000$-pair sample, $n=420$).
-    \item \textbf{French} ($|V|=74{,}544$): Top $250\text{k}$ OpenSubtitles frequencies restricted to Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of French Wikipedia typos ($n=106$).
+    \item \textbf{English} ($|V|=78{,}393$): Word frequencies from Norvig's \texttt{big.txt} corpus \parencite{norvig2007spell} merged with \texttt{/usr/share/dict/american-english} (floor $1$). We evaluate on six diverse benchmarks: \textbf{Norvig1} ($n=270$) and \textbf{Norvig2} ($n=400$), Norvig's two standard English test sets \parencite{norvig2007spell}; \textbf{Aspell} ($n=516$), GNU Aspell's benchmark error list; \textbf{Wikipedia-EN} (first $300$ pairs), common English Wikipedia misspellings; \textbf{Holbrook} (first $300$ pairs), British schoolchildren's misspellings from the Birkbeck corpus \parencite{mitton1985birkbeck}; and \textbf{TOEFL-Spell} \parencite{flor2019toefl} ($1{,}000$ unique L2 learner pairs from \texttt{Annotations.tsv}; $50/50$ clean non-word split test $n=489$). We verified $0$ exact pair overlap between the $800$-pair Birkbeck dev set and all six evaluation sets (including Holbrook).
+    \item \textbf{Brazilian Portuguese} ($|V|=240{,}040$): Word frequencies from Enelvo's \texttt{freq-cgu.txt} corpus merged with \texttt{unitex-full-clean} \parencite{bertaglia2016enelvo} (floor $1$ for entries without explicit counts). We evaluate on the first $500$ alphabetical pairs, the complete A--Z dataset ($n=1{,}149$ single-word alphabetic pairs from \textit{Wikip\'edia: Lista de erros comuns}, eliminating alphabetical prefix bias), and the $50/50$ clean non-word split (test $n=499$).
+    \item \textbf{Russian} ($|V|=358{,}624$): Hunspell \texttt{index.dic} merged with the top $250\text{k}$ OpenSubtitles frequencies; evaluated on the $50/50$ clean non-word split of \texttt{RUSpellRU} (test $n=321$).
+    \item \textbf{Hebrew} ($|V|=339{,}791$): Top $250\text{k}$ OpenSubtitles frequencies restricted to Hunspell's \texttt{index.dic} to exclude noisy non-Hebrew tokens; evaluated on the $50/50$ clean non-word split of Wikipedia bot typos (test $n=122$).
+    \item \textbf{Turkish} ($|V|=777{,}340$): Hunspell \texttt{index.dic} merged with the top $500\text{k}$ OpenSubtitles frequencies (reflecting agglutinative inflectional breadth); evaluated on the $50/50$ clean non-word split of Turkish Wikipedia typos ($1{,}000$-pair sample, test $n=420$).
+    \item \textbf{French} ($|V|=74{,}544$): Top $250\text{k}$ OpenSubtitles frequencies restricted to Hunspell's \texttt{index.dic}; evaluated on the $50/50$ clean non-word split of French Wikipedia typos (test $n=106$).
 \end{itemize}
-Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of keys in the symmetric-delete and articulatory-skeleton hash tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). On large agglutinative vocabularies such as Turkish ($|V|=777\text{k}$), the $0$--$2$-character symmetric-delete index ($39.44\text{M}$ keys) drives peak RSS to $8.65$\,GiB. For the cross-lingual experiments, \emph{50/50 clean non-word splits} are constructed by retaining single lowercase alphabetic pairs $(x, w^*)$ with $x \notin V$, $w^* \in V$, and $x \neq w^*$, shuffling deterministically (\texttt{seed=42}), and splitting evenly into a $50\%$ development half (used solely for unregularized grid search over $\lambda_{\text{freq}}=1$, $\lambda_{\text{orth}}\in\{2,4,6,8\}$, $\lambda_{\text{kb}}\in\{0,1,2,4\}$, $\lambda_{\text{phon}}\in\{0,1,2,4,6\}$, never for G2P rule design) and a $50\%$ test half. All language-specific G2P rules, keyboard layouts, and weak-character indel costs were specified prior to test-set evaluation. Experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). We compare against Norvig, Aspell 0.60.8.2, and Hunspell 1.7.2, reporting two-sided McNemar $p$-values (using the same denominator for all systems, counting OOV targets as incorrect) and $95\%$ Wilson confidence intervals. Code and scripts are at \url{https://github.com/leolca/lipspell}.
+
+\subsection{Clean 50/50 Split Construction and Parameter Tuning}
+For the cross-lingual comparisons, \emph{50/50 clean non-word splits} are constructed deterministically from each language's raw pair list by retaining only single lowercase alphabetic pairs $(x, w^*)$ satisfying $x \notin V$, $w^* \in V$, and $x \neq w^*$, shuffling with \texttt{random.Random(42)}, and partitioning evenly into a $50\%$ development half and a $50\%$ test half. The development half is used exclusively for unregularized grid search over the four scalar channel weights: $\lambda_{\text{freq}}=1$, $\lambda_{\text{orth}}\in\{2,4,6,8\}$, $\lambda_{\text{kb}}\in\{0,1,2,4\}$, and $\lambda_{\text{phon}}\in\{0,1,2,4,6\}$, selecting the tuple maximizing development Top-1 accuracy (and never to design or modify G2P rules, keyboard coordinates, or weak-character indel overrides, all of which were specified prior to test evaluation).
+
+\subsection{Index Footprint and Statistical Evaluation Protocol}
+Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of hash keys in the symmetric-delete and seven-class phonetic-code tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). Index memory scales primarily with the number of $0$--$2$-character deletion keys, which grows quadratically with word length: on English ($|V|=78\text{k}$), $2.37\text{M}$ delete keys require only $497.4$\,MiB RSS and $3.04$\,s build time, whereas on agglutinative Turkish ($|V|=777\text{k}$), $39.44\text{M}$ delete keys drive peak RSS to $8{,}650.6$\,MiB ($8.45$\,GiB / $8.65$\,GB) and $51.58$\,s build time. By contrast, the seven-class phonetic-code table remains compact across all six languages ($161\text{k}$--$2.14\text{M}$ keys).
+
+All experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy). We compare against Norvig (using the exact same vocabulary $V$ and frequency counts as LipSpell), Aspell 0.60.8.2, and Hunspell 1.7.2 (executed via UTF-8 pipe mode, evaluating Top-1 and Top-5 suggestions). Accuracies are computed over the full denominator of each test set (counting OOV targets as incorrect), and we report exact two-sided paired McNemar $p$-values (with Holm--Bonferroni family-wise correction) alongside $95\%$ Wilson score confidence intervals. Code and scripts are available at \url{https://github.com/leolca/lipspell}.
 
 \begin{table}[ht]
 \centering
@@ -158,7 +322,8 @@ Table~\ref{tab:comp_ablation} isolates each signal. Adding phonetics (\textbf{A}
 
 \begin{table}[ht]
 \centering
-\small
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
 \caption{Component ablation (Top-1 \% / Top-5 \%).}
 \label{tab:comp_ablation}
 \begin{tabular}{lccccc}
@@ -175,7 +340,50 @@ Configuration & Norvig1 & Aspell & Holbrook & TOEFL & PT-Wiki \\
 \end{table}
 
 \subsection{Comparison with Aspell, Hunspell, and Norvig (RQ2, RQ3)}
-Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare LipSpell against Norvig, Aspell, and Hunspell, including target vocabulary coverage for each system (\texttt{Ours/Asp/Hun}). On English, LipSpell outperforms Norvig and Hunspell on every set (paired McNemar $p < 10^{-4}$ against Hunspell on five of six sets, surviving Holm--Bonferroni correction \parencite{holm1979simple} across all pairwise comparisons) and beats Aspell on Norvig1, Holbrook ($p=0.0226$), and TOEFL-Spell ($p=0.0018$), while trailing Aspell Top-1 on Norvig2 ($74.75\%$ vs.\ $77.25\%$), the Aspell benchmark ($56.40\%$ vs.\ $58.72\%$), and Wikipedia-EN ($81.67\%$ vs.\ $83.33\%$). On Brazilian Portuguese, even though Aspell and Hunspell have higher target vocabulary coverage ($98.4\%$ vs.\ $96.8\%$ on $n=500$; $97.4\%$ vs.\ $95.8\%$ on the full $n=1{,}149$ A--Z set), LipSpell (with fixed English weights) achieves $73.00\pm3.89\%$ Top-1 ($85.20\%$ Top-5) on $n=500$ ($p \le 6.29\times 10^{-5}$ vs.\ all three baselines) and $72.15\pm2.59\%$ Top-1 on the full $n=1{,}149$ A--Z set vs.\ $66.23\%$ for Norvig ($p=3.60\times 10^{-13}$), $63.19\%$ for Hunspell ($p=1.99\times 10^{-9}$), and $60.14\%$ for Aspell ($p=7.86\times 10^{-16}$); note that these full-slice figures include OOV targets and uncleaned tokens, whereas Table~\ref{tab:multilingual} evaluates clean in-vocabulary $50/50$ non-word splits with per-language tuning. On multi-edit errors ($d_{\text{orth}}\ge 2$), LipSpell outperforms Norvig by $+15.88$ pp on full PT-Wiki ($43.92\%$ vs.\ $28.04\%$, $n=189$), $+13.64$ pp on Norvig1, $+10.20$ pp on Wikipedia-EN, $+6.75$ pp on Aspell, and $+5.84$ pp on Holbrook.
+Tables~\ref{tab:english_cmp} and~\ref{tab:ptbr} compare LipSpell against Norvig, Aspell, and Hunspell, including target vocabulary coverage for each system (\texttt{Ours/Asp/Hun}). On English, LipSpell outperforms Norvig and Hunspell on every set (paired McNemar $p < 10^{-4}$ against Hunspell on five of six sets, surviving Holm--Bonferroni correction \parencite{holm1979simple} across all pairwise comparisons) and beats Aspell on Norvig1 ($79.26\%$ vs.\ $75.56\%$), Holbrook ($32.00\%$ vs.\ $26.67\%$, $p=0.0226$), and TOEFL-Spell ($77.10\%$ vs.\ $72.80\%$, $p=0.0018$), while trailing Aspell Top-1 on Norvig2 ($74.75\%$ vs.\ $77.25\%$), the Aspell benchmark ($56.40\%$ vs.\ $58.72\%$), and Wikipedia-EN ($81.67\%$ vs.\ $83.33\%$). On Wikipedia-EN, Aspell's dictionary covers only $70.3\%$ of targets compared to $97.3\%$ for our lexicon, yet Aspell achieves slightly higher Top-1 precision on the covered subset, whereas LipSpell achieves the highest Top-5 recall ($91.33\%$ vs.\ $91.00\%$).
+
+On Brazilian Portuguese, even though Aspell and Hunspell have higher target vocabulary coverage ($98.4\%$ vs.\ $96.8\%$ on $n=500$; $97.4\%$ vs.\ $95.8\%$ on the full $n=1{,}149$ A--Z set), LipSpell (with fixed English weights) achieves $73.00\pm3.89\%$ Top-1 ($85.20\%$ Top-5) on $n=500$ ($p \le 6.29\times 10^{-5}$ vs.\ all three baselines) and $72.15\pm2.59\%$ Top-1 on the full $n=1{,}149$ A--Z set vs.\ $66.23\%$ for Norvig ($p=3.60\times 10^{-13}$), $63.19\%$ for Hunspell ($p=1.99\times 10^{-9}$), and $60.14\%$ for Aspell ($p=7.86\times 10^{-16}$). Note that these full-slice figures include OOV targets and uncleaned tokens, whereas Table~\ref{tab:multilingual} evaluates clean in-vocabulary $50/50$ non-word splits with per-language tuning.
+
+To isolate where LipSpell's phonetic and keyboard signals deliver the largest improvements over purely orthographic ranking, Table~\ref{tab:multi_edit} stratifies Top-1 accuracy across all six English benchmarks by Damerau--Levenshtein edit distance ($d_{\text{orth}} \le 1$ vs.\ $d_{\text{orth}} \ge 2$). On single-edit errors ($d_{\text{orth}} \le 1$), LipSpell improves over Norvig by $+0.49$ to $+3.07$ pp on five of six English datasets (and trails slightly by $-0.76$ pp on TOEFL-Spell). On multi-edit errors ($d_{\text{orth}} \ge 2$), however, LipSpell delivers consistent, substantial gains on every single benchmark: $+12.12$ pp on Norvig1 ($65.15\%$ vs.\ $53.03\%$), $+10.20$ pp on Wikipedia-EN ($57.14\%$ vs.\ $46.94\%$), $+6.75$ pp on Aspell ($35.86\%$ vs.\ $29.11\%$), $+5.84$ pp on Holbrook ($13.14\%$ vs.\ $7.30\%$), $+5.56$ pp on Norvig2 ($48.89\%$ vs.\ $43.33\%$), $+3.77$ pp on TOEFL-Spell ($42.92\%$ vs.\ $39.15\%$), and $+15.88$ pp on full PT-Wiki ($43.92\%$ vs.\ $28.04\%$, $n=189$). These stratified results confirm that distinctive-feature phonetic scoring is especially effective precisely where character-level edit distance loses discriminative power.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Stratified Top-1 accuracy (\%) by orthographic edit distance ($d_{\text{orth}} \le 1$ vs.\ $d_{\text{orth}} \ge 2$) across English benchmarks.}
+\label{tab:multi_edit}
+\begin{tabular}{lccccccc}
+\toprule
+Dataset & $n_{d\le 1}$ & Norvig ($d\le 1$) & LipSpell ($d\le 1$) & $n_{d\ge 2}$ & Norvig ($d\ge 2$) & LipSpell ($d\ge 2$) & Gain ($d\ge 2$) \\
+\midrule
+Norvig1     & 204 & 82.35 & \textbf{82.84} &  66 & 53.03 & \textbf{65.15} & $+12.12$ pp \\
+Norvig2     & 310 & 79.68 & \textbf{82.26} &  90 & 43.33 & \textbf{48.89} & $+5.56$ pp \\
+Aspell      & 279 & 72.76 & \textbf{73.84} & 237 & 29.11 & \textbf{35.86} & $+6.75$ pp \\
+Wikipedia   & 251 & 84.06 & \textbf{86.45} &  49 & 46.94 & \textbf{57.14} & $+10.20$ pp \\
+Holbrook    & 163 & 44.79 & \textbf{47.85} & 137 &  7.30 & \textbf{13.14} & $+5.84$ pp \\
+TOEFL-Spell & 788 & \textbf{87.31} & 86.55 & 212 & 39.15 & \textbf{42.92} & $+3.77$ pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:pt_error_taxonomy} provides a complementary hierarchical error-category breakdown on the complete $n=1{,}149$ Brazilian Portuguese Wikipedia dataset, comparing LipSpell (with fixed English weights and NFD diacritic tolerance) against Norvig (which achieved the strongest baseline score and shares the exact same $95.8\%$ lexicon coverage). More than half of the Portuguese errors ($54.66\%$) are purely diacritical (\textit{acessivel} $\rightarrow$ \textit{acess\'ivel}), where LipSpell outperforms Norvig by $+11.30$ pp; on non-diacritic multi-edit errors ($d_{\text{orth}} \ge 2$, $n=163$), LipSpell achieves $+15.34$ pp over Norvig ($42.33\%$ vs.\ $26.99\%$).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Brazilian Portuguese error taxonomy on full PT-Wiki ($n=1{,}149$) and Top-1 accuracy (\%) against Norvig.}
+\label{tab:pt_error_taxonomy}
+\begin{tabular}{lrrccc}
+\toprule
+Error Category & $n$ & Share (\%) & Norvig (\%) & LipSpell (\%) & Gain (pp) \\
+\midrule
+Diacritic-only ($d_{\text{NFD}}=0$) & 628 & 54.66 & 67.04 & \textbf{78.34} & $+11.30$ \\
+Substitution ($d=1$)              & 222 & 19.32 & 81.08 & \textbf{82.43} & $+1.35$ \\
+Ins./Del./Transp. ($d=1$)         & 136 & 11.84 & \textbf{85.29} & 84.56 & $-0.73$ \\
+Multi-edit ($d\ge 2$)             & 163 & 14.19 & 26.99 & \textbf{42.33} & $+15.34$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[ht]
 \centering
@@ -240,7 +448,7 @@ Table~\ref{tab:multilingual} compares Aspell, Hunspell, Norvig, LipSpell (Fixed)
 \begin{table}[ht]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.8pt}
+\setlength{\tabcolsep}{2.2pt}
 \caption{Cross-lingual transfer across three language families and three scripts using \textbf{LipSpell} (Cosine metric, 50/50 clean in-vocabulary non-word splits, including TOEFL-Spell $n=489$; Top-1 / Top-5 \%).}
 \label{tab:multilingual}
 \begin{tabular}{lccccccc}
@@ -278,11 +486,15 @@ French     & 106 / 106 & 76.42 & 95.28 & 68.87 / 76.42 & 74.53 [65.48, 81.87] \\
 \end{tabular}
 \end{table}
 
-To test whether external IPA pronunciation dictionaries improve over purely rule-based G2P, we evaluated Rule-only G2P against seven Dictionary + Rule fallback configurations across the six languages (\texttt{CMUdict} and \texttt{ipa-dict} \parencite{opendictipadict} for English; \texttt{ipa-dict} for Portuguese and French; \texttt{WikiPron} \parencite{lee2020wikipron} for Russian, Hebrew, and Turkish) on the same 50/50 splits (Table~\ref{tab:g2p_ablation}). Across the non-French languages, rule-only G2P matches or outperforms external dictionaries in most configurations (e.g., Russian $85.67\%$ vs.\ $83.80\%$ fixed; Portuguese $86.97\%$ vs.\ $85.37\%$ tuned; on English, CMUdict improves Fixed Top-1 from $79.35\%$ to $80.37\%$ while Rule-only edges out CMUdict on Tuned Top-1, $79.96\%$ vs.\ $79.75\%$), because passing both the misspelled query and lexicon candidates through the same deterministic G2P rules cancels systematic rule approximations and avoids cross-convention mismatches with the OOV fallback. French is the sole exception where an opaque orthography benefits consistently from \texttt{ipa-dict} ($244\text{k}$ words), improving tuned accuracy from $73.58\% / 89.62\%$ to $74.53\% / 90.57\%$ ($+0.95$\,pp Top-1 and Top-5; $+1.88$\,pp fixed Top-5). Thus, LipSpell operates cleanly with zero external pronunciation dictionaries or selectively integrates one for opaque orthographies.
+\subsection{Rule-Based G2P vs.\ External Pronunciation Dictionaries}
+To test whether external IPA pronunciation dictionaries improve over purely rule-based G2P, we evaluated Rule-only G2P against seven Dictionary + Rule fallback configurations across the six languages (\texttt{CMUdict} and \texttt{ipa-dict} \parencite{opendictipadict} for English; \texttt{ipa-dict} for Portuguese and French; \texttt{WikiPron} \parencite{lee2020wikipron} for Russian, Hebrew, and Turkish) on the same 50/50 splits (Table~\ref{tab:g2p_ablation}). Before lookup, external dictionary entries undergo canonical Unicode NFD normalization to strip combining diacritics, primary/secondary stress marks (/\textprimstress, \textsecstress/), and length markers (/\textlengthmark/), and narrow allophones outside the $45$-segment feature inventory (such as /\textinvscr/$\rightarrow$/\textturnr/, /r, \textipa{;R}/$\rightarrow$/\textfishhookr/, /\textltilde/$\rightarrow$/l/, /\textgamma/$\rightarrow$/\textipa{g}/) are remapped to their closest inventory segments; any word absent from the external dictionary falls back to the language's rule-based G2P.
+
+Across the non-French languages, rule-only G2P matches or outperforms external dictionaries in most configurations (e.g., Russian $85.67\%$ vs.\ $83.80\%$ fixed; Portuguese $86.97\%$ vs.\ $85.37\%$ tuned; on English, CMUdict improves Fixed Top-1 from $79.35\%$ to $80.37\%$ while Rule-only edges out CMUdict on Tuned Top-1, $79.96\%$ vs.\ $79.75\%$). This pattern arises because passing both the misspelled query and lexicon candidates through the exact same deterministic G2P rules cancels systematic rule approximations and avoids cross-convention mismatches between narrow dictionary transcriptions and the rule-based OOV fallback. French is the sole exception where an opaque orthography benefits consistently from \texttt{ipa-dict} ($245\text{k}$ entries), improving tuned accuracy from $73.58\% / 89.62\%$ to $74.53\% / 90.57\%$ ($+0.95$\,pp Top-1 and Top-5; $+1.88$\,pp fixed Top-5) because silent letters and irregular vowel digraphs cannot be predicted reliably by compact surface rules alone. Thus, LipSpell operates cleanly with zero external pronunciation dictionaries or selectively integrates one for opaque orthographies.
 
 \begin{table}[ht]
 \centering
 \scriptsize
+\setlength{\tabcolsep}{2.8pt}
 \caption{Rule-only G2P vs.\ Pronunciation Dictionary + Rule fallback across seven configurations on 50/50 clean non-word splits (Top-1 / Top-5 \%).}
 \label{tab:g2p_ablation}
 \begin{tabular}{lrcccccc}
@@ -307,8 +519,44 @@ French     & 106 & \texttt{ipa-dict} (245k) & 67.92 / 84.91 & \textbf{68.87 / 86
 \label{fig:overview}
 \end{figure}
 
-\subsection{Limitations}
-Four limitations remain: (1) as for any isolated-word spellchecker, scoring without sentence context cannot resolve real-word errors (e.g., \textit{their}/\textit{there}, \textit{mas}/\textit{mais}); (2) G2P on severely distorted inputs can degrade phonetic matching; (3) one-to-one phone DP cannot align single phones to two-segment diphthongs/digraphs without $1$-to-$2$ operations; and (4) each word is assigned a single pronunciation rather than a pronunciation set $\Phi(w)$.
+\subsection{Qualitative Case Studies and Error Analysis}
+Table~\ref{tab:case_studies} illustrates representative Top-1 predictions from Norvig and LipSpell on real English and Brazilian Portuguese misspellings. On multi-edit cognitive errors, purely orthographic ranking prefers high-frequency $d_{\text{orth}}=1$ or closer $d_{\text{orth}}=2$ competitors: for English \textit{semetary} $\rightarrow$ \textit{cemetery} ($d_{\text{orth}}=2$), Norvig selects \textit{secretary}, whereas LipSpell recognizes that \texttt{c}+\texttt{e} and \texttt{s} share /\text{s}/ and recovers \textit{cemetery}; similarly, for \textit{proplen} $\rightarrow$ \textit{problem}, voicing/nasal proximity between /p/ and /b/ and between /n/ and /m/ overrides Norvig's higher-frequency neighbor \textit{people}. In Portuguese, \textit{albun} $\rightarrow$ \textit{\'album} ($d_{\text{orth}}=2$) is miscorrected by Norvig to \textit{algum} ($d_{\text{orth}}=1$), while LipSpell combines nasal proximity (/n/ $\leftrightarrow$ /m/) with NFD diacritic tolerance (\textit{u}/\textit{\'u}) to rank \textit{\'album} first; likewise, \textit{aterisagem} $\rightarrow$ \textit{aterrissagem} ($d_{\text{orth}}=2$) succeeds because \texttt{rr} $\rightarrow$ /h/ and \texttt{ss} $\rightarrow$ /s/ neutralize doubled-consonant errors phonetically.
+
+Conversely, the bottom two rows of Table~\ref{tab:case_studies} highlight characteristic failure modes of the current isolated-word formulation. In Portuguese \textit{beiges} $\rightarrow$ \textit{beges}, LipSpell promotes the higher-frequency word \textit{beijos} because the phonetic distance between /\text{be\textyogh is}/ and /\text{bej\textyogh us}/ is small enough for $\log P(w)$ to tip the balance over $d_{\text{orth}}=1$. In \textit{dijitara} $\rightarrow$ \textit{digitara}, both forms share the exact same phonetic sequence (/di\textyogh ita\textfishhookr a/), and the much higher corpus frequency of the infinitive \textit{digitar} outweighs the single-character deletion cost relative to the inflected pluperfect \textit{digitara}.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Qualitative Top-1 comparison on real English and Brazilian Portuguese misspellings.}
+\label{tab:case_studies}
+\begin{tabular}{llllcl}
+\toprule
+Language & Input $x$ & Target $w^*$ & Norvig Top-1 & LipSpell Top-1 & Primary Mechanism \\
+\midrule
+English    & \textit{proplen}    & \textit{problem}      & \textit{people}    & \textbf{\textit{problem}}      & Place/voicing (/p/$\leftrightarrow$/b/, /n/$\leftrightarrow$/m/) \\
+English    & \textit{semetary}   & \textit{cemetery}     & \textit{secretary} & \textbf{\textit{cemetery}}     & Contextual sibilant (\texttt{c+e}$\rightarrow$/s/) \\
+English    & \textit{splened}    & \textit{splendid}     & \textit{opened}    & \textbf{\textit{splendid}}     & Tense/lax vowel (/\textepsilon/$\leftrightarrow$/\textsci/) \\
+English    & \textit{awfall}     & \textit{awful}        & \textit{wall}      & \textbf{\textit{awful}}        & Vowel/liquid alignment ($d_{\text{orth}}=2$) \\
+Portuguese & \textit{albun}      & \textit{\'album}      & \textit{algum}     & \textbf{\textit{\'album}}      & Nasal /n/$\leftrightarrow$/m/ + NFD tolerance \\
+Portuguese & \textit{aterisagem} & \textit{aterrissagem} & \textit{aterragem} & \textbf{\textit{aterrissagem}} & Digraph equivalence (\texttt{rr, ss}) \\
+\midrule
+Portuguese & \textit{beiges}     & \textit{beges}        & \textbf{\textit{beges}}     & \textit{beijos}                & Loss: high freq.\ of phonetically close neighbor \\
+Portuguese & \textit{dijitara}   & \textit{digitara}     & \textbf{\textit{digitara}}  & \textit{digitar}               & Loss: homophonous infinitive frequency bias \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations and Practical Deployment Considerations}
+\label{sec:limitations}
+Five practical and methodological limitations remain:
+\begin{enumerate}
+    \item \textbf{Isolated-word scope:} Like any single-word spell checker, scoring without surrounding sentence context cannot resolve real-word errors (e.g., \textit{their}/\textit{there} in English or \textit{mas}/\textit{mais} in Portuguese), nor can it disambiguate homophonous inflections when corpus priors dominate.
+    \item \textbf{Distorted G2P inputs:} Severely mangled inputs or non-standard consonant clusters can trigger misleading rule-based G2P transcriptions, occasionally degrading phonetic matching relative to pure orthographic ranking.
+    \item \textbf{One-to-one phone alignment:} Standard DP aligns one IPA segment to one IPA segment, preventing direct $1$-to-$2$ merges for diphthongs, affricated clusters, or vocalized glides without explicit multi-segment DP transitions.
+    \item \textbf{Single pronunciation per word:} Assigning one canonical sequence $\phi(w)$ rather than a pronunciation set $\Phi(w)$ leaves dialectal and lexical variants (such as Portuguese \texttt{x} in \textit{t\'axi} /ks/ vs.\ \textit{exame} /z/) unmodeled unless an external lexicon is used.
+    \item \textbf{Memory footprint on agglutinative lexicons:} While English ($497.4$\,MiB) and French ($783.2$\,MiB) fit comfortably in lightweight environments, indexing $0$--$2$-character deletions over $777\text{k}$ inflected Turkish forms requires $8.65$\,GiB peak RSS; production deployments on agglutinative languages may therefore restrict deletion depth to $1$ for long words or adopt compressed trie/DAWG storage.
+\end{enumerate}
 
 \section{Conclusion}
 We presented a language-independent phonetic scoring framework combining precomputed IPA distinctive-feature edit distances, keyboard geometry, and corpus frequency priors. Component ablations confirm that keyboard and phonetic signals provide complementary improvements over an orthographic-frequency baseline (though their relative contributions vary across datasets, e.g., keyboard geometry slightly lowers PT-Wiki Top-1 from $73.60\%$ to $73.00\%$), with cosine distance over ternary distinctive features achieving the strongest phonetic-only Top-1 and unified Top-5 accuracy across English benchmarks ($79.26\%$ on Norvig1, $77.10\%$ on TOEFL-Spell). By swapping only language-specific G2P, keyboard, and lexicon resources, the same scoring engine achieves strong fixed-weight transfer across six languages, three families, and three writing systems---outperforming Norvig, Aspell, and Hunspell on Brazilian Portuguese ($73.00\%$ vs.\ $66.60\%$/$64.00\%$/$64.20\%$), beating Aspell on all six languages and Hunspell on five of six on 50/50 non-word splits, and surpassing Norvig on Russian Cyrillic ($85.67\%$ fixed vs.\ $78.50\%$, $p=1.52\times 10^{-5}$), Portuguese ($86.97\%$ vs.\ $76.75\%$), Turkish ($81.67\%$ vs.\ $79.05\%$), Hebrew Abjad ($74.59\%$ vs.\ $62.30\%$), and French ($74.53\%$ vs.\ $67.92\%$). Per-language weight tuning adapts the channel balance to orthographic depth, while G2P ablations show that purely rule-based G2P matches or outperforms external dictionaries across the non-French languages (with CMUdict helping English Fixed Top-1) and \texttt{ipa-dict} further improves opaque French; large agglutinative vocabularies such as Turkish ($8.65$\,GiB peak RSS) remain the main practical memory cost. Future work will integrate Epitran \parencite{mortensen2018epitran}, $1$-to-$2$ phone alignments, and lightweight $n$-gram context for real-word errors.
