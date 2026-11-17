@@ -425,15 +425,16 @@ TOEFL-Spell ($n=1000$) & 98.7 / 97.5 / 97.8 & 72.80 / 90.40 & 66.90 / 86.90 & 77
 \small
 \caption{Brazilian Portuguese evaluation on Wikipedia typos ($n=500$ slice and full $n=1{,}149$ A--Z set).}
 \label{tab:ptbr}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-System & Vocab ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1149$) \\
+System & Coverage ($500$/$1149$) & Top-1 ($n=500$) & Top-5 ($n=500$) & Top-1 ($n=1149$) & Top-5 ($n=1149$) \\
 \midrule
-Aspell (\texttt{pt\_BR})   & 98.4\% / 97.4\% & 64.00\% & 76.80\% & 60.14\% \\
-Hunspell (\texttt{pt\_BR}) & 98.4\% / 97.4\% & 64.20\% & 79.00\% & 63.19\% \\
-Norvig                     & 96.8\% / 95.8\% & 66.60\% & 83.00\% & 66.23\% \\
-Phonetic-only              & 96.8\% / 95.8\% & 38.80\% & 67.60\% & 39.60\% \\
-\textbf{LipSpell}  & 96.8\% / 95.8\% & \textbf{73.00\%} & \textbf{85.20\%} & \textbf{72.15\%} \\
+Aspell (\texttt{pt\_BR})            & 98.4\% / 97.4\% & 64.00\% & 76.80\% & 60.14\% & 72.93\% \\
+Hunspell (\texttt{pt\_BR})          & 98.4\% / 97.4\% & 64.20\% & 79.00\% & 63.19\% & 76.33\% \\
+Norvig                              & 96.8\% / 95.8\% & 66.40\% & 83.00\% & 66.23\% & 81.29\% \\
+Phonetic-only                       & 96.8\% / 95.8\% & 38.80\% & 67.60\% & 39.60\% & 67.97\% \\
+\textbf{LipSpell} (direct transfer) & 96.8\% / 95.8\% & 73.00\% & \textbf{85.20\%} & 72.15\% & 83.72\% \\
+\textbf{LipSpell (NFD)}             & 96.8\% / 95.8\% & \textbf{75.80\%} & \textbf{85.20\%} & \textbf{74.76\%} & \textbf{83.90\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
