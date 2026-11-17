@@ -81,7 +81,7 @@ Combinamos dois índices: (1) um índice de remoções simétricas (\textit{SymD
 \begin{equation}
     S(w \mid x) = \lambda_{\text{freq}} \log P(w) - \lambda_{\text{orth}} d_{\text{orth}}(x,w) - \lambda_{\text{kb}} d_{\text{kb}}(x,w) - \lambda_{\text{phon}} d_{\text{phon}}(\phi(x),\phi(w)),
 \end{equation}
-com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados em uma amostra de $800$ pares da base Birkbeck com sobreposição exata igual a $0$ em relação a todos os conjuntos de avaliação (incluindo Holbrook). Chamamos este modelo de quatro critérios (usando distância cosseno, salvo indicação) de \textbf{LipSpell} para distingui-lo das linhas de base de critério único, enquanto o arcabouço geral é independente de língua.
+com pesos $(1{,}0;\, 4{,}0;\, 1{,}5;\, 4{,}0)$ ajustados previamente em uma amostra independente de $800$ pares em inglês da base Birkbeck \citep{mitton1985birkbeck} (corpus clássico de erros ortográficos compilado por Roger Mitton, sem sobreposição com nenhum conjunto de teste), sendo aplicados ao português sem ajuste específico salvo indicação explícita (divisão $50/50$). Chamamos este modelo de quatro critérios (usando distância cosseno, salvo indicação) de \textbf{LipSpell} para distingui-lo das linhas de base de critério único, enquanto o arcabouço geral é independente de língua.
 
 \section{Resultados Experimentais}
 Todos os experimentos foram executados em Intel Core i7-13650HX ($14$\,GiB RAM, Linux 7.0, Python 3.14 + NumPy), medindo latência média com cache aquecido (excluindo construção do índice). Código e scripts estão disponíveis em \url{https://github.com/leolca/lipspell}.
