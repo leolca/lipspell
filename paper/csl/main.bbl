@@ -1,0 +1,209 @@
+\begin{thebibliography}{27}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Inproceedings
+\bibitem[{Araujo(2018)}]{araujo2018phonetic}
+\bibinfo{author}{Araujo, L.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Phonetic spell checker}, in:
+  \bibinfo{booktitle}{Proceedings of the 6th International Meeting on Speech
+  Sciences (EICEFALA)}, pp. \bibinfo{pages}{19--20}.
+%Type = Misc
+\bibitem[{Atkinson(2026)}]{atkinson_aspell}
+\bibinfo{author}{Atkinson, K.}, \bibinfo{year}{2026}.
+\newblock \bibinfo{title}{{GNU Aspell}}.
+\newblock \URLprefix \url{http://aspell.net/}. \bibinfo{note}{version
+  0.60.8.2}.
+%Type = Article
+\bibitem[{Benevides and Guide(2017)}]{benevides2017abg}
+\bibinfo{author}{Benevides, A.d.L.}, \bibinfo{author}{Guide, B.F.},
+  \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Corpus {ABG}}.
+\newblock \bibinfo{journal}{Texto Livre: Linguagem e Tecnologia}
+  \bibinfo{volume}{10}, \bibinfo{pages}{139--163}.
+\newblock \DOIprefix\doi{10.17851/1983-3652.10.1.139-163}.
+%Type = Inproceedings
+\bibitem[{Bertaglia and Nunes(2016)}]{bertaglia2016enelvo}
+\bibinfo{author}{Bertaglia, T.F.C.}, \bibinfo{author}{Nunes, M.d.G.V.},
+  \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Exploring word embeddings for unsupervised textual
+  user-generated content normalization}, in: \bibinfo{booktitle}{Proceedings of
+  the 2nd Workshop on Noisy User-generated Text (WNUT)}, pp.
+  \bibinfo{pages}{112--120}.
+%Type = Inproceedings
+\bibitem[{Brill and Moore(2000)}]{brill2000improved}
+\bibinfo{author}{Brill, E.}, \bibinfo{author}{Moore, R.C.},
+  \bibinfo{year}{2000}.
+\newblock \bibinfo{title}{An improved error model for noisy channel spelling
+  correction}, in: \bibinfo{booktitle}{Proceedings of the 38th Annual Meeting
+  of the Association for Computational Linguistics (ACL)}, pp.
+  \bibinfo{pages}{286--293}.
+%Type = Book
+\bibitem[{Chomsky and Halle(1968)}]{chomsky1968sound}
+\bibinfo{author}{Chomsky, N.}, \bibinfo{author}{Halle, M.},
+  \bibinfo{year}{1968}.
+\newblock \bibinfo{title}{The Sound Pattern of English}.
+\newblock \bibinfo{publisher}{Harper \& Row}.
+%Type = Article
+\bibitem[{Church and Gale(1991)}]{church1991probability}
+\bibinfo{author}{Church, K.W.}, \bibinfo{author}{Gale, W.A.},
+  \bibinfo{year}{1991}.
+\newblock \bibinfo{title}{Probability scoring for spelling correction}.
+\newblock \bibinfo{journal}{Statistics and Computing} \bibinfo{volume}{1},
+  \bibinfo{pages}{93--103}.
+%Type = Article
+\bibitem[{Damerau(1964)}]{damerau1964technique}
+\bibinfo{author}{Damerau, F.J.}, \bibinfo{year}{1964}.
+\newblock \bibinfo{title}{A technique for computer detection and correction of
+  spelling errors}.
+\newblock \bibinfo{journal}{Communications of the ACM} \bibinfo{volume}{7},
+  \bibinfo{pages}{171--176}.
+%Type = Inproceedings
+\bibitem[{Flor et~al.(2019)Flor, Fried and Rozovskaya}]{flor2019toefl}
+\bibinfo{author}{Flor, M.}, \bibinfo{author}{Fried, M.},
+  \bibinfo{author}{Rozovskaya, A.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{A benchmark corpus of {English} misspellings and a
+  minimally-supervised model for spelling correction}, in:
+  \bibinfo{booktitle}{Proceedings of the Fourteenth Workshop on Innovative Use
+  of NLP for Building Educational Applications},
+  \bibinfo{publisher}{Association for Computational Linguistics}. pp.
+  \bibinfo{pages}{76--86}.
+\newblock \URLprefix \url{https://aclanthology.org/W19-4407/},
+  \DOIprefix\doi{10.18653/v1/W19-4407}.
+%Type = Misc
+\bibitem[{Garbe(2012)}]{garbe2012symspell}
+\bibinfo{author}{Garbe, W.}, \bibinfo{year}{2012}.
+\newblock \bibinfo{title}{{SymSpell}: 1 million times faster spelling
+  correction \& fuzzy search algorithm}.
+\newblock \URLprefix \url{https://github.com/wolfgarbe/SymSpell}.
+%Type = Article
+\bibitem[{Holm(1979)}]{holm1979simple}
+\bibinfo{author}{Holm, S.}, \bibinfo{year}{1979}.
+\newblock \bibinfo{title}{A simple sequentially rejective multiple test
+  procedure}.
+\newblock \bibinfo{journal}{Scandinavian Journal of Statistics}
+  \bibinfo{volume}{6}, \bibinfo{pages}{65--70}.
+%Type = Misc
+\bibitem[{Hulden(2012)}]{hulden2012distinctive}
+\bibinfo{author}{Hulden, M.}, \bibinfo{year}{2012}.
+\newblock \bibinfo{title}{Distinctive features {IPA} table}.
+\newblock \URLprefix \url{https://github.com/mhulden/foma}.
+  \bibinfo{note}{24-feature ternary articulatory matrix, extended with palatal
+  nasal and lateral segments in our repository}.
+%Type = Article
+\bibitem[{Kondrak(2003)}]{kondrak2003phonetic}
+\bibinfo{author}{Kondrak, G.}, \bibinfo{year}{2003}.
+\newblock \bibinfo{title}{Phonetic alignment and similarity}.
+\newblock \bibinfo{journal}{Computers and the Humanities} \bibinfo{volume}{37},
+  \bibinfo{pages}{273--291}.
+%Type = Article
+\bibitem[{Kukich(1992)}]{kukich1992techniques}
+\bibinfo{author}{Kukich, K.}, \bibinfo{year}{1992}.
+\newblock \bibinfo{title}{Techniques for automatically correcting words in
+  text}.
+\newblock \bibinfo{journal}{ACM Computing Surveys} \bibinfo{volume}{24},
+  \bibinfo{pages}{377--439}.
+%Type = Inproceedings
+\bibitem[{Lee et~al.(2020)Lee, Ashby, Garza, Lee-Sikka, Miller, Wong, McCarthy
+  and Gorman}]{lee2020wikipron}
+\bibinfo{author}{Lee, J.L.}, \bibinfo{author}{Ashby, L.F.E.},
+  \bibinfo{author}{Garza, M.E.}, \bibinfo{author}{Lee-Sikka, Y.},
+  \bibinfo{author}{Miller, S.}, \bibinfo{author}{Wong, A.},
+  \bibinfo{author}{McCarthy, A.D.}, \bibinfo{author}{Gorman, K.},
+  \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Massively multilingual pronunciation modeling with
+  {WikiPron}}, in: \bibinfo{booktitle}{Proceedings of the Twelfth Language
+  Resources and Evaluation Conference (LREC 2020)}, pp.
+  \bibinfo{pages}{4223--4231}.
+\newblock \URLprefix \url{https://aclanthology.org/2020.lrec-1.521/}.
+%Type = Inproceedings
+\bibitem[{Lison and Tiedemann(2016)}]{lison2016opensubtitles}
+\bibinfo{author}{Lison, P.}, \bibinfo{author}{Tiedemann, J.},
+  \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{{OpenSubtitles2016}: Extracting large parallel
+  corpora from movie and {TV} subtitles}, in: \bibinfo{booktitle}{Proceedings
+  of the Tenth International Conference on Language Resources and Evaluation
+  ({LREC}'16)}, pp. \bibinfo{pages}{923--929}.
+%Type = Misc
+\bibitem[{Mitton(1985)}]{mitton1985birkbeck}
+\bibinfo{author}{Mitton, R.}, \bibinfo{year}{1985}.
+\newblock \bibinfo{title}{The {Birkbeck} spelling error corpus}.
+\newblock \bibinfo{note}{Oxford Text Archive; includes the Holbrook and
+  Wikipedia misspelling collections}.
+%Type = Inproceedings
+\bibitem[{Mortensen et~al.(2018)Mortensen, Dalmia and
+  Littell}]{mortensen2018epitran}
+\bibinfo{author}{Mortensen, D.R.}, \bibinfo{author}{Dalmia, S.},
+  \bibinfo{author}{Littell, P.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Epitran: Precision {G2P} for many languages}, in:
+  \bibinfo{booktitle}{Proceedings of LREC 2018}, pp.
+  \bibinfo{pages}{2710--2714}.
+%Type = Inproceedings
+\bibitem[{Mortensen et~al.(2016)Mortensen, Littell, Bharadwaj, Goyal, Dyer and
+  Levin}]{mortensen2016panphon}
+\bibinfo{author}{Mortensen, D.R.}, \bibinfo{author}{Littell, P.},
+  \bibinfo{author}{Bharadwaj, A.}, \bibinfo{author}{Goyal, K.},
+  \bibinfo{author}{Dyer, C.}, \bibinfo{author}{Levin, L.},
+  \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Panphon: A resource for mapping {IPA} segments to
+  articulatory feature vectors}, in: \bibinfo{booktitle}{Proceedings of COLING
+  2016}, pp. \bibinfo{pages}{3475--3484}.
+%Type = Misc
+\bibitem[{N{\'e}meth(2026)}]{nemeth_hunspell}
+\bibinfo{author}{N{\'e}meth, L.}, \bibinfo{year}{2026}.
+\newblock \bibinfo{title}{{Hunspell}: A spell checker and morphological
+  analyzer}.
+\newblock \URLprefix \url{https://hunspell.github.io/}. \bibinfo{note}{version
+  1.7.2}.
+%Type = Misc
+\bibitem[{Norvig(2007)}]{norvig2007spell}
+\bibinfo{author}{Norvig, P.}, \bibinfo{year}{2007}.
+\newblock \bibinfo{title}{How to write a spelling corrector}.
+\newblock \URLprefix \url{https://norvig.com/spell-correct.html}.
+%Type = Misc
+\bibitem[{{Open Dict Data}(2020)}]{opendictipadict}
+\bibinfo{author}{{Open Dict Data}}, \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{{ipa-dict}: Monolingual wordlists with pronunciation
+  information in {IPA}}.
+\newblock \URLprefix \url{https://github.com/open-dict-data/ipa-dict}.
+%Type = Article
+\bibitem[{Philips(1990)}]{philips1990metaphone}
+\bibinfo{author}{Philips, L.}, \bibinfo{year}{1990}.
+\newblock \bibinfo{title}{Hanging on the {Metaphone}}.
+\newblock \bibinfo{journal}{Computer Language} \bibinfo{volume}{7},
+  \bibinfo{pages}{39--44}.
+%Type = Article
+\bibitem[{Philips(2000)}]{philips2000double}
+\bibinfo{author}{Philips, L.}, \bibinfo{year}{2000}.
+\newblock \bibinfo{title}{The {Double Metaphone} search algorithm}.
+\newblock \bibinfo{journal}{C/C++ Users Journal} \bibinfo{volume}{18},
+  \bibinfo{pages}{38--43}.
+%Type = Misc
+\bibitem[{Russell(1918)}]{russell1918soundex}
+\bibinfo{author}{Russell, R.C.}, \bibinfo{year}{1918}.
+\newblock \bibinfo{title}{Index ({Soundex})}.
+\newblock \bibinfo{note}{U.S. Patent 1,261,167}.
+%Type = Inproceedings
+\bibitem[{Toutanova and Moore(2002)}]{toutanova2002pronunciation}
+\bibinfo{author}{Toutanova, K.}, \bibinfo{author}{Moore, R.C.},
+  \bibinfo{year}{2002}.
+\newblock \bibinfo{title}{Pronunciation modeling for improved spelling
+  correction}, in: \bibinfo{booktitle}{Proceedings of the 40th Annual Meeting
+  of the Association for Computational Linguistics (ACL)}, pp.
+  \bibinfo{pages}{144--151}.
+%Type = Misc
+\bibitem[{Weide(1998)}]{weide1998cmu}
+\bibinfo{author}{Weide, R.L.}, \bibinfo{year}{1998}.
+\newblock \bibinfo{title}{The {CMU} pronouncing dictionary (cmudict-0.7b)}.
+\newblock \URLprefix \url{http://www.speech.cs.cmu.edu/cgi-bin/cmudict}.
+
+\end{thebibliography}
