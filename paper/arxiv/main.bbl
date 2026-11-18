@@ -1,0 +1,177 @@
+\begin{thebibliography}{27}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Araujo(2018)]{araujo2018phonetic}
+Leonardo Araujo.
+\newblock Phonetic spell checker.
+\newblock In \emph{Proceedings of the 6th International Meeting on Speech
+  Sciences (EICEFALA)}, pages 19--20, 2018.
+
+\bibitem[Atkinson(2026)]{atkinson_aspell}
+Kevin Atkinson.
+\newblock {GNU Aspell}, 2026.
+\newblock URL \url{http://aspell.net/}.
+\newblock Version 0.60.8.2.
+
+\bibitem[Benevides and Guide(2017)]{benevides2017abg}
+Aline de~Lima Benevides and Bruno~Ferrari Guide.
+\newblock Corpus {ABG}.
+\newblock \emph{Texto Livre: Linguagem e Tecnologia}, 10\penalty0 (1):\penalty0
+  139--163, 2017.
+\newblock \doi{10.17851/1983-3652.10.1.139-163}.
+
+\bibitem[Bertaglia and Nunes(2016)]{bertaglia2016enelvo}
+Thales Felipe~Costa Bertaglia and Maria das Gra{\c{c}}as~Volpe Nunes.
+\newblock Exploring word embeddings for unsupervised textual user-generated
+  content normalization.
+\newblock In \emph{Proceedings of the 2nd Workshop on Noisy User-generated Text
+  (WNUT)}, pages 112--120, 2016.
+
+\bibitem[Brill and Moore(2000)]{brill2000improved}
+Eric Brill and Robert~C. Moore.
+\newblock An improved error model for noisy channel spelling correction.
+\newblock In \emph{Proceedings of the 38th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, pages 286--293, 2000.
+
+\bibitem[Chomsky and Halle(1968)]{chomsky1968sound}
+Noam Chomsky and Morris Halle.
+\newblock \emph{The Sound Pattern of English}.
+\newblock Harper \& Row, 1968.
+
+\bibitem[Church and Gale(1991)]{church1991probability}
+Kenneth~W. Church and William~A. Gale.
+\newblock Probability scoring for spelling correction.
+\newblock \emph{Statistics and Computing}, 1\penalty0 (2):\penalty0 93--103,
+  1991.
+
+\bibitem[Damerau(1964)]{damerau1964technique}
+Fred~J. Damerau.
+\newblock A technique for computer detection and correction of spelling errors.
+\newblock \emph{Communications of the ACM}, 7\penalty0 (3):\penalty0 171--176,
+  1964.
+
+\bibitem[Flor et~al.(2019)Flor, Fried, and Rozovskaya]{flor2019toefl}
+Michael Flor, Michael Fried, and Alla Rozovskaya.
+\newblock A benchmark corpus of {English} misspellings and a
+  minimally-supervised model for spelling correction.
+\newblock In \emph{Proceedings of the Fourteenth Workshop on Innovative Use of
+  NLP for Building Educational Applications}, pages 76--86. Association for
+  Computational Linguistics, 2019.
+\newblock \doi{10.18653/v1/W19-4407}.
+\newblock URL \url{https://aclanthology.org/W19-4407/}.
+
+\bibitem[Garbe(2012)]{garbe2012symspell}
+Wolf Garbe.
+\newblock {SymSpell}: 1 million times faster spelling correction \& fuzzy
+  search algorithm, 2012.
+\newblock URL \url{https://github.com/wolfgarbe/SymSpell}.
+
+\bibitem[Holm(1979)]{holm1979simple}
+Sture Holm.
+\newblock A simple sequentially rejective multiple test procedure.
+\newblock \emph{Scandinavian Journal of Statistics}, 6\penalty0 (2):\penalty0
+  65--70, 1979.
+
+\bibitem[Hulden(2012)]{hulden2012distinctive}
+Mans Hulden.
+\newblock Distinctive features {IPA} table, 2012.
+\newblock URL \url{https://github.com/mhulden/foma}.
+\newblock 24-feature ternary articulatory matrix, extended with palatal nasal
+  and lateral segments in our repository.
+
+\bibitem[Kondrak(2003)]{kondrak2003phonetic}
+Grzegorz Kondrak.
+\newblock Phonetic alignment and similarity.
+\newblock \emph{Computers and the Humanities}, 37\penalty0 (3):\penalty0
+  273--291, 2003.
+
+\bibitem[Kukich(1992)]{kukich1992techniques}
+Karen Kukich.
+\newblock Techniques for automatically correcting words in text.
+\newblock \emph{ACM Computing Surveys}, 24\penalty0 (4):\penalty0 377--439,
+  1992.
+
+\bibitem[Lee et~al.(2020)Lee, Ashby, Garza, Lee-Sikka, Miller, Wong, McCarthy,
+  and Gorman]{lee2020wikipron}
+Jackson~L. Lee, Lucas F.~E. Ashby, M.~Elizabeth Garza, Yeonju Lee-Sikka, Sean
+  Miller, Alan Wong, Arya~D. McCarthy, and Kyle Gorman.
+\newblock Massively multilingual pronunciation modeling with {WikiPron}.
+\newblock In \emph{Proceedings of the Twelfth Language Resources and Evaluation
+  Conference (LREC 2020)}, pages 4223--4231, 2020.
+\newblock URL \url{https://aclanthology.org/2020.lrec-1.521/}.
+
+\bibitem[Lison and Tiedemann(2016)]{lison2016opensubtitles}
+Pierre Lison and J{\"o}rg Tiedemann.
+\newblock {OpenSubtitles2016}: Extracting large parallel corpora from movie and
+  {TV} subtitles.
+\newblock In \emph{Proceedings of the Tenth International Conference on
+  Language Resources and Evaluation ({LREC}'16)}, pages 923--929, 2016.
+
+\bibitem[Mitton(1985)]{mitton1985birkbeck}
+Roger Mitton.
+\newblock The {Birkbeck} spelling error corpus, 1985.
+\newblock Oxford Text Archive; includes the Holbrook and Wikipedia misspelling
+  collections.
+
+\bibitem[Mortensen et~al.(2016)Mortensen, Littell, Bharadwaj, Goyal, Dyer, and
+  Levin]{mortensen2016panphon}
+David~R. Mortensen, Patrick Littell, Akash Bharadwaj, Kartik Goyal, Chris Dyer,
+  and Lori Levin.
+\newblock Panphon: A resource for mapping {IPA} segments to articulatory
+  feature vectors.
+\newblock In \emph{Proceedings of COLING 2016}, pages 3475--3484, 2016.
+
+\bibitem[Mortensen et~al.(2018)Mortensen, Dalmia, and
+  Littell]{mortensen2018epitran}
+David~R. Mortensen, Siddharth Dalmia, and Patrick Littell.
+\newblock Epitran: Precision {G2P} for many languages.
+\newblock In \emph{Proceedings of LREC 2018}, pages 2710--2714, 2018.
+
+\bibitem[N{\'e}meth(2026)]{nemeth_hunspell}
+L{\'a}szl{\'o} N{\'e}meth.
+\newblock {Hunspell}: A spell checker and morphological analyzer, 2026.
+\newblock URL \url{https://hunspell.github.io/}.
+\newblock Version 1.7.2.
+
+\bibitem[Norvig(2007)]{norvig2007spell}
+Peter Norvig.
+\newblock How to write a spelling corrector, 2007.
+\newblock URL \url{https://norvig.com/spell-correct.html}.
+
+\bibitem[{Open Dict Data}(2020)]{opendictipadict}
+{Open Dict Data}.
+\newblock {ipa-dict}: Monolingual wordlists with pronunciation information in
+  {IPA}, 2020.
+\newblock URL \url{https://github.com/open-dict-data/ipa-dict}.
+
+\bibitem[Philips(1990)]{philips1990metaphone}
+Lawrence Philips.
+\newblock Hanging on the {Metaphone}.
+\newblock \emph{Computer Language}, 7\penalty0 (12):\penalty0 39--44, 1990.
+
+\bibitem[Philips(2000)]{philips2000double}
+Lawrence Philips.
+\newblock The {Double Metaphone} search algorithm.
+\newblock \emph{C/C++ Users Journal}, 18\penalty0 (6):\penalty0 38--43, 2000.
+
+\bibitem[Russell(1918)]{russell1918soundex}
+Robert~C. Russell.
+\newblock Index ({Soundex}), 1918.
+\newblock U.S. Patent 1,261,167.
+
+\bibitem[Toutanova and Moore(2002)]{toutanova2002pronunciation}
+Kristina Toutanova and Robert~C. Moore.
+\newblock Pronunciation modeling for improved spelling correction.
+\newblock In \emph{Proceedings of the 40th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, pages 144--151, 2002.
+
+\bibitem[Weide(1998)]{weide1998cmu}
+Robert~L. Weide.
+\newblock The {CMU} pronouncing dictionary (cmudict-0.7b), 1998.
+\newblock URL \url{http://www.speech.cs.cmu.edu/cgi-bin/cmudict}.
+
+\end{thebibliography}
