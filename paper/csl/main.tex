@@ -593,6 +593,18 @@ Five practical and methodological limitations remain:
 \label{sec:conclusion}
 We presented a language-independent phonetic scoring framework combining precomputed IPA distinctive-feature edit distances, keyboard geometry, and corpus frequency priors. Component ablations confirm that keyboard and phonetic signals provide complementary improvements over an orthographic-frequency baseline: on PT-Wiki, NFD diacritic tolerance contributes substantially (Full LipSpell drops from $75.80\%$ to $73.00\%$ Top-1 when NFD tolerance is disabled), whereas keyboard geometry on its own adds $+2.20$\,pp ($73.60\% \rightarrow 75.80\%$). Cosine distance over ternary distinctive features achieves the strongest phonetic-only Top-1/Top-5 and unified Top-5 accuracy across English benchmarks ($78.52\%$ on Norvig1, $77.30\%$ on TOEFL-Spell). By swapping only language-specific G2P, keyboard, and lexicon resources, the same scoring engine achieves strong fixed-weight transfer across six languages spanning three top-level language families (Indo-European, Afro-Asiatic, and Turkic; five branches: Germanic, Romance, Slavic, Semitic, and Turkic) and three writing systems---outperforming Norvig, Aspell, and Hunspell on Brazilian Portuguese ($73.00\%$ without NFD tolerance and $75.80\%$ with NFD tolerance vs.\ $66.40\%$/$64.00\%$/$64.20\%$ on $n=500$), beating Aspell on all six languages and Hunspell on five of six on 50/50 non-word splits, and surpassing Norvig on Russian Cyrillic ($85.67\%$ fixed vs.\ $78.50\%$, $p=1.52\times 10^{-5}$), Portuguese ($86.97\%$ vs.\ $76.75\%$), Turkish ($81.67\%$ vs.\ $79.05\%$), Hebrew Abjad ($74.59\%$ vs.\ $62.30\%$), and French ($74.53\%$ vs.\ $67.92\%$). Per-language weight tuning adapts the channel balance to orthographic depth, while G2P ablations show that purely rule-based G2P matches or outperforms external dictionaries across the non-French languages (with CMUdict helping English Fixed Top-1) and \texttt{ipa-dict} further improves opaque French; large agglutinative vocabularies such as Turkish ($8.45$\,GiB / $8.65$\,GB peak RSS) remain the main practical memory cost. Future work will integrate Epitran \citep{mortensen2018epitran}, $1$-to-$2$ phone alignments, lightweight $n$-gram context for real-word errors, and L1-specific feature-weight adaptation for L2 learner spelling correction.
 
+\section*{CRediT authorship contribution statement}
+\textbf{Leonardo Araujo:} Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Data curation, Writing -- original draft, Writing -- review \& editing, Visualization.
+
+\section*{Declaration of competing interest}
+The author declares that he has no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Funding}
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
+
+\section*{Data and code availability}
+The LipSpell source code, G2P frontends, keyboard layouts, evaluation scripts, and benchmark preparation instructions are publicly available at \url{https://github.com/leolca/lipspell}.
+
 \bibliographystyle{elsarticle-harv}
 \bibliography{refs}
 
