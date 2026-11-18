@@ -1,0 +1,17 @@
+Dear Editors of Computer Speech & Language,
+
+Please find enclosed our manuscript entitled "LipSpell: A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency" for consideration as a Research Article in Computer Speech & Language.
+
+This work bridges generative phonology, grapheme-to-phoneme (G2P) conversion, and practical language engineering. We present LipSpell, a unified phonetic scoring engine that precomputes phone-to-phone substitution matrices from universal IPA distinctive features (evaluated across L1, salience-weighted L1, and cosine metrics), integrates physical keyboard geometry (with Unicode NFD diacritic tolerance) and corpus unigram priors via weighted Optimal String Alignment (OSA) dynamic programming, and accelerates retrieval through a two-stage symmetric-delete and seven-class phonetic-code index. Across six English benchmarks (including L2 learner errors from TOEFL-Spell) and five additional languages spanning five linguistic branches (Germanic, Romance, Slavic, Semitic, Turkic), three top-level families (Indo-European, Afro-Asiatic, Turkic), and three writing systems, LipSpell achieves consistent gains over Norvig, GNU Aspell, and Hunspell—particularly on multi-edit cognitive and phonetic misspellings. We also provide a systematic ablation of compact rule-based G2P frontends versus external pronunciation dictionaries (CMUdict, Corpus ABG, ipa-dict, and WikiPron) across shallow and opaque orthographies.
+
+I confirm that this manuscript is original, has not been published previously, and is not under consideration for publication elsewhere. A preprint version is being made available on arXiv, and a companion Portuguese-language study focusing specifically on Brazilian Portuguese error taxonomy has been prepared for Linguamática; both are fully distinct in scope and properly disclosed. I have no competing financial or personal interests to declare, and I am submitting under the standard subscription (non-open-access) publishing model.
+
+Thank you for your time and consideration.
+
+Sincerely,
+
+Leonardo Araujo
+Department of Computer Science
+Universidade Federal de São João del-Rei (UFSJ)
+São João del-Rei, MG, Brazil
+Email: leolca@ufsj.edu.br
