@@ -1,0 +1,4 @@
+Precomputes IPA distinctive-feature phone distances for fast O(1) DP lookup.
+Combines SymDelete and a 7-class phonetic code to recover multi-edit typos.
+Cosine phone distance outperforms L1 and salience-L1 on English benchmarks.
+Transfers across 6 languages, 5 branches, 3 families, and 3 writing systems.
