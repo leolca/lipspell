@@ -264,12 +264,14 @@ _PT_SINGLE: Dict[str, str] = {
     "d": "d",
     "e": "e",
     "é": "ɛ",
+    "è": "e",
     "ê": "e",
     "f": "f",
     "g": "ɡ",
     "h": "",
     "i": "i",
     "í": "i",
+    "ì": "i",
     "j": "ʒ",
     "k": "k",
     "l": "l",
@@ -277,6 +279,7 @@ _PT_SINGLE: Dict[str, str] = {
     "n": "n",
     "o": "o",
     "ó": "ɔ",
+    "ò": "o",
     "ô": "o",
     "õ": "o",
     "p": "p",
@@ -286,6 +289,7 @@ _PT_SINGLE: Dict[str, str] = {
     "t": "t",
     "u": "u",
     "ú": "u",
+    "ù": "u",
     "v": "v",
     "w": "w",
     "x": "ʃ",
@@ -340,6 +344,8 @@ class PortugueseG2P:
                 out.append("ʒ")
             elif ch == "s" and 0 < i < n - 1 and w[i - 1] in _PT_VOWELS and w[i + 1] in _PT_VOWELS:
                 out.append("z")
+            elif ch == "z" and i == n - 1:
+                out.append("s")
             elif ch == "r" and i == 0:
                 out.append("h")
             else:
