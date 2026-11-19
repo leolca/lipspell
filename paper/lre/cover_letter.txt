@@ -1,0 +1,22 @@
+Dear Editor-in-Chief of Language Resources and Evaluation,
+
+I am pleased to submit the manuscript entitled "LipSpell: A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency" for consideration as a research article in Language Resources and Evaluation.
+
+This work addresses a core challenge in multilingual natural language processing and language-resource evaluation: automatic spelling correction across both typographical slips and multi-character cognitive/phonetic misspellings without language-specific phonetic hashes such as Soundex or Metaphone. We present LipSpell, a unified phonetic scoring and two-stage indexing framework parameterized solely by swappable G2P frontends, keyboard geometry layouts, and corpus lexicons, using a precomputed phone-distance matrix derived from universal IPA distinctive features.
+
+The manuscript aligns closely with the scope of Language Resources and Evaluation through its systematic cross-lingual and resource-focused evaluation:
+1. Across six English benchmarks (including 1,000 L2 learner errors from TOEFL-Spell), we compare three distinctive-feature phone metrics (uniform L1, salience-weighted L1, and cosine) and outperform Norvig's baseline and Hunspell on every dataset while beating Aspell on Norvig1, Holbrook, and TOEFL-Spell.
+2. Across six typologically diverse languages spanning three language families (Indo-European, Afro-Asiatic, and Turkic) and three writing systems (Latin, Cyrillic, and Hebrew Abjad)---English, Brazilian Portuguese, Russian, Hebrew, Turkish, and French---we evaluate zero-shot fixed-weight transfer, lexicon cleaning, weak-character indel modeling, and per-language tuning on clean 50/50 non-word splits.
+3. We provide an end-to-end G2P resource ablation comparing compact rule-based G2P frontends against external pronunciation dictionaries (CMUdict, Corpus ABG, ipa-dict/Wiktionary, and WikiPron), showing when deterministic rules outperform dictionary-plus-fallback pipelines and when opaque orthographies (French) benefit from external lexicons.
+
+I confirm that this manuscript is original, has not been published in any peer-reviewed journal, and is not currently under consideration by any other journal. A preprint version of this manuscript is posted on arXiv (arXiv:2611.24285). In addition, a separate, language-specific companion article focusing exclusively on Brazilian Portuguese phonology, error taxonomy, and ABNT2 diacritic modeling has been prepared for Linguamática and cites the arXiv preprint. The manuscript has been anonymized for double-blind peer review, and there are no conflicts of interest to declare.
+
+Thank you for your time and consideration. I look forward to your response.
+
+Sincerely,
+
+Leonardo Araujo
+Department of Computer Science
+Universidade Federal de São João del-Rei (UFSJ)
+São João del-Rei, MG, Brazil
+Email: leolca@ufsj.edu.br
