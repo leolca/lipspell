@@ -15,7 +15,12 @@
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
 \title{LipSpell: A Language-Independent Phonetic Scoring Framework for Spelling Correction Combining Distinctive-Feature Edit Distance, Keyboard Geometry, and Corpus Frequency}
-\author{Anonymous Author(s)\\Anonymized for double-blind review}
+\author{
+  Leonardo Araujo\\
+  Department of Computer Science, Universidade Federal de S\~ao Jo\~ao del-Rei (UFSJ)\\
+  S\~ao Jo\~ao del-Rei, MG, Brazil\\
+  \texttt{leolca@ufsj.edu.br}
+}
 \date{}
 
 \begin{document}
@@ -272,7 +277,7 @@ For the cross-lingual comparisons, \emph{50/50 clean non-word splits} are constr
 \subsection{Index Footprint and Statistical Evaluation Protocol}
 Table~\ref{tab:index_stats} summarizes the startup index footprint across all six languages, reporting vocabulary size $|V|$, index construction time, number of hash keys in the symmetric-delete and seven-class phonetic-code tables, and isolated process peak resident RAM (RSS, measured via \texttt{ru\_maxrss}). Index memory scales primarily with the number of $0$--$2$-character deletion keys, which grows quadratically with word length: on English ($|V|=78\text{k}$), $2.37\text{M}$ delete keys require only $497.4$\,MiB RSS and $3.04$\,s build time, whereas on agglutinative Turkish ($|V|=777\text{k}$), $39.44\text{M}$ delete keys drive peak RSS to $8{,}650.6$\,MiB ($8.45$\,GiB / $8.65$\,GB) and $51.58$\,s build time. By contrast, the seven-class phonetic-code table remains compact across all six languages ($161\text{k}$--$2.14\text{M}$ keys). Because delete-key count scales quadratically with average word length, shorter-word unvocalized Hebrew ($|V|=339\text{k}$, $3.04\text{M}$ delete keys) builds faster ($9.12$\,s) than longer-word Portuguese ($|V|=240\text{k}$, $8.82\text{M}$ delete keys, $11.90$\,s).
 
-All experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Ubuntu 26.04.1 LTS, Linux kernel 7.0, Python 3.14 + NumPy). We compare against Norvig \citep{norvig2007spell} (using the exact same vocabulary $V$ and frequency counts as LipSpell), Aspell 0.60.8.2 \citep{atkinson_aspell}, and Hunspell 1.7.2 \citep{nemeth_hunspell} (executed via UTF-8 pipe mode, evaluating Top-1 and Top-5 suggestions). Accuracies are computed over the full denominator of each test set (counting OOV targets as incorrect), and we report exact two-sided paired McNemar $p$-values (with Holm--Bonferroni family-wise correction) alongside $95\%$ Wilson score confidence intervals. Code and evaluation scripts will be made publicly available upon acceptance (omitted here for double-blind review).
+All experiments ran on an Intel Core i7-13650HX ($14$\,GiB RAM, Ubuntu 26.04.1 LTS, Linux kernel 7.0, Python 3.14 + NumPy). We compare against Norvig \citep{norvig2007spell} (using the exact same vocabulary $V$ and frequency counts as LipSpell), Aspell 0.60.8.2 \citep{atkinson_aspell}, and Hunspell 1.7.2 \citep{nemeth_hunspell} (executed via UTF-8 pipe mode, evaluating Top-1 and Top-5 suggestions). Accuracies are computed over the full denominator of each test set (counting OOV targets as incorrect), and we report exact two-sided paired McNemar $p$-values (with Holm--Bonferroni family-wise correction) alongside $95\%$ Wilson score confidence intervals. Code and scripts are available at \url{https://github.com/leolca/lipspell}.
 
 \begin{table}[ht]
 \centering
