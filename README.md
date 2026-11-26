@@ -4,6 +4,8 @@
 
 Unlike Soundex or Metaphone—which hardcode English-specific consonant rules into coarse buckets—this approach uses a **universal IPA articulatory feature matrix**, requiring only a grapheme-to-phoneme (G2P) converter, a word-frequency list, and a keyboard layout to adapt to a new language.
 
+**Live Interactive Demo (runs 100% in your browser):** [https://leolca.github.io/lipspell/](https://leolca.github.io/lipspell/) ([Português BR](https://leolca.github.io/lipspell/?lang=pt) | [English](https://leolca.github.io/lipspell/?lang=en)) — explore the ranked phonetic/keyboard/orthographic neighborhood and interactive distance graph for any word or misspelling.
+
 ---
 
 ## Approach
