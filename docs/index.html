@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LipSpell — Phonetic &amp; Orthographic Word Neighborhood Explorer</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --green: #059669;
+      --amber: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    header p { margin: 0.15rem 0 0; font-size: 0.85rem; color: #94a3b8; }
+    .lang-switch { display: flex; gap: 0.5rem; align-items: center; }
+    select, input[type="text"], button {
+      font: inherit;
+      padding: 0.45rem 0.7rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    select { background: #1e293b; color: #f8fafc; border-color: #334155; }
+    main {
+      max-width: 1240px;
+      margin: 1.25rem auto;
+      padding: 0 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .search-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .search-row input[type="text"] {
+      flex: 1;
+      min-width: 220px;
+      font-size: 1.05rem;
+      padding: 0.55rem 0.8rem;
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.15rem 0.65rem;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+    .chip:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .sliders {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.9rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .slider-item label { display: flex; justify-content: space-between; font-weight: 600; }
+    .slider-item input { width: 100%; }
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .badge.ok { background: #d1fae5; color: var(--green); }
+    .badge.oov { background: #fef3c7; color: var(--amber); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 920px) { .grid-2 { grid-template-columns: 1fr; } }
+    svg#graph {
+      width: 100%;
+      height: 460px;
+      display: block;
+      background: #fcfdff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .node { cursor: pointer; }
+    .node text { font-size: 12px; font-weight: 600; fill: #0f172a; pointer-events: none; }
+    .node-sub { font-size: 10px; fill: #64748b; pointer-events: none; }
+    .edge-label { font-size: 10px; fill: #475569; pointer-events: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 0.45rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { font-size: 0.78rem; text-transform: uppercase; color: var(--muted); }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover { background: #f8fafc; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>LipSpell Explorer</h1>
+      <p>Phonetic (IPA distinctive features), keyboard-geometry, and orthographic word neighborhood</p>
+    </div>
+    <div class="lang-switch">
+      <label for="langSelect" style="font-size:0.85rem;">Language:</label>
+      <select id="langSelect">
+        <option value="pt">Português (BR) — 80k</option>
+        <option value="en">English — 80k</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="controls">
+        <div class="search-row">
+          <input id="wordInput" type="text" placeholder="Type a word or misspelling (e.g., escessão, albùm, casa)..." autocomplete="off" />
+          <select id="modeSelect" style="background:#fff;color:#0f172a;border-color:var(--border);">
+            <option value="unified">Unified (4-criteria)</option>
+            <option value="phonetic">Phonetic-only</option>
+            <option value="keyboard">Keyboard-only</option>
+            <option value="norvig">Norvig (Orth + Freq)</option>
+          </select>
+          <select id="metricGraphSelect" style="background:#fff;color:#0f172a;border-color:var(--border);">
+            <option value="phon">Graph radius: d_phon</option>
+            <option value="kb">Graph radius: d_kb</option>
+            <option value="orth">Graph radius: d_orth</option>
+            <option value="score">Graph radius: score gap</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="examples" id="examplesBar"></div>
+
+      <div class="sliders">
+        <div class="slider-item">
+          <label><span>&lambda;<sub>freq</sub></span><span id="vFreq">1.0</span></label>
+          <input id="wFreq" type="range" min="0" max="5" step="0.5" value="1.0" />
+        </div>
+        <div class="slider-item">
+          <label><span>&lambda;<sub>orth</sub></span><span id="vOrth">4.0</span></label>
+          <input id="wOrth" type="range" min="0" max="8" step="0.5" value="4.0" />
+        </div>
+        <div class="slider-item">
+          <label><span>&lambda;<sub>kb</sub></span><span id="vKb">1.5</span></label>
+          <input id="wKb" type="range" min="0" max="8" step="0.5" value="1.5" />
+        </div>
+        <div class="slider-item">
+          <label><span>&lambda;<sub>phon</sub></span><span id="vPhon">4.0</span></label>
+          <input id="wPhon" type="range" min="0" max="8" step="0.5" value="4.0" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card status-bar" id="statusBar">
+      <span>Loading features &amp; lexicon…</span>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <strong>Distance Graph</strong>
+          <span style="font-size:0.78rem;color:var(--muted);">Click any neighbor node to pivot</span>
+        </div>
+        <svg id="graph" viewBox="0 0 600 460"></svg>
+      </div>
+
+      <div class="card" style="overflow-x:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <strong>Closest Words</strong>
+          <span style="font-size:0.78rem;color:var(--muted);">Click any row to explore</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Word</th>
+              <th>IPA</th>
+              <th>Skel</th>
+              <th class="num">d<sub>phon</sub></th>
+              <th class="num">d<sub>kb</sub></th>
+              <th class="num">d<sub>orth</sub></th>
+              <th class="num">Score</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    LipSpell runs 100% locally in your browser (pure JavaScript, lazy-loaded 80k lexicon).
+  </footer>
+
+  <script type="module">
+    import { DistinctiveFeatures, KeyboardLayout, PortugueseG2P, EnglishG2P, LipSpellEngine } from "./lipspell.js";
+
+    const EXAMPLES = {
+      pt: ["escessão", "pesquiza", "albùm", "atraz", "aandeija", "casa", "exceção"],
+      en: ["nite", "semetary", "proplen", "acomodate", "definately", "night", "phonetic"],
+    };
+
+    const engines = new Map();
+    let features = null;
+    let currentLang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "pt";
+
+    const langSelect = document.getElementById("langSelect");
+    const wordInput = document.getElementById("wordInput");
+    const modeSelect = document.getElementById("modeSelect");
+    const metricGraphSelect = document.getElementById("metricGraphSelect");
+    const statusBar = document.getElementById("statusBar");
+    const resultsBody = document.getElementById("resultsBody");
+    const graphSvg = document.getElementById("graph");
+    const examplesBar = document.getElementById("examplesBar");
+
+    const sliders = {
+      freq: [document.getElementById("wFreq"), document.getElementById("vFreq")],
+      orth: [document.getElementById("wOrth"), document.getElementById("vOrth")],
+      kb: [document.getElementById("wKb"), document.getElementById("vKb")],
+      phon: [document.getElementById("wPhon"), document.getElementById("vPhon")],
+    };
+
+    langSelect.value = currentLang;
+
+    function renderExamples() {
+      examplesBar.innerHTML = "<span>Try:</span>";
+      for (const w of EXAMPLES[currentLang]) {
+        const btn = document.createElement("button");
+        btn.className = "chip";
+        btn.textContent = w;
+        btn.onclick = () => {
+          wordInput.value = w;
+          runQuery();
+        };
+        examplesBar.appendChild(btn);
+      }
+    }
+
+    async function ensureEngine(lang) {
+      if (engines.has(lang)) return engines.get(lang);
+      statusBar.innerHTML = `<span>Loading ${lang === "pt" ? "Portuguese (80k)" : "English (80k)"} lexicon &amp; building index…</span>`;
+      const t0 = performance.now();
+
+      if (!features) {
+        const fResp = await fetch("./data/features.json");
+        features = new DistinctiveFeatures(await fResp.json());
+      }
+
+      const tsvResp = await fetch(`./data/${lang}_80k.tsv`);
+      const text = await tsvResp.text();
+      const entries = [];
+      for (const line of text.split("\n")) {
+        if (!line) continue;
+        const tab = line.indexOf("\t");
+        if (tab === -1) continue;
+        entries.push([line.slice(0, tab), Number(line.slice(tab + 1))]);
+      }
+
+      const g2p = lang === "pt" ? new PortugueseG2P() : new EnglishG2P();
+      const kb = lang === "pt" ? KeyboardLayout.abnt2() : KeyboardLayout.qwerty();
+      const engine = new LipSpellEngine(entries, features, g2p, kb);
+      engine.buildMs = Math.round(performance.now() - t0);
+      engines.set(lang, engine);
+      return engine;
+    }
+
+    function renderGraph(query, results) {
+      const W = 600, H = 460, cx = W / 2, cy = H / 2;
+      graphSvg.innerHTML = "";
+      if (!query) return;
+
+      const top = results.slice(0, 14);
+      const metric = metricGraphSelect.value;
+
+      const rawDists = top.map((r) => {
+        if (metric === "phon") return r.dPhon;
+        if (metric === "kb") return r.dKb;
+        if (metric === "orth") return r.dOrth;
+        return Math.max(0.01, top[0].score - r.score + 0.2);
+      });
+      const maxD = Math.max(0.5, ...rawDists);
+
+      const ns = "http://www.w3.org/2000/svg";
+      const addEl = (tag, attrs, parent = graphSvg) => {
+        const el = document.createElementNS(ns, tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        parent.appendChild(el);
+        return el;
+      };
+
+      // Concentric reference rings
+      for (const frac of [0.35, 0.7, 1.0]) {
+        addEl("circle", {
+          cx, cy, r: 175 * frac,
+          fill: "none", stroke: "#e2e8f0", "stroke-dasharray": "4 4",
+        });
+      }
+
+      // Edges and neighbor nodes
+      top.forEach((r, idx) => {
+        const angle = (2 * Math.PI * idx) / top.length - Math.PI / 2;
+        const distNorm = Math.max(0.16, rawDists[idx] / maxD);
+        const radius = 48 + distNorm * 135;
+        const x = cx + radius * Math.cos(angle);
+        const y = cy + radius * Math.sin(angle);
+
+        addEl("line", {
+          x1: cx, y1: cy, x2: x, y2: y,
+          stroke: idx === 0 ? "#2563eb" : "#cbd5e1",
+          "stroke-width": idx === 0 ? "2" : "1.2",
+        });
+
+        const mx = (cx + x) / 2, my = (cy + y) / 2;
+        const dText = metric === "orth" ? String(r.dOrth) : rawDists[idx].toFixed(2);
+        const lbl = addEl("text", { x: mx, y: my - 3, "text-anchor": "middle", class: "edge-label" });
+        lbl.textContent = dText;
+
+        const g = addEl("g", { class: "node" });
+        g.onclick = () => { wordInput.value = r.word; runQuery(); };
+        addEl("circle", {
+          cx: x, cy: y, r: idx === 0 ? 18 : 13,
+          fill: idx === 0 ? "#dbeafe" : "#f1f5f9",
+          stroke: idx === 0 ? "#2563eb" : "#64748b",
+          "stroke-width": idx === 0 ? "2" : "1.2",
+        }, g);
+        const t = addEl("text", { x, y: y + (y > cy ? 26 : -19), "text-anchor": "middle" }, g);
+        t.textContent = r.word;
+      });
+
+      // Center query node
+      const cg = addEl("g", { class: "node" });
+      addEl("circle", { cx, cy, r: 24, fill: "#0f172a" }, cg);
+      const ct = addEl("text", { x: cx, y: cy + 4, "text-anchor": "middle", style: "fill:#fff;font-size:12px;" }, cg);
+      ct.textContent = query.word;
+    }
+
+    async function runQuery() {
+      const engine = await ensureEngine(currentLang);
+      const word = wordInput.value.trim();
+      if (!word) {
+        statusBar.innerHTML = `<span>Ready (${engine.vocab.size.toLocaleString()} words indexed in ${engine.buildMs} ms). Type a word above.</span>`;
+        resultsBody.innerHTML = "";
+        graphSvg.innerHTML = "";
+        return;
+      }
+
+      const t0 = performance.now();
+      const weights = [
+        Number(sliders.freq[0].value),
+        Number(sliders.orth[0].value),
+        Number(sliders.kb[0].value),
+        Number(sliders.phon[0].value),
+      ];
+      const { query, results } = engine.neighbors(word, {
+        mode: modeSelect.value,
+        weights,
+        topK: 20,
+        excludeSelf: true,
+      });
+      const qMs = (performance.now() - t0).toFixed(1);
+
+      const badge = query.inVocab
+        ? `<span class="badge ok">in vocabulary (freq=${query.count.toLocaleString()})</span>`
+        : `<span class="badge oov">OOV / misspelling</span>`;
+
+      statusBar.innerHTML = `
+        <div>
+          <strong>${query.word}</strong> ${badge}
+          &nbsp; IPA: <span class="mono">/${query.ipa}/</span>
+          &nbsp; Skeleton: <span class="mono">${query.skeleton || "—"}</span>
+        </div>
+        <div>${query.candidateCount} candidates scored in ${qMs} ms</div>
+      `;
+
+      resultsBody.innerHTML = "";
+      results.forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.className = "clickable";
+        tr.onclick = () => { wordInput.value = r.word; runQuery(); };
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td><strong>${r.word}</strong></td>
+          <td class="mono">/${r.ipa}/</td>
+          <td class="mono">${r.skeleton}</td>
+          <td class="num">${r.dPhon.toFixed(2)}</td>
+          <td class="num">${r.dKb.toFixed(2)}</td>
+          <td class="num">${r.dOrth}</td>
+          <td class="num">${r.score.toFixed(2)}</td>
+        `;
+        resultsBody.appendChild(tr);
+      });
+
+      renderGraph(query, results);
+    }
+
+    let timer = null;
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(runQuery, 120);
+    };
+
+    wordInput.addEventListener("input", schedule);
+    modeSelect.addEventListener("change", runQuery);
+    metricGraphSelect.addEventListener("change", runQuery);
+    for (const [inp, lbl] of Object.values(sliders)) {
+      inp.addEventListener("input", () => {
+        lbl.textContent = Number(inp.value).toFixed(1);
+        schedule();
+      });
+    }
+
+    langSelect.addEventListener("change", async () => {
+      currentLang = langSelect.value;
+      renderExamples();
+      wordInput.value = EXAMPLES[currentLang][0];
+      await runQuery();
+    });
+
+    renderExamples();
+    wordInput.value = EXAMPLES[currentLang][0];
+    runQuery();
+  </script>
+</body>
+</html>
